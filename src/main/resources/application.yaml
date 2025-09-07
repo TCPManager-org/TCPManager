@@ -1,0 +1,12 @@
+spring:
+  config:
+    import: file:.env[.properties]
+  application:
+    name: TCPManager
+  jpa:
+    hibernate.ddl-auto: none
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    url: ${POSTGRES_URL}
