@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.4.3</version>
+    <version>4.0.0-M2</version>
     <relativePath/>
   </parent>
   <groupId>org.tcpmanager</groupId>
@@ -77,6 +77,11 @@
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-maven-plugin</artifactId>
       <version>11.3.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.shared</groupId>
+      <artifactId>file-management</artifactId>
+      <version>3.2.0</version>
     </dependency>
     <dependency>
       <groupId>org.jacoco</groupId>
