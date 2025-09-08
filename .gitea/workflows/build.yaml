@@ -18,6 +18,8 @@ jobs:
           java-version: '21'
           distribution: 'oracle'
           cache: 'maven'
+      - name: Install Prerequisites
+        run: sudo apt-get install -y unzip wget curl node maven
       - name: Cache SonarQube packages
         uses: actions/cache@v4.2.4
         with:
