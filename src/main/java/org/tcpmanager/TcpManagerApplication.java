@@ -1,4 +1,4 @@
-package org.tcpmanager.tcpmanager;
+package org.tcpmanager;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
