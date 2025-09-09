@@ -1,4 +1,4 @@
-package org.tcpmanager.tcpmanager.calories.models;
+package org.tcpmanager.tcpmanager.calories.meal;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.tcpmanager.tcpmanager.calories.models.MealIngredient;
 
 @Entity
 @Data

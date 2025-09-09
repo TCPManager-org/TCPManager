@@ -10,6 +10,7 @@ import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.tcpmanager.tcpmanager.calories.meal.Meal;
 
 @Entity
 @Data
