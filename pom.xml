@@ -14,7 +14,7 @@
   <version>0.0.1-SNAPSHOT</version>
   <name>TCPManager</name>
   <packaging>jar</packaging>
-  <url>https://github.com/KazikTSF/TCPManager</url>
+  <url>https://github.com/TCPManager-org/TCPManager</url>
   <licenses>
     <license>
       <name>GNU General Public License Version 3</name>
@@ -158,6 +158,12 @@
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
         <version>0.8.13</version>
+        <configuration>
+          <excludes>
+            <exclude>**/dto/*</exclude>
+            <exclude>**/TcpManagerApplication.class</exclude>
+          </excludes>
+        </configuration>
         <executions>
           <execution>
             <id>prepare-agent</id>

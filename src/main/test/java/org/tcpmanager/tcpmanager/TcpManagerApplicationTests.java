@@ -5,7 +5,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.modulith.core.ApplicationModules;
 
 @SpringBootTest
-class TCPManagerApplicationTests {
+class TcpManagerApplicationTests {
 
   static ApplicationModules applicationModules = ApplicationModules.of(TcpManagerApplication.class);
 
