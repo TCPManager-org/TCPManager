@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.tcpmanager.tcpmanager.user.User;
 
 @Entity
 @Data

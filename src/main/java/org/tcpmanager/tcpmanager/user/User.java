@@ -1,4 +1,4 @@
-package org.tcpmanager.tcpmanager.calories.models;
+package org.tcpmanager.tcpmanager.user;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,8 +19,4 @@ public class User {
   private Long id;
   @Column(nullable = false, unique = true)
   private String username;
-  @Column(nullable = false)
-  private String password;
-  @Column(nullable = false)
-  private String role;
 }
