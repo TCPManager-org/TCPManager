@@ -23,14 +23,14 @@ public class MealService {
 
   public MealResponse getById(Long id) {
     Meal meal = mealRepository.findById(id)
-        .orElseThrow(() -> new MealNotFoundException("Meal with id " + id + " not found"));
+        .orElseThrow(() -> new MealNotFoundException(id));
     return new MealResponse(meal.getId(), meal.getName());
   }
 
   @Transactional
   public void deleteById(Long id) {
     if (!mealRepository.existsById(id)) {
-      throw new MealNotFoundException("Meal with id " + id + " not found");
+      throw new MealNotFoundException(id);
     }
 
     mealRepository.deleteById(id);
@@ -40,7 +40,7 @@ public class MealService {
   public MealResponse updateById(Long id, MealRequest mealRequest) {
     validateMealRequest(mealRequest);
     Meal meal = mealRepository.findById(id)
-        .orElseThrow(() -> new MealNotFoundException("Meal with id " + id + " not found"));
+        .orElseThrow(() -> new MealNotFoundException(id));
     meal.setName(mealRequest.name());
     mealRepository.save(meal);
     return new MealResponse(meal.getId(), meal.getName());
