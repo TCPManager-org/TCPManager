@@ -23,14 +23,14 @@ public class UserService {
 
   public UserResponse getById(Long id) {
     User user = userRepository.findById(id)
-        .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
+        .orElseThrow(() -> new UserNotFoundException(id));
     return new UserResponse(user.getId(), user.getUsername());
   }
 
   @Transactional
   public void deleteById(Long id) {
     if (!userRepository.existsById(id)) {
-      throw new UserNotFoundException("User with id " + id + " not found");
+      throw new UserNotFoundException(id);
     }
 
     userRepository.deleteById(id);
@@ -40,7 +40,7 @@ public class UserService {
   public UserResponse updateById(Long id, UserRequest userRequest) {
     validateUserRequest(userRequest);
     User user = userRepository.findById(id)
-        .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
+        .orElseThrow(() -> new UserNotFoundException(id));
     user.setUsername(userRequest.username());
     userRepository.save(user);
     return new UserResponse(user.getId(), user.getUsername());
@@ -59,5 +59,11 @@ public class UserService {
     if (userRequest.username() == null || userRequest.username().isBlank()) {
       throw new IllegalUsernameException("User name cannot be null or blank");
     }
+  }
+
+  public UserResponse getByUsername(String username) {
+    return userRepository.findByUsername(username)
+        .map(user -> new UserResponse(user.getId(), user.getUsername())).orElseThrow(
+            () -> new UserNotFoundException(username));
   }
 }
