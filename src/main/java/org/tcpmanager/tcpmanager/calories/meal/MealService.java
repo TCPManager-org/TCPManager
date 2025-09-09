@@ -4,6 +4,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.tcpmanager.tcpmanager.calories.meal.dto.MealRequest;
+import org.tcpmanager.tcpmanager.calories.meal.dto.MealResponse;
 import org.tcpmanager.tcpmanager.calories.meal.exception.IllegalMealNameException;
 import org.tcpmanager.tcpmanager.calories.meal.exception.MealNotFoundException;
 

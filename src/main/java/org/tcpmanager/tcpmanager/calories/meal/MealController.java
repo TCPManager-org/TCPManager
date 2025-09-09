@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.tcpmanager.tcpmanager.calories.meal.dto.MealRequest;
+import org.tcpmanager.tcpmanager.calories.meal.dto.MealResponse;
 
 @RestController
 @RequestMapping("/api/calories/meals")

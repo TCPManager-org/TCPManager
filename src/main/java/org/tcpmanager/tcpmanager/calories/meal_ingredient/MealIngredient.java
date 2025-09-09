@@ -1,4 +1,4 @@
-package org.tcpmanager.tcpmanager.calories.models;
+package org.tcpmanager.tcpmanager.calories.meal_ingredient;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.tcpmanager.tcpmanager.calories.meal.Meal;
+import org.tcpmanager.tcpmanager.calories.models.Ingredient;
 
 @Entity
 @Data

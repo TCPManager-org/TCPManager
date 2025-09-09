@@ -1,0 +1,9 @@
+package org.tcpmanager.tcpmanager.calories.meal_ingredient.dto;
+
+import java.math.BigDecimal;
+import org.tcpmanager.tcpmanager.calories.dto.IngredientResponse;
+import org.tcpmanager.tcpmanager.calories.meal.dto.MealResponse;
+
+public record MealIngredientResponse(Long id, MealResponse meal, IngredientResponse ingredient, BigDecimal amount) {
+
+}

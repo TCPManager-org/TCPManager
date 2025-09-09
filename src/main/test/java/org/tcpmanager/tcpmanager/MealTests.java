@@ -16,7 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.tcpmanager.tcpmanager.calories.meal.Meal;
 import org.tcpmanager.tcpmanager.calories.meal.MealRepository;
-import org.tcpmanager.tcpmanager.calories.meal.MealRequest;
+import org.tcpmanager.tcpmanager.calories.meal.dto.MealRequest;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -26,6 +26,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers
 class MealTests {
 
+  @SuppressWarnings("resource")
   @Container
   @ServiceConnection
   static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>(
