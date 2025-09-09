@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.tcpmanager.tcpmanager.calories.mealingredient.dto.MealIngredientResponse;
 
 @RestController
-@RequestMapping("/api/meal-ingredients")
+@RequestMapping("/api/calories/meal-ingredients")
 @RequiredArgsConstructor
 public class MealIngredientController {
   private final MealIngredientService mealIngredientService;
