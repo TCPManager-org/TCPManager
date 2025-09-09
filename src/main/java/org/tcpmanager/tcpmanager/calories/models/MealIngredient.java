@@ -1,4 +1,4 @@
-package org.tcpmanager.calories.models;
+package org.tcpmanager.tcpmanager.calories.models;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

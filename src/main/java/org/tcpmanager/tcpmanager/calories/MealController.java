@@ -1,4 +1,4 @@
-package org.tcpmanager.calories;
+package org.tcpmanager.tcpmanager.calories;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.tcpmanager.calories.dto.MealRequest;
-import org.tcpmanager.calories.dto.MealResponse;
+import org.tcpmanager.tcpmanager.calories.dto.MealRequest;
+import org.tcpmanager.tcpmanager.calories.dto.MealResponse;
 
 @RestController
 @RequestMapping("/api/calories/meals")

@@ -1,13 +1,13 @@
-package org.tcpmanager.calories;
+package org.tcpmanager.tcpmanager.calories;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.tcpmanager.calories.dto.MealRequest;
-import org.tcpmanager.calories.dto.MealResponse;
-import org.tcpmanager.calories.models.Meal;
+import org.tcpmanager.tcpmanager.calories.dto.MealRequest;
+import org.tcpmanager.tcpmanager.calories.dto.MealResponse;
+import org.tcpmanager.tcpmanager.calories.models.Meal;
 
 @Service
 @RequiredArgsConstructor

@@ -1,4 +1,4 @@
-package org.tcpmanager.calories.models;
+package org.tcpmanager.tcpmanager.calories.models;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -7,26 +7,23 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
-import java.sql.Date;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Data
 @NoArgsConstructor
-@Table(name = "intake_history", schema = "calories")
-public class IntakeHistory {
+@Table(name = "ingredients", schema = "calories")
+public class Ingredient {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
+
   @Column(nullable = false)
-  private Date date;
+  private String name;
 
   @Column(nullable = false)
   private BigDecimal calories;
-
-  @Column(nullable = false)
-  private BigDecimal protein;
 
   @Column(nullable = false)
   private BigDecimal fat;
@@ -34,15 +31,9 @@ public class IntakeHistory {
   @Column(nullable = false)
   private BigDecimal carbs;
 
-  @Column(name = "calories_goal", nullable = false)
-  private Integer caloriesGoal;
+  @Column(nullable = false)
+  private BigDecimal protein;
 
-  @Column(name = "protein_goal", nullable = false)
-  private Integer proteinGoal;
-
-  @Column(name = "fat_goal", nullable = false)
-  private Integer fatGoal;
-
-  @Column(name = "carbs_goal", nullable = false)
-  private Integer carbsGoal;
+  @Column(nullable = false, length = 13)
+  private String ean;
 }

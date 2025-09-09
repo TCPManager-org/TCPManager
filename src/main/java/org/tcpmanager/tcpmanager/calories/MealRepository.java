@@ -1,7 +1,7 @@
-package org.tcpmanager.calories;
+package org.tcpmanager.tcpmanager.calories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.tcpmanager.calories.models.Meal;
+import org.tcpmanager.tcpmanager.calories.models.Meal;
 
 public interface MealRepository extends JpaRepository<Meal, Long> {
 
