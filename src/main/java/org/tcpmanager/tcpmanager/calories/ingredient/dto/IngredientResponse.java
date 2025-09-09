@@ -1,4 +1,4 @@
-package org.tcpmanager.tcpmanager.calories.dto;
+package org.tcpmanager.tcpmanager.calories.ingredient.dto;
 
 import java.math.BigDecimal;
 

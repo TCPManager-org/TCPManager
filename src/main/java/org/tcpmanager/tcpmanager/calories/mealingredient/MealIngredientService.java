@@ -4,10 +4,10 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.tcpmanager.tcpmanager.calories.dto.IngredientResponse;
+import org.tcpmanager.tcpmanager.calories.ingredient.dto.IngredientResponse;
 import org.tcpmanager.tcpmanager.calories.meal.dto.MealResponse;
 import org.tcpmanager.tcpmanager.calories.mealingredient.dto.MealIngredientResponse;
-import org.tcpmanager.tcpmanager.calories.models.Ingredient;
+import org.tcpmanager.tcpmanager.calories.ingredient.Ingredient;
 
 @Service
 @Transactional(readOnly = true)

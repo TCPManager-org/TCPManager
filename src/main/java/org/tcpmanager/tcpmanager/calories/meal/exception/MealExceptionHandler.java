@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ControllerAdvice
 @RequiredArgsConstructor
-
 public class MealExceptionHandler {
   @ExceptionHandler({MealNotFoundException.class})
   @ResponseBody

@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.tcpmanager.tcpmanager.calories.meal.Meal;
-import org.tcpmanager.tcpmanager.calories.models.Ingredient;
+import org.tcpmanager.tcpmanager.calories.ingredient.Ingredient;
 
 @Entity
 @Data
