@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.tcpmanager.tcpmanager.calories.meal_ingredient.MealIngredient;
+import org.tcpmanager.tcpmanager.calories.mealingredient.MealIngredient;
 
 @Entity
 @Data

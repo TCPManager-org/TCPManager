@@ -1,4 +1,4 @@
-package org.tcpmanager.tcpmanager.calories.meal_ingredient;
+package org.tcpmanager.tcpmanager.calories.mealingredient;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
