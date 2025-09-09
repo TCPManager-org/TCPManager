@@ -16,7 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.tcpmanager.tcpmanager.calories.meal.Meal;
 import org.tcpmanager.tcpmanager.calories.meal.MealRepository;
-import org.tcpmanager.tcpmanager.calories.meal.dto.MealRequest;
+import org.tcpmanager.tcpmanager.calories.meal.dto.UserRequest;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -90,7 +90,7 @@ class MealTests {
 
   @Test
   void addMeal_ShouldReturnCreated() throws Exception {
-    MealRequest mealRequest = new MealRequest("New Meal");
+    UserRequest mealRequest = new UserRequest("New Meal");
     mockMvc.perform(
             MockMvcRequestBuilders.post("/api/calories/meals").contentType("application/json")
                 .content(asJsonString(mealRequest))).andExpect(status().isCreated())
@@ -123,7 +123,7 @@ class MealTests {
     Meal meal = new Meal();
     meal.setName("Test Meal");
     meal = mealRepository.save(meal);
-    MealRequest mealRequest = new MealRequest("Updated Meal");
+    UserRequest mealRequest = new UserRequest("Updated Meal");
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/meals/" + meal.getId())
             .contentType("application/json").content(asJsonString(mealRequest)))
         .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(meal.getId()))
@@ -137,7 +137,7 @@ class MealTests {
     Meal meal = new Meal();
     meal.setName("Test Meal");
     mealRepository.save(meal);
-    MealRequest mealRequest = new MealRequest("Updated Meal");
+    UserRequest mealRequest = new UserRequest("Updated Meal");
     mockMvc.perform(
             MockMvcRequestBuilders.patch("/api/calories/meals/123").contentType("application/json")
                 .content(asJsonString(mealRequest))).andExpect(status().isNotFound())
@@ -146,7 +146,7 @@ class MealTests {
 
   @Test
   void addMeal_ShouldReturnBadRequest_WhenNameIsBlank() throws Exception {
-    MealRequest mealRequest = new MealRequest(" ");
+    UserRequest mealRequest = new UserRequest(" ");
     mockMvc.perform(
             MockMvcRequestBuilders.post("/api/calories/meals").contentType("application/json")
                 .content(asJsonString(mealRequest))).andExpect(status().isBadRequest())
@@ -154,7 +154,7 @@ class MealTests {
   }
   @Test
   void addMeal_ShouldReturnBadRequest_WhenNameIsNull() throws Exception {
-    MealRequest mealRequest = new MealRequest(null);
+    UserRequest mealRequest = new UserRequest(null);
     mockMvc.perform(
             MockMvcRequestBuilders.post("/api/calories/meals").contentType("application/json")
                 .content(asJsonString(mealRequest))).andExpect(status().isBadRequest())
