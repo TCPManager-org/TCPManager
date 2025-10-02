@@ -11,6 +11,7 @@ import org.tcpmanager.tcpmanager.calories.mealingredient.dto.MealIngredientRespo
 @RequestMapping("/api/calories/meal-ingredients")
 @RequiredArgsConstructor
 public class MealIngredientController {
+
   private final MealIngredientService mealIngredientService;
 
   @GetMapping

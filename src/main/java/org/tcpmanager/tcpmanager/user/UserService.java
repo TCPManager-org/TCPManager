@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tcpmanager.tcpmanager.user.dto.UserRequest;
 import org.tcpmanager.tcpmanager.user.dto.UserResponse;
-import org.tcpmanager.tcpmanager.user.exception.IllegalUsernameException;
 import org.tcpmanager.tcpmanager.user.exception.UserNotFoundException;
 
 @Service
@@ -22,8 +21,7 @@ public class UserService {
   }
 
   public UserResponse getById(Long id) {
-    User user = userRepository.findById(id)
-        .orElseThrow(() -> new UserNotFoundException(id));
+    User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
     return new UserResponse(user.getId(), user.getUsername());
   }
 
@@ -38,9 +36,7 @@ public class UserService {
 
   @Transactional
   public UserResponse updateById(Long id, UserRequest userRequest) {
-    validateUserRequest(userRequest);
-    User user = userRepository.findById(id)
-        .orElseThrow(() -> new UserNotFoundException(id));
+    User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
     user.setUsername(userRequest.username());
     userRepository.save(user);
     return new UserResponse(user.getId(), user.getUsername());
@@ -48,22 +44,15 @@ public class UserService {
 
   @Transactional
   public UserResponse add(UserRequest userRequest) {
-    validateUserRequest(userRequest);
     User user = new User();
     user.setUsername(userRequest.username());
     user = userRepository.save(user);
     return new UserResponse(user.getId(), user.getUsername());
   }
 
-  private void validateUserRequest(UserRequest userRequest) {
-    if (userRequest.username() == null || userRequest.username().isBlank()) {
-      throw new IllegalUsernameException("User name cannot be null or blank");
-    }
-  }
-
   public UserResponse getByUsername(String username) {
     return userRepository.findByUsername(username)
-        .map(user -> new UserResponse(user.getId(), user.getUsername())).orElseThrow(
-            () -> new UserNotFoundException(username));
+        .map(user -> new UserResponse(user.getId(), user.getUsername()))
+        .orElseThrow(() -> new UserNotFoundException(username));
   }
 }

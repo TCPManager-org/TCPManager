@@ -1,5 +1,6 @@
 package org.tcpmanager.tcpmanager.calories.meal;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -33,19 +34,22 @@ public class MealController {
   public MealResponse getMealById(@PathVariable Long id) {
     return mealService.getById(id);
   }
+
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deleteMealById(@PathVariable Long id) {
     mealService.deleteById(id);
   }
+
   @PatchMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
-  public MealResponse updateMealById(@PathVariable Long id, @RequestBody MealRequest mealRequest) {
+  public MealResponse updateMealById(@PathVariable Long id, @RequestBody @Valid MealRequest mealRequest) {
     return mealService.updateById(id, mealRequest);
   }
+
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public MealResponse addMeal(@RequestBody MealRequest mealRequest) {
+  public MealResponse addMeal(@RequestBody @Valid MealRequest mealRequest) {
     return mealService.add(mealRequest);
   }
 }

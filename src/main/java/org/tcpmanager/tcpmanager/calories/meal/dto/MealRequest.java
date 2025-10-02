@@ -1,5 +1,7 @@
 package org.tcpmanager.tcpmanager.calories.meal.dto;
 
-public record MealRequest(String name) {
+import jakarta.validation.constraints.NotBlank;
+
+public record MealRequest(@NotBlank String name) {
 
 }

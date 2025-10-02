@@ -1,5 +1,6 @@
 package org.tcpmanager.tcpmanager.user;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -48,13 +49,14 @@ public class UserController {
 
   @PatchMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
-  public UserResponse updateMealById(@PathVariable Long id, @RequestBody UserRequest userRequest) {
+  public UserResponse updateMealById(@PathVariable Long id,
+      @RequestBody @Valid UserRequest userRequest) {
     return userService.updateById(id, userRequest);
   }
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public UserResponse addMeal(@RequestBody UserRequest userRequest) {
+  public UserResponse addMeal(@RequestBody @Valid UserRequest userRequest) {
     return userService.add(userRequest);
   }
 }

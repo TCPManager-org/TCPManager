@@ -11,12 +11,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ControllerAdvice
 @RequiredArgsConstructor
 public class CaloriesExceptionHandler {
+
   @ExceptionHandler({EntityNotFoundException.class})
   @ResponseBody
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public ErrorResponse handleEntityNotFoundException(EntityNotFoundException ex) {
     return new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
   }
+
   @ExceptionHandler({IllegalArgumentException.class})
   @ResponseBody
   @ResponseStatus(HttpStatus.BAD_REQUEST)

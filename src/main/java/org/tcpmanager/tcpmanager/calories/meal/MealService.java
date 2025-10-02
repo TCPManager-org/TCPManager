@@ -37,7 +37,6 @@ public class MealService {
 
   @Transactional
   public MealResponse updateById(Long id, MealRequest mealRequest) {
-    validateMealRequest(mealRequest);
     Meal meal = mealRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException("Meal with id " + id + " not found"));
     meal.setName(mealRequest.name());
@@ -47,16 +46,10 @@ public class MealService {
 
   @Transactional
   public MealResponse add(MealRequest mealRequest) {
-    validateMealRequest(mealRequest);
     Meal meal = new Meal();
     meal.setName(mealRequest.name());
     meal = mealRepository.save(meal);
     return new MealResponse(meal.getId(), meal.getName());
   }
 
-  private void validateMealRequest(MealRequest mealRequest) {
-    if (mealRequest.name() == null || mealRequest.name().isBlank()) {
-      throw new IllegalArgumentException("Meal name cannot be null or blank");
-    }
-  }
 }

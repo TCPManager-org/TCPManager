@@ -19,6 +19,7 @@ import org.tcpmanager.tcpmanager.user.User;
 @NoArgsConstructor
 @Table(name = "intake_history", schema = "calories")
 public class IntakeHistory {
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;

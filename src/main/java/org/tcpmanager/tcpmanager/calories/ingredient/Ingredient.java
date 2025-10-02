@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Table(name = "ingredients", schema = "calories")
 public class Ingredient {
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;

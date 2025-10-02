@@ -1,5 +1,7 @@
 package org.tcpmanager.tcpmanager.user.dto;
 
-public record UserRequest(String username) {
+import jakarta.validation.constraints.NotBlank;
+
+public record UserRequest(@NotBlank String username) {
 
 }
