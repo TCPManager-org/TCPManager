@@ -70,8 +70,7 @@ class UserTests {
     User user2 = new User();
     user2.setUsername("Test User2");
     userRepository.save(user2);
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/users/123"))
-        .andExpect(status().isNotFound())
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/users/123")).andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("User with id 123 not found"));
   }
 
@@ -91,9 +90,8 @@ class UserTests {
   @Test
   void addUser_ShouldReturnCreated() throws Exception {
     UserRequest userRequest = new UserRequest("New User");
-    mockMvc.perform(
-            MockMvcRequestBuilders.post("/api/users").contentType("application/json")
-                .content(asJsonString(userRequest))).andExpect(status().isCreated())
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/users").contentType("application/json")
+            .content(asJsonString(userRequest))).andExpect(status().isCreated())
         .andExpect(jsonPath("$.id").isNumber()).andExpect(jsonPath("$.username").value("New User"));
   }
 
@@ -124,9 +122,10 @@ class UserTests {
     user.setUsername("Test User");
     user = userRepository.save(user);
     UserRequest userRequest = new UserRequest("Updated User");
-    mockMvc.perform(MockMvcRequestBuilders.patch("/api/users/" + user.getId())
-            .contentType("application/json").content(asJsonString(userRequest)))
-        .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(user.getId()))
+    mockMvc.perform(
+            MockMvcRequestBuilders.patch("/api/users/" + user.getId()).contentType("application/json")
+                .content(asJsonString(userRequest))).andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(user.getId()))
         .andExpect(jsonPath("$.username").value("Updated User"));
     User updatedUser = userRepository.findById(user.getId()).orElseThrow();
     Assertions.assertEquals("Updated User", updatedUser.getUsername());
@@ -138,27 +137,24 @@ class UserTests {
     user.setUsername("Test User");
     userRepository.save(user);
     UserRequest userRequest = new UserRequest("Updated User");
-    mockMvc.perform(
-            MockMvcRequestBuilders.patch("/api/users/123").contentType("application/json")
-                .content(asJsonString(userRequest))).andExpect(status().isNotFound())
+    mockMvc.perform(MockMvcRequestBuilders.patch("/api/users/123").contentType("application/json")
+            .content(asJsonString(userRequest))).andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("User with id 123 not found"));
   }
 
   @Test
   void addUser_ShouldReturnBadRequest_WhenNameIsBlank() throws Exception {
     UserRequest userRequest = new UserRequest(" ");
-    mockMvc.perform(
-            MockMvcRequestBuilders.post("/api/users").contentType("application/json")
-                .content(asJsonString(userRequest))).andExpect(status().isBadRequest())
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/users").contentType("application/json")
+            .content(asJsonString(userRequest))).andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("username must not be blank"));
   }
 
   @Test
   void addUser_ShouldReturnBadRequest_WhenNameIsNull() throws Exception {
     UserRequest userRequest = new UserRequest(null);
-    mockMvc.perform(
-            MockMvcRequestBuilders.post("/api/users").contentType("application/json")
-                .content(asJsonString(userRequest))).andExpect(status().isBadRequest())
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/users").contentType("application/json")
+            .content(asJsonString(userRequest))).andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("username must not be blank"));
   }
 
