@@ -14,6 +14,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 class TcpManagerApplicationTests {
 
   static ApplicationModules applicationModules = ApplicationModules.of(TcpManagerApplication.class);
+
   @SuppressWarnings("resource")
   @Container
   @ServiceConnection
