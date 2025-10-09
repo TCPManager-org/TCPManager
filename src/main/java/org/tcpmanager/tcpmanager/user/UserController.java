@@ -1,6 +1,7 @@
 package org.tcpmanager.tcpmanager.user;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -38,7 +39,7 @@ public class UserController {
 
   @GetMapping(params = {"username"})
   @ResponseStatus(HttpStatus.OK)
-  public UserResponse getMealById(@RequestParam(value = "username") String username) {
+  public UserResponse getMealById(@NotBlank @RequestParam(value = "username") String username) {
     return userService.getByUsername(username);
   }
 

@@ -46,59 +46,98 @@ class UserTests {
   void afterEach() {
     userRepository.deleteAll();
   }
-
+  @Test
+  void invalidUsername_NotUnique() throws Exception {
+    User user = new User();
+    user.setUsername("TestUser");
+    userRepository.save(user);
+    UserRequest userRequest = new UserRequest("TestUser");
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/users").contentType("application/json")
+            .content(asJsonString(userRequest))).andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("Username TestUser is already taken"));
+  }
+  @Test
+  void invalidUsername_NotAlphanumeric() throws Exception {
+    UserRequest userRequest = new UserRequest("Test User!");
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/users").contentType("application/json")
+            .content(asJsonString(userRequest))).andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("Username can only contain letters and digits"));
+  }
+  @Test
+  void invalidRequestBody() throws Exception {
+    UserRequest userRequest = new UserRequest("");
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/users").contentType("application/json")
+            .content(asJsonString(userRequest))).andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("username must not be blank"));
+  }
   @Test
   void getUsers_ShouldReturnAllUsers() throws Exception {
     User user = new User();
-    user.setUsername("Test User");
+    user.setUsername("TestUser");
     user = userRepository.save(user);
     User user2 = new User();
-    user2.setUsername("Test User2");
+    user2.setUsername("TestUser2");
     user2 = userRepository.save(user2);
     mockMvc.perform(MockMvcRequestBuilders.get("/api/users")).andExpect(status().isOk())
         .andExpect(jsonPath("$.size()").value(2)).andExpect(jsonPath("$[0].id").value(user.getId()))
-        .andExpect(jsonPath("$[0].username").value("Test User"))
+        .andExpect(jsonPath("$[0].username").value("TestUser"))
         .andExpect(jsonPath("$[1].id").value(user2.getId()))
-        .andExpect(jsonPath("$[1].username").value("Test User2"));
+        .andExpect(jsonPath("$[1].username").value("TestUser2"));
   }
-
   @Test
-  void getUser_ShouldReturnNotFound() throws Exception {
+  void getUserById_ShouldReturnUser() throws Exception {
     User user = new User();
-    user.setUsername("Test User");
+    user.setUsername("TestUser");
+    user = userRepository.save(user);
+    User user2 = new User();
+    user2.setUsername("TestUser2");
+    userRepository.save(user2);
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/users/" + user.getId()))
+        .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(user.getId()))
+        .andExpect(jsonPath("$.username").value("TestUser"));
+  }
+  @Test
+  void getUserById_ShouldReturnNotFound() throws Exception {
+    User user = new User();
+    user.setUsername("TestUser");
     userRepository.save(user);
     User user2 = new User();
-    user2.setUsername("Test User2");
+    user2.setUsername("TestUser2");
     userRepository.save(user2);
     mockMvc.perform(MockMvcRequestBuilders.get("/api/users/123")).andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("User with id 123 not found"));
   }
-
   @Test
-  void getUser_ShouldReturnUser() throws Exception {
+  void getUserByUsername_ShouldReturnUser() throws Exception {
     User user = new User();
-    user.setUsername("Test User");
+    user.setUsername("TestUser");
     user = userRepository.save(user);
     User user2 = new User();
-    user2.setUsername("Test User2");
+    user2.setUsername("TestUser2");
     userRepository.save(user2);
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/users?username=Test User"))
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/users?username=TestUser"))
         .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(user.getId()))
-        .andExpect(jsonPath("$.username").value("Test User"));
+        .andExpect(jsonPath("$.username").value("TestUser"));
   }
-
+  @Test
+  void getUserByUsername_ShouldReturnNotFound() throws Exception {
+    User user = new User();
+    user.setUsername("TestUser");
+    userRepository.save(user);
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/users?username=TestUser2"))
+        .andExpect(status().isNotFound()).andExpect(jsonPath("$.message").value("User with username TestUser2 not found"));
+  }
   @Test
   void addUser_ShouldReturnCreated() throws Exception {
-    UserRequest userRequest = new UserRequest("New User");
+    UserRequest userRequest = new UserRequest("NewUser");
     mockMvc.perform(MockMvcRequestBuilders.post("/api/users").contentType("application/json")
             .content(asJsonString(userRequest))).andExpect(status().isCreated())
-        .andExpect(jsonPath("$.id").isNumber()).andExpect(jsonPath("$.username").value("New User"));
+        .andExpect(jsonPath("$.id").isNumber()).andExpect(jsonPath("$.username").value("NewUser"));
   }
-
   @Test
   void deleteUser_ShouldReturnNoContent() throws Exception {
     User user = new User();
-    user.setUsername("Test User");
+    user.setUsername("TestUser");
     user = userRepository.save(user);
     mockMvc.perform(MockMvcRequestBuilders.delete("/api/users/" + user.getId()))
         .andExpect(status().isNoContent());
@@ -108,7 +147,7 @@ class UserTests {
   @Test
   void deleteUser_ShouldReturnNotFound() throws Exception {
     User user = new User();
-    user.setUsername("Test User");
+    user.setUsername("TestUser");
     userRepository.save(user);
     mockMvc.perform(MockMvcRequestBuilders.delete("/api/users/123"))
         .andExpect(status().isNotFound())
@@ -119,24 +158,24 @@ class UserTests {
   @Test
   void updateUser_ShouldReturnUpdatedUser() throws Exception {
     User user = new User();
-    user.setUsername("Test User");
+    user.setUsername("TestUser");
     user = userRepository.save(user);
-    UserRequest userRequest = new UserRequest("Updated User");
+    UserRequest userRequest = new UserRequest("UpdatedUser");
     mockMvc.perform(
             MockMvcRequestBuilders.patch("/api/users/" + user.getId()).contentType("application/json")
                 .content(asJsonString(userRequest))).andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(user.getId()))
-        .andExpect(jsonPath("$.username").value("Updated User"));
+        .andExpect(jsonPath("$.username").value("UpdatedUser"));
     User updatedUser = userRepository.findById(user.getId()).orElseThrow();
-    Assertions.assertEquals("Updated User", updatedUser.getUsername());
+    Assertions.assertEquals("UpdatedUser", updatedUser.getUsername());
   }
 
   @Test
   void updateUser_ShouldReturnNotFound() throws Exception {
     User user = new User();
-    user.setUsername("Test User");
+    user.setUsername("TestUser");
     userRepository.save(user);
-    UserRequest userRequest = new UserRequest("Updated User");
+    UserRequest userRequest = new UserRequest("UpdatedUser");
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/users/123").contentType("application/json")
             .content(asJsonString(userRequest))).andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("User with id 123 not found"));

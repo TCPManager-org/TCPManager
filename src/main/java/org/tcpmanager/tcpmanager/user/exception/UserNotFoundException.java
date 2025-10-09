@@ -3,7 +3,7 @@ package org.tcpmanager.tcpmanager.user.exception;
 public class UserNotFoundException extends RuntimeException {
 
   public UserNotFoundException(String username) {
-    super("User with name " + username + " not found");
+    super("User with username " + username + " not found");
   }
 
   public UserNotFoundException(Long id) {
