@@ -22,8 +22,14 @@ jobs:
           cache: 'maven'
       - name: Install Prerequisites
         run: sudo apt-get update && sudo apt-get install -y unzip wget curl maven
+      - name: Cache SonarQube packages
+        uses: actions/cache@v4.2.4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
       - name: Build and analyze
-        uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
