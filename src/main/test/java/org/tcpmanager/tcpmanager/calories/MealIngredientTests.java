@@ -1,4 +1,4 @@
-package org.tcpmanager.tcpmanager;
+package org.tcpmanager.tcpmanager.calories;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package org.tcpmanager.tcpmanager;
+package org.tcpmanager.tcpmanager.calories;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
