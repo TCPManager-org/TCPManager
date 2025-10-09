@@ -150,7 +150,7 @@ class MealTests {
     mockMvc.perform(
             MockMvcRequestBuilders.post("/api/calories/meals").contentType("application/json")
                 .content(asJsonString(mealRequest))).andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("Meal name cannot be null or blank"));
+        .andExpect(jsonPath("$.message").value("name must not be blank"));
   }
   @Test
   void addMeal_ShouldReturnBadRequest_WhenNameIsNull() throws Exception {
@@ -158,7 +158,7 @@ class MealTests {
     mockMvc.perform(
             MockMvcRequestBuilders.post("/api/calories/meals").contentType("application/json")
                 .content(asJsonString(mealRequest))).andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("Meal name cannot be null or blank"));
+        .andExpect(jsonPath("$.message").value("name must not be blank"));
   }
   private String asJsonString(Object object) throws JsonProcessingException {
     return new ObjectMapper().writeValueAsString(object);
