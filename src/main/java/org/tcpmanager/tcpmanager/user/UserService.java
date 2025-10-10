@@ -22,14 +22,14 @@ public class UserService {
 
   public UserResponse getById(Long id) {
     User user = userRepository.findById(id)
-        .orElseThrow(() -> new EntityNotFoundException("User with id " + id + " not found"));
+        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
     return new UserResponse(user.getId(), user.getUsername());
   }
 
   @Transactional
   public void deleteById(Long id) {
     if (!userRepository.existsById(id)) {
-      throw new EntityNotFoundException("User with id " + id + " not found");
+      throw new EntityNotFoundException(generateNotFoundMessage(id));
     }
 
     userRepository.deleteById(id);
@@ -38,7 +38,7 @@ public class UserService {
   @Transactional
   public UserResponse updateById(Long id, UserRequest userRequest) {
     User user = userRepository.findById(id)
-        .orElseThrow(() -> new EntityNotFoundException("User with id " + id + " not found"));
+        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
     var username = userRequest.username().strip();
     validateUsername(username);
     user.setUsername(username);
@@ -69,5 +69,9 @@ public class UserService {
     if (!username.chars().allMatch(Character::isLetterOrDigit)) {
       throw new IllegalArgumentException("Username can only contain letters and digits");
     }
+  }
+
+  private String generateNotFoundMessage(Long id) {
+    return "User with id " + id + " not found";
   }
 }
