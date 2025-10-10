@@ -150,7 +150,7 @@ class MealTests {
     mockMvc.perform(
             MockMvcRequestBuilders.post("/api/calories/meals").contentType("application/json")
                 .content(asJsonString(mealRequest))).andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("name must not be blank"));
+        .andExpect(jsonPath("$.message").value("Name must not be blank"));
   }
 
   @Test
@@ -159,7 +159,7 @@ class MealTests {
     mockMvc.perform(
             MockMvcRequestBuilders.post("/api/calories/meals").contentType("application/json")
                 .content(asJsonString(mealRequest))).andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("name must not be blank"));
+        .andExpect(jsonPath("$.message").value("Name must not be blank"));
   }
 
   private String asJsonString(Object object) throws JsonProcessingException {

@@ -71,7 +71,7 @@ class UserTests {
     UserRequest userRequest = new UserRequest("");
     mockMvc.perform(MockMvcRequestBuilders.post("/api/users").contentType("application/json")
             .content(asJsonString(userRequest))).andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("username must not be blank"));
+        .andExpect(jsonPath("$.message").value("Username must not be blank"));
   }
 
   @Test
@@ -197,7 +197,7 @@ class UserTests {
     UserRequest userRequest = new UserRequest(" ");
     mockMvc.perform(MockMvcRequestBuilders.post("/api/users").contentType("application/json")
             .content(asJsonString(userRequest))).andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("username must not be blank"));
+        .andExpect(jsonPath("$.message").value("Username must not be blank"));
   }
 
   @Test
@@ -205,7 +205,7 @@ class UserTests {
     UserRequest userRequest = new UserRequest(null);
     mockMvc.perform(MockMvcRequestBuilders.post("/api/users").contentType("application/json")
             .content(asJsonString(userRequest))).andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("username must not be blank"));
+        .andExpect(jsonPath("$.message").value("Username must not be blank"));
   }
 
   private String asJsonString(Object object) throws JsonProcessingException {

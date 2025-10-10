@@ -23,16 +23,16 @@ public class Ingredient {
   @Column(nullable = false, unique = true)
   private String name;
 
-  @Column(nullable = false)
+  @Column(nullable = false, precision = 10, scale = 2)
   private BigDecimal calories;
 
-  @Column(nullable = false)
+  @Column(nullable = false, precision = 10, scale = 2)
   private BigDecimal fat;
 
-  @Column(nullable = false)
+  @Column(nullable = false, precision = 10, scale = 2)
   private BigDecimal carbs;
 
-  @Column(nullable = false)
+  @Column(nullable = false, precision = 10, scale = 2)
   private BigDecimal protein;
 
   @Column(nullable = false, length = 13)

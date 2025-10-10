@@ -1,13 +1,12 @@
 package org.tcpmanager.tcpmanager.user;
 
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tcpmanager.tcpmanager.user.dto.UserRequest;
 import org.tcpmanager.tcpmanager.user.dto.UserResponse;
-import org.tcpmanager.tcpmanager.user.exception.IllegalUsernameException;
-import org.tcpmanager.tcpmanager.user.exception.UserNotFoundException;
 
 @Service
 @RequiredArgsConstructor
@@ -22,14 +21,15 @@ public class UserService {
   }
 
   public UserResponse getById(Long id) {
-    User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+    User user = userRepository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("User with id " + id + " not found"));
     return new UserResponse(user.getId(), user.getUsername());
   }
 
   @Transactional
   public void deleteById(Long id) {
     if (!userRepository.existsById(id)) {
-      throw new UserNotFoundException(id);
+      throw new EntityNotFoundException("User with id " + id + " not found");
     }
 
     userRepository.deleteById(id);
@@ -37,7 +37,8 @@ public class UserService {
 
   @Transactional
   public UserResponse updateById(Long id, UserRequest userRequest) {
-    User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+    User user = userRepository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("User with id " + id + " not found"));
     var username = userRequest.username().strip();
     validateUsername(username);
     user.setUsername(username);
@@ -57,16 +58,16 @@ public class UserService {
 
   public UserResponse getByUsername(String username) {
     return userRepository.findByUsername(username)
-        .map(user -> new UserResponse(user.getId(), user.getUsername()))
-        .orElseThrow(() -> new UserNotFoundException(username));
+        .map(user -> new UserResponse(user.getId(), user.getUsername())).orElseThrow(
+            () -> new EntityNotFoundException("User with username " + username + " not found"));
   }
 
   private void validateUsername(String username) {
     if (userRepository.existsByUsername(username)) {
-      throw new IllegalUsernameException("Username " + username + " is already taken");
+      throw new IllegalArgumentException("Username " + username + " is already taken");
     }
     if (!username.chars().allMatch(Character::isLetterOrDigit)) {
-      throw new IllegalUsernameException("Username can only contain letters and digits");
+      throw new IllegalArgumentException("Username can only contain letters and digits");
     }
   }
 }
