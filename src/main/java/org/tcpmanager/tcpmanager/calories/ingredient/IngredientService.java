@@ -45,14 +45,14 @@ public class IngredientService {
     if (ingredientRequest.calories() != null) {
       ingredient.setCalories(ingredientRequest.calories());
     }
-    if (ingredientRequest.fat() != null) {
-      ingredient.setFat(ingredientRequest.fat());
+    if (ingredientRequest.fats() != null) {
+      ingredient.setFats(ingredientRequest.fats());
     }
     if (ingredientRequest.carbs() != null) {
       ingredient.setCarbs(ingredientRequest.carbs());
     }
-    if (ingredientRequest.protein() != null) {
-      ingredient.setProtein(ingredientRequest.protein());
+    if (ingredientRequest.proteins() != null) {
+      ingredient.setProteins(ingredientRequest.proteins());
     }
     if (ingredientRequest.ean() != null && !ingredientRequest.ean().isBlank()) {
       ingredient.setEan(ingredientRequest.ean());
@@ -67,9 +67,9 @@ public class IngredientService {
     Ingredient ingredient = new Ingredient();
     ingredient.setName(ingredientRequest.name());
     ingredient.setCalories(ingredientRequest.calories());
-    ingredient.setFat(ingredientRequest.fat());
+    ingredient.setFats(ingredientRequest.fats());
     ingredient.setCarbs(ingredientRequest.carbs());
-    ingredient.setProtein(ingredientRequest.protein());
+    ingredient.setProteins(ingredientRequest.proteins());
     ingredient.setEan(ingredientRequest.ean());
     ingredient = ingredientRepository.save(ingredient);
     return mapToIngredientResponse(ingredient);
@@ -77,8 +77,8 @@ public class IngredientService {
 
   private IngredientResponse mapToIngredientResponse(Ingredient ingredient) {
     return new IngredientResponse(ingredient.getId(), ingredient.getName(),
-        ingredient.getCalories(), ingredient.getFat(), ingredient.getCarbs(),
-        ingredient.getProtein(), ingredient.getEan());
+        ingredient.getCalories(), ingredient.getFats(), ingredient.getCarbs(),
+        ingredient.getProteins(), ingredient.getEan());
   }
 
   private void validateIngredientRequest(IngredientRequest ingredientRequest) {
@@ -89,17 +89,39 @@ public class IngredientService {
         || ingredientRequest.calories().compareTo(BigDecimal.ZERO) <= 0) {
       throw new IllegalArgumentException("Calories must be greater than 0");
     }
-    if (ingredientRequest.fat() == null
-        || ingredientRequest.fat().compareTo(BigDecimal.ZERO) <= 0) {
-      throw new IllegalArgumentException("Fat must be greater than 0");
+    if (ingredientRequest.fats() == null
+        || ingredientRequest.fats().compareTo(BigDecimal.ZERO) <= 0) {
+      throw new IllegalArgumentException("Fats must be greater than 0");
     }
     if (ingredientRequest.carbs() == null
         || ingredientRequest.carbs().compareTo(BigDecimal.ZERO) <= 0) {
       throw new IllegalArgumentException("Carbs must be greater than 0");
     }
-    if (ingredientRequest.protein() == null
-        || ingredientRequest.protein().compareTo(BigDecimal.ZERO) <= 0) {
-      throw new IllegalArgumentException("Protein must be greater than 0");
+    if (ingredientRequest.proteins() == null
+        || ingredientRequest.proteins().compareTo(BigDecimal.ZERO) <= 0) {
+      throw new IllegalArgumentException("Proteins must be greater than 0");
+    }
+    validateEan(ingredientRequest.ean());
+  }
+
+  private void validateEan(String ean) {
+    if (ean == null || ean.isBlank() || ean.length() != 13) {
+      throw new IllegalArgumentException("EAN must be 13 characters long");
+    }
+    int sum = 0;
+    for (int i = 0; i < 12; i++) {
+      if (!Character.isDigit(ean.charAt(i))) {
+        throw new IllegalArgumentException("EAN must contain only digits");
+      }
+      if (i % 2 == 0) {
+        sum += Character.getNumericValue(ean.charAt(i));
+      } else {
+        sum += Character.getNumericValue(ean.charAt(i)) * 3;
+      }
+    }
+    sum += Character.getNumericValue(ean.charAt(ean.length() - 1));
+    if (sum % 10 != 0) {
+      throw new IllegalArgumentException("EAN is not valid");
     }
   }
 }

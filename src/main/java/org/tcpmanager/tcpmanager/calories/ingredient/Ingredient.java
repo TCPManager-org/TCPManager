@@ -27,13 +27,13 @@ public class Ingredient {
   private BigDecimal calories;
 
   @Column(nullable = false, precision = 10, scale = 2)
-  private BigDecimal fat;
+  private BigDecimal fats;
 
   @Column(nullable = false, precision = 10, scale = 2)
   private BigDecimal carbs;
 
   @Column(nullable = false, precision = 10, scale = 2)
-  private BigDecimal protein;
+  private BigDecimal proteins;
 
   @Column(nullable = false, length = 13)
   private String ean;

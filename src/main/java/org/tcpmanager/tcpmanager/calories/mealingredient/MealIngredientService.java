@@ -25,7 +25,7 @@ public class MealIngredientService {
 
   private IngredientResponse mapToIngredientResponse(Ingredient ingredient) {
     return new IngredientResponse(ingredient.getId(), ingredient.getName(),
-        ingredient.getCalories(), ingredient.getFat(), ingredient.getCarbs(),
-        ingredient.getProtein(), ingredient.getEan());
+        ingredient.getCalories(), ingredient.getFats(), ingredient.getCarbs(),
+        ingredient.getProteins(), ingredient.getEan());
   }
 }
