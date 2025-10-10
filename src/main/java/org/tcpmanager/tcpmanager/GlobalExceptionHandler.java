@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ControllerAdvice
 @RequiredArgsConstructor
 public class GlobalExceptionHandler {
+
   @ExceptionHandler(MethodArgumentNotValidException.class)
   @ResponseBody
   @ResponseStatus(HttpStatus.BAD_REQUEST)

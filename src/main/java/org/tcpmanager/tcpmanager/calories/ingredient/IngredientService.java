@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tcpmanager.tcpmanager.calories.ingredient.dto.IngredientRequest;
 import org.tcpmanager.tcpmanager.calories.ingredient.dto.IngredientResponse;
-import org.tcpmanager.tcpmanager.calories.ingredient.Ingredient;
 
 @Service
 @RequiredArgsConstructor
@@ -17,8 +16,7 @@ public class IngredientService {
   private final IngredientRepository ingredientRepository;
 
   public List<IngredientResponse> getAll() {
-    return ingredientRepository.findAll().stream()
-        .map(this::mapToIngredientResponse).toList();
+    return ingredientRepository.findAll().stream().map(this::mapToIngredientResponse).toList();
   }
 
   public IngredientResponse getById(Long id) {

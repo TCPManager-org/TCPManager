@@ -18,6 +18,7 @@ public class UserExceptionHandler {
   public ErrorResponse handleMealNotFoundException(UserNotFoundException ex) {
     return new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
   }
+
   @ExceptionHandler({IllegalUsernameException.class})
   @ResponseBody
   @ResponseStatus(HttpStatus.BAD_REQUEST)

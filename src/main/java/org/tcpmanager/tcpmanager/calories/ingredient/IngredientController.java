@@ -15,10 +15,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.tcpmanager.tcpmanager.calories.ingredient.dto.IngredientRequest;
 import org.tcpmanager.tcpmanager.calories.ingredient.dto.IngredientResponse;
+
 @RestController
 @RequestMapping("/api/calories/ingredients")
 @RequiredArgsConstructor
 public class IngredientController {
+
   private final IngredientService ingredientService;
 
   @GetMapping
@@ -41,7 +43,8 @@ public class IngredientController {
 
   @PatchMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
-  public IngredientResponse updateMealById(@PathVariable Long id, @RequestBody @Valid IngredientRequest ingredientRequest) {
+  public IngredientResponse updateMealById(@PathVariable Long id,
+      @RequestBody @Valid IngredientRequest ingredientRequest) {
     return ingredientService.updateById(id, ingredientRequest);
   }
 

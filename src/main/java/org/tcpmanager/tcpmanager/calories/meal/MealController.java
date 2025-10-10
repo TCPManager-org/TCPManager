@@ -43,7 +43,8 @@ public class MealController {
 
   @PatchMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
-  public MealResponse updateMealById(@PathVariable Long id, @RequestBody @Valid MealRequest mealRequest) {
+  public MealResponse updateMealById(@PathVariable Long id,
+      @RequestBody @Valid MealRequest mealRequest) {
     return mealService.updateById(id, mealRequest);
   }
 

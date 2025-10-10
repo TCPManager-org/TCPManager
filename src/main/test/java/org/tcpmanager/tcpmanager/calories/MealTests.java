@@ -152,6 +152,7 @@ class MealTests {
                 .content(asJsonString(mealRequest))).andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("name must not be blank"));
   }
+
   @Test
   void addMeal_ShouldReturnBadRequest_WhenNameIsNull() throws Exception {
     MealRequest mealRequest = new MealRequest(null);
@@ -160,6 +161,7 @@ class MealTests {
                 .content(asJsonString(mealRequest))).andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("name must not be blank"));
   }
+
   private String asJsonString(Object object) throws JsonProcessingException {
     return new ObjectMapper().writeValueAsString(object);
   }

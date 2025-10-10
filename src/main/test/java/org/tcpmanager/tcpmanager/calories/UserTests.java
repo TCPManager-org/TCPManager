@@ -46,6 +46,7 @@ class UserTests {
   void afterEach() {
     userRepository.deleteAll();
   }
+
   @Test
   void invalidUsername_NotUnique() throws Exception {
     User user = new User();
@@ -56,6 +57,7 @@ class UserTests {
             .content(asJsonString(userRequest))).andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("Username TestUser is already taken"));
   }
+
   @Test
   void invalidUsername_NotAlphanumeric() throws Exception {
     UserRequest userRequest = new UserRequest("Test User!");
@@ -63,6 +65,7 @@ class UserTests {
             .content(asJsonString(userRequest))).andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("Username can only contain letters and digits"));
   }
+
   @Test
   void invalidRequestBody() throws Exception {
     UserRequest userRequest = new UserRequest("");
@@ -70,6 +73,7 @@ class UserTests {
             .content(asJsonString(userRequest))).andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("username must not be blank"));
   }
+
   @Test
   void getUsers_ShouldReturnAllUsers() throws Exception {
     User user = new User();
@@ -84,6 +88,7 @@ class UserTests {
         .andExpect(jsonPath("$[1].id").value(user2.getId()))
         .andExpect(jsonPath("$[1].username").value("TestUser2"));
   }
+
   @Test
   void getUserById_ShouldReturnUser() throws Exception {
     User user = new User();
@@ -96,6 +101,7 @@ class UserTests {
         .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(user.getId()))
         .andExpect(jsonPath("$.username").value("TestUser"));
   }
+
   @Test
   void getUserById_ShouldReturnNotFound() throws Exception {
     User user = new User();
@@ -107,6 +113,7 @@ class UserTests {
     mockMvc.perform(MockMvcRequestBuilders.get("/api/users/123")).andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("User with id 123 not found"));
   }
+
   @Test
   void getUserByUsername_ShouldReturnUser() throws Exception {
     User user = new User();
@@ -119,14 +126,17 @@ class UserTests {
         .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(user.getId()))
         .andExpect(jsonPath("$.username").value("TestUser"));
   }
+
   @Test
   void getUserByUsername_ShouldReturnNotFound() throws Exception {
     User user = new User();
     user.setUsername("TestUser");
     userRepository.save(user);
     mockMvc.perform(MockMvcRequestBuilders.get("/api/users?username=TestUser2"))
-        .andExpect(status().isNotFound()).andExpect(jsonPath("$.message").value("User with username TestUser2 not found"));
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.message").value("User with username TestUser2 not found"));
   }
+
   @Test
   void addUser_ShouldReturnCreated() throws Exception {
     UserRequest userRequest = new UserRequest("NewUser");
@@ -134,6 +144,7 @@ class UserTests {
             .content(asJsonString(userRequest))).andExpect(status().isCreated())
         .andExpect(jsonPath("$.id").isNumber()).andExpect(jsonPath("$.username").value("NewUser"));
   }
+
   @Test
   void deleteUser_ShouldReturnNoContent() throws Exception {
     User user = new User();

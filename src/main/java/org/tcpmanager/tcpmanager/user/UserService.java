@@ -60,11 +60,12 @@ public class UserService {
         .map(user -> new UserResponse(user.getId(), user.getUsername()))
         .orElseThrow(() -> new UserNotFoundException(username));
   }
+
   private void validateUsername(String username) {
     if (userRepository.existsByUsername(username)) {
       throw new IllegalUsernameException("Username " + username + " is already taken");
     }
-    if(!username.chars().allMatch(Character::isLetterOrDigit)) {
+    if (!username.chars().allMatch(Character::isLetterOrDigit)) {
       throw new IllegalUsernameException("Username can only contain letters and digits");
     }
   }
