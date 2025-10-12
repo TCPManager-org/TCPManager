@@ -15,6 +15,10 @@ public class MealService {
 
   private final MealRepository mealRepository;
 
+  private static String generateNotFoundMessage(Long id) {
+    return "Meal with id " + id + " not found";
+  }
+
   public List<MealResponse> getAll() {
     return mealRepository.findAll().stream()
         .map(meal -> new MealResponse(meal.getId(), meal.getName())).toList();
@@ -22,14 +26,14 @@ public class MealService {
 
   public MealResponse getById(Long id) {
     Meal meal = mealRepository.findById(id)
-        .orElseThrow(() -> new EntityNotFoundException("Meal with id " + id + " not found"));
+        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
     return new MealResponse(meal.getId(), meal.getName());
   }
 
   @Transactional
   public void deleteById(Long id) {
     if (!mealRepository.existsById(id)) {
-      throw new EntityNotFoundException("Meal with id " + id + " not found");
+      throw new EntityNotFoundException(generateNotFoundMessage(id));
     }
 
     mealRepository.deleteById(id);
@@ -38,7 +42,7 @@ public class MealService {
   @Transactional
   public MealResponse updateById(Long id, MealRequest mealRequest) {
     Meal meal = mealRepository.findById(id)
-        .orElseThrow(() -> new EntityNotFoundException("Meal with id " + id + " not found"));
+        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
     meal.setName(mealRequest.name());
     mealRepository.save(meal);
     return new MealResponse(meal.getId(), meal.getName());
@@ -51,5 +55,4 @@ public class MealService {
     meal = mealRepository.save(meal);
     return new MealResponse(meal.getId(), meal.getName());
   }
-
 }

@@ -16,20 +16,24 @@ public class IngredientService {
 
   private final IngredientRepository ingredientRepository;
 
+  private static String generateNotFoundMessage(Long id) {
+    return "Ingredient with id " + id + " not found";
+  }
+
   public List<IngredientResponse> getAll() {
     return ingredientRepository.findAll().stream().map(this::mapToIngredientResponse).toList();
   }
 
   public IngredientResponse getById(Long id) {
     Ingredient ingredient = ingredientRepository.findById(id)
-        .orElseThrow(() -> new EntityNotFoundException("Ingredient with id " + id + " not found"));
+        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
     return mapToIngredientResponse(ingredient);
   }
 
   @Transactional
   public void deleteById(Long id) {
     if (!ingredientRepository.existsById(id)) {
-      throw new EntityNotFoundException("Ingredient with id " + id + " not found");
+      throw new EntityNotFoundException(generateNotFoundMessage(id));
     }
 
     ingredientRepository.deleteById(id);
@@ -38,7 +42,7 @@ public class IngredientService {
   @Transactional
   public IngredientResponse updateById(Long id, IngredientRequest ingredientRequest) {
     Ingredient ingredient = ingredientRepository.findById(id)
-        .orElseThrow(() -> new EntityNotFoundException("Ingredient with id " + id + " not found"));
+        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
     if (ingredientRequest.name() != null && !ingredientRequest.name().isBlank()) {
       ingredient.setName(ingredientRequest.name());
     }
@@ -124,4 +128,5 @@ public class IngredientService {
       throw new IllegalArgumentException("EAN is not valid");
     }
   }
+
 }
