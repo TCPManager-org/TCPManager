@@ -43,19 +43,26 @@ public class IngredientService {
   public IngredientResponse updateById(Long id, IngredientRequest ingredientRequest) {
     Ingredient ingredient = ingredientRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
-    if (ingredientRequest.name() != null && !ingredientRequest.name().isBlank()) {
+    if (ingredientRequest.name() != null) {
+      if (ingredientRequest.name().isBlank()) {
+        throw new IllegalArgumentException("Name must not be blank");
+      }
       ingredient.setName(ingredientRequest.name());
     }
     if (ingredientRequest.calories() != null) {
+      validateNutritionValue(ingredientRequest.calories(), "Calories");
       ingredient.setCalories(ingredientRequest.calories());
     }
     if (ingredientRequest.fats() != null) {
+      validateNutritionValue(ingredientRequest.fats(), "Fats");
       ingredient.setFats(ingredientRequest.fats());
     }
     if (ingredientRequest.carbs() != null) {
+      validateNutritionValue(ingredientRequest.carbs(), "Carbs");
       ingredient.setCarbs(ingredientRequest.carbs());
     }
     if (ingredientRequest.proteins() != null) {
+      validateNutritionValue(ingredientRequest.proteins(), "Proteins");
       ingredient.setProteins(ingredientRequest.proteins());
     }
     if (ingredientRequest.ean() != null && !ingredientRequest.ean().isBlank()) {
@@ -130,4 +137,9 @@ public class IngredientService {
     }
   }
 
+  void validateNutritionValue(BigDecimal value, String fieldName) {
+    if (value == null || value.compareTo(BigDecimal.ZERO) <= 0) {
+      throw new IllegalArgumentException(fieldName + " must be greater than 0");
+    }
+  }
 }
