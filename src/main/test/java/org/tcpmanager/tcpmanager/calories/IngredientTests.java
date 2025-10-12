@@ -352,7 +352,7 @@ class IngredientTests {
     ingredient.setProteins(BigDecimal.valueOf(4));
     ingredient = ingredientRepository.save(ingredient);
     IngredientRequest ingredientRequest = new IngredientRequest(null, null, null, null,
-        BigDecimal.valueOf(10), null);
+        BigDecimal.valueOf(10), " ");
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/ingredients/" + ingredient.getId())
             .contentType("application/json").content(asJsonString(ingredientRequest)))
         .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(ingredient.getId()))
