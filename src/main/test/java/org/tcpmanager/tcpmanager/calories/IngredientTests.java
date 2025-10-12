@@ -297,7 +297,7 @@ class IngredientTests {
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
     ingredient = ingredientRepository.save(ingredient);
-    IngredientRequest ingredientRequest = new IngredientRequest(" ", null, BigDecimal.valueOf(10),
+    IngredientRequest ingredientRequest = new IngredientRequest(null, null, BigDecimal.valueOf(10),
         null, null, null);
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/ingredients/" + ingredient.getId())
             .contentType("application/json").content(asJsonString(ingredientRequest)))
@@ -369,11 +369,11 @@ class IngredientTests {
     ingredient.setProteins(BigDecimal.valueOf(4));
     ingredient = ingredientRepository.save(ingredient);
     IngredientRequest ingredientRequest = new IngredientRequest(null, null, null, null,
-        null, "978020137962");
+        null, "0123456789104");
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/ingredients/" + ingredient.getId())
             .contentType("application/json").content(asJsonString(ingredientRequest)))
         .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(ingredient.getId()))
-        .andExpect(jsonPath("$.ean").value("978020137962"));
+        .andExpect(jsonPath("$.ean").value("0123456789104"));
   }
   @Test
   void updateIngredient_ShouldReturnNotFound() throws Exception {
