@@ -113,11 +113,13 @@ public class IngredientService {
         || ingredientRequest.proteins().compareTo(BigDecimal.ZERO) <= 0) {
       throw new IllegalArgumentException("Proteins must be greater than 0");
     }
-    validateEan(ingredientRequest.ean());
+    if(ingredientRequest.ean() != null) {
+      validateEan(ingredientRequest.ean());
+    }
   }
 
   private void validateEan(String ean) {
-    if (ean == null || ean.isBlank() || ean.length() != 13) {
+    if (ean.isBlank() || ean.length() != 13) {
       throw new IllegalArgumentException("EAN must be 13 characters long");
     }
     int sum = 0;
