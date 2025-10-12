@@ -59,6 +59,7 @@ public class IngredientService {
       ingredient.setProteins(ingredientRequest.proteins());
     }
     if (ingredientRequest.ean() != null && !ingredientRequest.ean().isBlank()) {
+      validateEan(ingredientRequest.ean());
       ingredient.setEan(ingredientRequest.ean());
     }
     ingredientRepository.save(ingredient);
