@@ -28,8 +28,13 @@ jobs:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
+      - name: Create .env file
+        run: |
+          echo "POSTGRES_USER=user" >> .env
+          echo "POSTGRES_PASSWORD=password" >> .env
+          echo "POSTGRES_URL=jdbc:postgresql://localhost:5432/mydb" >> .env
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.qualitygate.wait=true
