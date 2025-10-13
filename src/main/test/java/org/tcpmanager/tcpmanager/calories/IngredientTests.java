@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.tcpmanager.tcpmanager.calories.ingredient.Ingredient;
 import org.tcpmanager.tcpmanager.calories.ingredient.IngredientRepository;
+import org.tcpmanager.tcpmanager.calories.ingredient.dto.IngredientPatch;
 import org.tcpmanager.tcpmanager.calories.ingredient.dto.IngredientRequest;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -65,7 +66,7 @@ class IngredientTests {
     mockMvc.perform(
             MockMvcRequestBuilders.post("/api/calories/ingredients").contentType("application/json")
                 .content(asJsonString(ingredientRequest))).andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("Calories must be greater than 0"));
+        .andExpect(jsonPath("$.message").value("Calories must not be null"));
   }
 
   @Test
@@ -85,7 +86,7 @@ class IngredientTests {
     mockMvc.perform(
             MockMvcRequestBuilders.post("/api/calories/ingredients").contentType("application/json")
                 .content(asJsonString(ingredientRequest))).andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("Fats must be greater than 0"));
+        .andExpect(jsonPath("$.message").value("Fats must not be null"));
   }
 
   @Test
@@ -105,7 +106,7 @@ class IngredientTests {
     mockMvc.perform(
             MockMvcRequestBuilders.post("/api/calories/ingredients").contentType("application/json")
                 .content(asJsonString(ingredientRequest))).andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("Carbs must be greater than 0"));
+        .andExpect(jsonPath("$.message").value("Carbs must not be null"));
   }
 
   @Test
@@ -125,7 +126,7 @@ class IngredientTests {
     mockMvc.perform(
             MockMvcRequestBuilders.post("/api/calories/ingredients").contentType("application/json")
                 .content(asJsonString(ingredientRequest))).andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("Proteins must be greater than 0"));
+        .andExpect(jsonPath("$.message").value("Proteins must not be null"));
   }
 
   @Test
@@ -279,10 +280,10 @@ class IngredientTests {
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
     ingredient = ingredientRepository.save(ingredient);
-    IngredientRequest ingredientRequest = new IngredientRequest("Updated Ingredient", null, null,
+    IngredientPatch ingredientPatch = new IngredientPatch("Updated Ingredient", null, null,
         null, null, null);
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/ingredients/" + ingredient.getId())
-            .contentType("application/json").content(asJsonString(ingredientRequest)))
+            .contentType("application/json").content(asJsonString(ingredientPatch)))
         .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(ingredient.getId()))
         .andExpect(jsonPath("$.name").value("Updated Ingredient"));
   }
@@ -297,10 +298,10 @@ class IngredientTests {
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
     ingredient = ingredientRepository.save(ingredient);
-    IngredientRequest ingredientRequest = new IngredientRequest(null, null, BigDecimal.valueOf(10),
+    IngredientPatch ingredientPatch = new IngredientPatch(null, null, BigDecimal.valueOf(10),
         null, null, null);
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/ingredients/" + ingredient.getId())
-            .contentType("application/json").content(asJsonString(ingredientRequest)))
+            .contentType("application/json").content(asJsonString(ingredientPatch)))
         .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(ingredient.getId()))
         .andExpect(jsonPath("$.fats").value(10));
   }
@@ -315,10 +316,10 @@ class IngredientTests {
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
     ingredient = ingredientRepository.save(ingredient);
-    IngredientRequest ingredientRequest = new IngredientRequest(null, BigDecimal.valueOf(10), null,
+    IngredientPatch ingredientPatch = new IngredientPatch(null, BigDecimal.valueOf(10), null,
         null, null, null);
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/ingredients/" + ingredient.getId())
-            .contentType("application/json").content(asJsonString(ingredientRequest)))
+            .contentType("application/json").content(asJsonString(ingredientPatch)))
         .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(ingredient.getId()))
         .andExpect(jsonPath("$.calories").value(10));
   }
@@ -333,10 +334,10 @@ class IngredientTests {
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
     ingredient = ingredientRepository.save(ingredient);
-    IngredientRequest ingredientRequest = new IngredientRequest(null, null, null,
+    IngredientPatch ingredientPatch = new IngredientPatch(null, null, null,
         BigDecimal.valueOf(10), null, null);
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/ingredients/" + ingredient.getId())
-            .contentType("application/json").content(asJsonString(ingredientRequest)))
+            .contentType("application/json").content(asJsonString(ingredientPatch)))
         .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(ingredient.getId()))
         .andExpect(jsonPath("$.carbs").value(10));
   }
@@ -351,10 +352,10 @@ class IngredientTests {
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
     ingredient = ingredientRepository.save(ingredient);
-    IngredientRequest ingredientRequest = new IngredientRequest(null, null, null, null,
+    IngredientPatch ingredientPatch = new IngredientPatch(null, null, null, null,
         BigDecimal.valueOf(10), " ");
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/ingredients/" + ingredient.getId())
-            .contentType("application/json").content(asJsonString(ingredientRequest)))
+            .contentType("application/json").content(asJsonString(ingredientPatch)))
         .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(ingredient.getId()))
         .andExpect(jsonPath("$.proteins").value(10));
   }
@@ -368,10 +369,10 @@ class IngredientTests {
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
     ingredient = ingredientRepository.save(ingredient);
-    IngredientRequest ingredientRequest = new IngredientRequest(null, null, null, null,
+    IngredientPatch ingredientPatch = new IngredientPatch(null, null, null, null,
         null, "0123456789104");
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/ingredients/" + ingredient.getId())
-            .contentType("application/json").content(asJsonString(ingredientRequest)))
+            .contentType("application/json").content(asJsonString(ingredientPatch)))
         .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(ingredient.getId()))
         .andExpect(jsonPath("$.ean").value("0123456789104"));
   }
@@ -385,10 +386,10 @@ class IngredientTests {
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
     ingredientRepository.save(ingredient);
-    IngredientRequest ingredientRequest = new IngredientRequest("Updated Ingredient", null, null,
+    IngredientPatch ingredientPatch = new IngredientPatch("Updated Ingredient", null, null,
         null, null, null);
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/ingredients/123")
-            .contentType("application/json").content(asJsonString(ingredientRequest)))
+            .contentType("application/json").content(asJsonString(ingredientPatch)))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("Ingredient with id 123 not found"));
   }

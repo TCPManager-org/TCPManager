@@ -6,6 +6,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.tcpmanager.tcpmanager.calories.ingredient.dto.IngredientPatch;
 import org.tcpmanager.tcpmanager.calories.ingredient.dto.IngredientRequest;
 import org.tcpmanager.tcpmanager.calories.ingredient.dto.IngredientResponse;
 
@@ -40,34 +41,34 @@ public class IngredientService {
   }
 
   @Transactional
-  public IngredientResponse updateById(Long id, IngredientRequest ingredientRequest) {
+  public IngredientResponse updateById(Long id, IngredientPatch ingredientPatch) {
     Ingredient ingredient = ingredientRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
-    if (ingredientRequest.name() != null) {
-      if (ingredientRequest.name().isBlank()) {
+    if (ingredientPatch.name() != null) {
+      if (ingredientPatch.name().isBlank()) {
         throw new IllegalArgumentException("Name must not be blank");
       }
-      ingredient.setName(ingredientRequest.name());
+      ingredient.setName(ingredientPatch.name());
     }
-    if (ingredientRequest.calories() != null) {
-      validateNutritionValue(ingredientRequest.calories(), "Calories");
-      ingredient.setCalories(ingredientRequest.calories());
+    if (ingredientPatch.calories() != null) {
+      validateNutritionValue(ingredientPatch.calories(), "Calories");
+      ingredient.setCalories(ingredientPatch.calories());
     }
-    if (ingredientRequest.fats() != null) {
-      validateNutritionValue(ingredientRequest.fats(), "Fats");
-      ingredient.setFats(ingredientRequest.fats());
+    if (ingredientPatch.fats() != null) {
+      validateNutritionValue(ingredientPatch.fats(), "Fats");
+      ingredient.setFats(ingredientPatch.fats());
     }
-    if (ingredientRequest.carbs() != null) {
-      validateNutritionValue(ingredientRequest.carbs(), "Carbs");
-      ingredient.setCarbs(ingredientRequest.carbs());
+    if (ingredientPatch.carbs() != null) {
+      validateNutritionValue(ingredientPatch.carbs(), "Carbs");
+      ingredient.setCarbs(ingredientPatch.carbs());
     }
-    if (ingredientRequest.proteins() != null) {
-      validateNutritionValue(ingredientRequest.proteins(), "Proteins");
-      ingredient.setProteins(ingredientRequest.proteins());
+    if (ingredientPatch.proteins() != null) {
+      validateNutritionValue(ingredientPatch.proteins(), "Proteins");
+      ingredient.setProteins(ingredientPatch.proteins());
     }
-    if (ingredientRequest.ean() != null && !ingredientRequest.ean().isBlank()) {
-      validateEan(ingredientRequest.ean());
-      ingredient.setEan(ingredientRequest.ean());
+    if (ingredientPatch.ean() != null && !ingredientPatch.ean().isBlank()) {
+      validateEan(ingredientPatch.ean());
+      ingredient.setEan(ingredientPatch.ean());
     }
     ingredientRepository.save(ingredient);
     return mapToIngredientResponse(ingredient);
@@ -75,7 +76,6 @@ public class IngredientService {
 
   @Transactional
   public IngredientResponse add(IngredientRequest ingredientRequest) {
-    validateIngredientRequest(ingredientRequest);
     Ingredient ingredient = new Ingredient();
     ingredient.setName(ingredientRequest.name());
     ingredient.setCalories(ingredientRequest.calories());
@@ -93,30 +93,6 @@ public class IngredientService {
         ingredient.getProteins(), ingredient.getEan());
   }
 
-  private void validateIngredientRequest(IngredientRequest ingredientRequest) {
-    if (ingredientRequest.name() == null || ingredientRequest.name().isBlank()) {
-      throw new IllegalArgumentException("Name must not be blank");
-    }
-    if (ingredientRequest.calories() == null
-        || ingredientRequest.calories().compareTo(BigDecimal.ZERO) <= 0) {
-      throw new IllegalArgumentException("Calories must be greater than 0");
-    }
-    if (ingredientRequest.fats() == null
-        || ingredientRequest.fats().compareTo(BigDecimal.ZERO) <= 0) {
-      throw new IllegalArgumentException("Fats must be greater than 0");
-    }
-    if (ingredientRequest.carbs() == null
-        || ingredientRequest.carbs().compareTo(BigDecimal.ZERO) <= 0) {
-      throw new IllegalArgumentException("Carbs must be greater than 0");
-    }
-    if (ingredientRequest.proteins() == null
-        || ingredientRequest.proteins().compareTo(BigDecimal.ZERO) <= 0) {
-      throw new IllegalArgumentException("Proteins must be greater than 0");
-    }
-    if(ingredientRequest.ean() != null) {
-      validateEan(ingredientRequest.ean());
-    }
-  }
 
   private void validateEan(String ean) {
     if (ean.isBlank() || ean.length() != 13) {
