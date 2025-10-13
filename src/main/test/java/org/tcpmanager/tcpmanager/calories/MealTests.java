@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.tcpmanager.tcpmanager.calories.meal.Meal;
 import org.tcpmanager.tcpmanager.calories.meal.MealRepository;
+import org.tcpmanager.tcpmanager.calories.meal.dto.MealPatch;
 import org.tcpmanager.tcpmanager.calories.meal.dto.MealRequest;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -123,9 +124,9 @@ class MealTests {
     Meal meal = new Meal();
     meal.setName("Test Meal");
     meal = mealRepository.save(meal);
-    MealRequest mealRequest = new MealRequest("Updated Meal");
+    MealPatch mealPatch = new MealPatch("Updated Meal");
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/meals/" + meal.getId())
-            .contentType("application/json").content(asJsonString(mealRequest)))
+            .contentType("application/json").content(asJsonString(mealPatch)))
         .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(meal.getId()))
         .andExpect(jsonPath("$.name").value("Updated Meal"));
     Meal updatedMeal = mealRepository.findById(meal.getId()).orElseThrow();
@@ -137,10 +138,10 @@ class MealTests {
     Meal meal = new Meal();
     meal.setName("Test Meal");
     mealRepository.save(meal);
-    MealRequest mealRequest = new MealRequest("Updated Meal");
+    MealPatch mealPatch = new MealPatch("Updated Meal");
     mockMvc.perform(
             MockMvcRequestBuilders.patch("/api/calories/meals/123").contentType("application/json")
-                .content(asJsonString(mealRequest))).andExpect(status().isNotFound())
+                .content(asJsonString(mealPatch))).andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("Meal with id 123 not found"));
   }
 

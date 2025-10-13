@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.tcpmanager.tcpmanager.calories.meal.dto.MealPatch;
 import org.tcpmanager.tcpmanager.calories.meal.dto.MealRequest;
 import org.tcpmanager.tcpmanager.calories.meal.dto.MealResponse;
 
@@ -40,10 +41,10 @@ public class MealService {
   }
 
   @Transactional
-  public MealResponse updateById(Long id, MealRequest mealRequest) {
+  public MealResponse updateById(Long id, MealPatch mealPatch) {
     Meal meal = mealRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
-    meal.setName(mealRequest.name());
+    meal.setName(mealPatch.name());
     mealRepository.save(meal);
     return new MealResponse(meal.getId(), meal.getName());
   }
