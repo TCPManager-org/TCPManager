@@ -1,7 +1,6 @@
 package org.tcpmanager.tcpmanager.calories.ingredient;
 
 import jakarta.persistence.EntityNotFoundException;
-import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -51,19 +50,15 @@ public class IngredientService {
       ingredient.setName(ingredientPatch.name());
     }
     if (ingredientPatch.calories() != null) {
-      validateNutritionValue(ingredientPatch.calories(), "Calories");
       ingredient.setCalories(ingredientPatch.calories());
     }
     if (ingredientPatch.fats() != null) {
-      validateNutritionValue(ingredientPatch.fats(), "Fats");
       ingredient.setFats(ingredientPatch.fats());
     }
     if (ingredientPatch.carbs() != null) {
-      validateNutritionValue(ingredientPatch.carbs(), "Carbs");
       ingredient.setCarbs(ingredientPatch.carbs());
     }
     if (ingredientPatch.proteins() != null) {
-      validateNutritionValue(ingredientPatch.proteins(), "Proteins");
       ingredient.setProteins(ingredientPatch.proteins());
     }
     if (ingredientPatch.ean() != null && !ingredientPatch.ean().isBlank()) {
@@ -112,12 +107,6 @@ public class IngredientService {
     sum += Character.getNumericValue(ean.charAt(ean.length() - 1));
     if (sum % 10 != 0) {
       throw new IllegalArgumentException("EAN is not valid");
-    }
-  }
-
-  void validateNutritionValue(BigDecimal value, String fieldName) {
-    if (value == null || value.compareTo(BigDecimal.ZERO) <= 0) {
-      throw new IllegalArgumentException(fieldName + " must be greater than 0");
     }
   }
 }
