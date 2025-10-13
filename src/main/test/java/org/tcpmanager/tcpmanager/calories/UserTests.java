@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.tcpmanager.tcpmanager.user.User;
 import org.tcpmanager.tcpmanager.user.UserRepository;
+import org.tcpmanager.tcpmanager.user.dto.UserPatch;
 import org.tcpmanager.tcpmanager.user.dto.UserRequest;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -171,10 +172,10 @@ class UserTests {
     User user = new User();
     user.setUsername("TestUser");
     user = userRepository.save(user);
-    UserRequest userRequest = new UserRequest("UpdatedUser");
+    UserPatch userPatch = new UserPatch("UpdatedUser");
     mockMvc.perform(
             MockMvcRequestBuilders.patch("/api/users/" + user.getId()).contentType("application/json")
-                .content(asJsonString(userRequest))).andExpect(status().isOk())
+                .content(asJsonString(userPatch))).andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(user.getId()))
         .andExpect(jsonPath("$.username").value("UpdatedUser"));
     User updatedUser = userRepository.findById(user.getId()).orElseThrow();
@@ -186,9 +187,9 @@ class UserTests {
     User user = new User();
     user.setUsername("TestUser");
     userRepository.save(user);
-    UserRequest userRequest = new UserRequest("UpdatedUser");
+    UserPatch userPatch = new UserPatch("UpdatedUser");
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/users/123").contentType("application/json")
-            .content(asJsonString(userRequest))).andExpect(status().isNotFound())
+            .content(asJsonString(userPatch))).andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("User with id 123 not found"));
   }
 

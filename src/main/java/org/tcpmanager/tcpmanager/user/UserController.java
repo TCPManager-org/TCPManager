@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.tcpmanager.tcpmanager.user.dto.UserPatch;
 import org.tcpmanager.tcpmanager.user.dto.UserRequest;
 import org.tcpmanager.tcpmanager.user.dto.UserResponse;
 
@@ -52,8 +53,8 @@ public class UserController {
   @PatchMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
   public UserResponse updateMealById(@PathVariable Long id,
-      @RequestBody @Valid UserRequest userRequest) {
-    return userService.updateById(id, userRequest);
+      @RequestBody @Valid UserPatch userPatch) {
+    return userService.updateById(id, userPatch);
   }
 
   @PostMapping
