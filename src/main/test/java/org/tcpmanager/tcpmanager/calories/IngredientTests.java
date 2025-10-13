@@ -44,6 +44,46 @@ class IngredientTests {
   @Autowired
   private IngredientRepository ingredientRepository;
 
+  @Test
+  void validation_EanIsShorter() throws Exception {
+    IngredientRequest ingredientRequest = new IngredientRequest("Name", BigDecimal.ONE,
+        BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE, "01234567");
+    mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/calories/ingredients").contentType("application/json")
+                .content(asJsonString(ingredientRequest))).andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("Ean must be 13 characters long"));
+  }
+
+  @Test
+  void validation_EanIsBlank() throws Exception {
+    IngredientRequest ingredientRequest = new IngredientRequest("Name", BigDecimal.ONE,
+        BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE, "             ");
+    mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/calories/ingredients").contentType("application/json")
+                .content(asJsonString(ingredientRequest))).andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("Ean must not be blank"));
+  }
+
+  @Test
+  void validation_EanHasAlpha() throws Exception {
+    IngredientRequest ingredientRequest = new IngredientRequest("Name", BigDecimal.ONE,
+        BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE, "01234567ABCDE");
+    mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/calories/ingredients").contentType("application/json")
+                .content(asJsonString(ingredientRequest))).andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("EAN must contain only digits"));
+  }
+
+  @Test
+  void validation_EanWrongChecksum() throws Exception {
+    IngredientRequest ingredientRequest = new IngredientRequest("Name", BigDecimal.ONE,
+        BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE, "0123456789016");
+    mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/calories/ingredients").contentType("application/json")
+                .content(asJsonString(ingredientRequest))).andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("EAN is not valid"));
+  }
+
   @AfterEach
   void afterEach() {
     ingredientRepository.deleteAll();
@@ -239,6 +279,21 @@ class IngredientTests {
   }
 
   @Test
+  void addIngredient_ShouldReturnCreatedWithoutEan() throws Exception {
+    IngredientRequest ingredientRequest = new IngredientRequest("New Ingredient",
+        BigDecimal.valueOf(1), BigDecimal.valueOf(2), BigDecimal.valueOf(3), BigDecimal.valueOf(4),
+        null);
+    mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/calories/ingredients").contentType("application/json")
+                .content(asJsonString(ingredientRequest))).andExpect(status().isCreated())
+        .andExpect(jsonPath("$.id").isNumber())
+        .andExpect(jsonPath("$.name").value("New Ingredient"))
+        .andExpect(jsonPath("$.ean").doesNotExist()).andExpect(jsonPath("$.calories").value(1))
+        .andExpect(jsonPath("$.fats").value(2)).andExpect(jsonPath("$.carbs").value(3))
+        .andExpect(jsonPath("$.proteins").value(4));
+  }
+
+  @Test
   void deleteIngredient_ShouldReturnNoContent() throws Exception {
     Ingredient ingredient = new Ingredient();
     ingredient.setName("Test Ingredient");
@@ -280,12 +335,29 @@ class IngredientTests {
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
     ingredient = ingredientRepository.save(ingredient);
-    IngredientPatch ingredientPatch = new IngredientPatch("Updated Ingredient", null, null,
-        null, null, null);
+    IngredientPatch ingredientPatch = new IngredientPatch("Updated Ingredient", null, null, null,
+        null, null);
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/ingredients/" + ingredient.getId())
             .contentType("application/json").content(asJsonString(ingredientPatch)))
         .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(ingredient.getId()))
         .andExpect(jsonPath("$.name").value("Updated Ingredient"));
+  }
+
+  @Test
+  void updateIngredient_ShouldThrowNameIsBlank() throws Exception {
+    Ingredient ingredient = new Ingredient();
+    ingredient.setName("Test Ingredient");
+    ingredient.setEan("1234567890123");
+    ingredient.setCalories(BigDecimal.valueOf(1));
+    ingredient.setFats(BigDecimal.valueOf(2));
+    ingredient.setCarbs(BigDecimal.valueOf(3));
+    ingredient.setProteins(BigDecimal.valueOf(4));
+    ingredient = ingredientRepository.save(ingredient);
+    IngredientPatch ingredientPatch = new IngredientPatch(" ", null, null, null, null, null);
+    mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/ingredients/" + ingredient.getId())
+            .contentType("application/json").content(asJsonString(ingredientPatch)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("Name must not be blank"));
   }
 
   @Test
@@ -298,8 +370,8 @@ class IngredientTests {
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
     ingredient = ingredientRepository.save(ingredient);
-    IngredientPatch ingredientPatch = new IngredientPatch(null, null, BigDecimal.valueOf(10),
-        null, null, null);
+    IngredientPatch ingredientPatch = new IngredientPatch(null, null, BigDecimal.valueOf(10), null,
+        null, null);
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/ingredients/" + ingredient.getId())
             .contentType("application/json").content(asJsonString(ingredientPatch)))
         .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(ingredient.getId()))
@@ -316,8 +388,8 @@ class IngredientTests {
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
     ingredient = ingredientRepository.save(ingredient);
-    IngredientPatch ingredientPatch = new IngredientPatch(null, BigDecimal.valueOf(10), null,
-        null, null, null);
+    IngredientPatch ingredientPatch = new IngredientPatch(null, BigDecimal.valueOf(10), null, null,
+        null, null);
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/ingredients/" + ingredient.getId())
             .contentType("application/json").content(asJsonString(ingredientPatch)))
         .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(ingredient.getId()))
@@ -334,8 +406,8 @@ class IngredientTests {
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
     ingredient = ingredientRepository.save(ingredient);
-    IngredientPatch ingredientPatch = new IngredientPatch(null, null, null,
-        BigDecimal.valueOf(10), null, null);
+    IngredientPatch ingredientPatch = new IngredientPatch(null, null, null, BigDecimal.valueOf(10),
+        null, null);
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/ingredients/" + ingredient.getId())
             .contentType("application/json").content(asJsonString(ingredientPatch)))
         .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(ingredient.getId()))
@@ -353,12 +425,13 @@ class IngredientTests {
     ingredient.setProteins(BigDecimal.valueOf(4));
     ingredient = ingredientRepository.save(ingredient);
     IngredientPatch ingredientPatch = new IngredientPatch(null, null, null, null,
-        BigDecimal.valueOf(10), " ");
+        BigDecimal.valueOf(10), null);
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/ingredients/" + ingredient.getId())
             .contentType("application/json").content(asJsonString(ingredientPatch)))
         .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(ingredient.getId()))
         .andExpect(jsonPath("$.proteins").value(10));
   }
+
   @Test
   void updateIngredient_Ean() throws Exception {
     Ingredient ingredient = new Ingredient();
@@ -369,13 +442,14 @@ class IngredientTests {
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
     ingredient = ingredientRepository.save(ingredient);
-    IngredientPatch ingredientPatch = new IngredientPatch(null, null, null, null,
-        null, "0123456789104");
+    IngredientPatch ingredientPatch = new IngredientPatch(null, null, null, null, null,
+        "0123456789104");
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/ingredients/" + ingredient.getId())
             .contentType("application/json").content(asJsonString(ingredientPatch)))
         .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(ingredient.getId()))
         .andExpect(jsonPath("$.ean").value("0123456789104"));
   }
+
   @Test
   void updateIngredient_ShouldReturnNotFound() throws Exception {
     Ingredient ingredient = new Ingredient();
@@ -386,8 +460,8 @@ class IngredientTests {
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
     ingredientRepository.save(ingredient);
-    IngredientPatch ingredientPatch = new IngredientPatch("Updated Ingredient", null, null,
-        null, null, null);
+    IngredientPatch ingredientPatch = new IngredientPatch("Updated Ingredient", null, null, null,
+        null, null);
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/ingredients/123")
             .contentType("application/json").content(asJsonString(ingredientPatch)))
         .andExpect(status().isNotFound())

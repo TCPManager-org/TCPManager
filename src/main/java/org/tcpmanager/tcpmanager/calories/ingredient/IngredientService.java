@@ -47,7 +47,7 @@ public class IngredientService {
       if (ingredientPatch.name().isBlank()) {
         throw new IllegalArgumentException("Name must not be blank");
       }
-      ingredient.setName(ingredientPatch.name());
+      ingredient.setName(ingredientPatch.name().strip());
     }
     if (ingredientPatch.calories() != null) {
       ingredient.setCalories(ingredientPatch.calories());
@@ -61,9 +61,9 @@ public class IngredientService {
     if (ingredientPatch.proteins() != null) {
       ingredient.setProteins(ingredientPatch.proteins());
     }
-    if (ingredientPatch.ean() != null && !ingredientPatch.ean().isBlank()) {
-      validateEan(ingredientPatch.ean());
-      ingredient.setEan(ingredientPatch.ean());
+    if (ingredientPatch.ean() != null) {
+      validateEan(ingredientPatch.ean().strip());
+      ingredient.setEan(ingredientPatch.ean().strip());
     }
     ingredientRepository.save(ingredient);
     return mapToIngredientResponse(ingredient);
@@ -71,13 +71,18 @@ public class IngredientService {
 
   @Transactional
   public IngredientResponse add(IngredientRequest ingredientRequest) {
+    if (ingredientRequest.ean() != null) {
+      validateEan(ingredientRequest.ean().strip());
+    }
     Ingredient ingredient = new Ingredient();
-    ingredient.setName(ingredientRequest.name());
+    ingredient.setName(ingredientRequest.name().strip());
     ingredient.setCalories(ingredientRequest.calories());
     ingredient.setFats(ingredientRequest.fats());
     ingredient.setCarbs(ingredientRequest.carbs());
     ingredient.setProteins(ingredientRequest.proteins());
-    ingredient.setEan(ingredientRequest.ean());
+    if (ingredientRequest.ean() != null) {
+      ingredient.setEan(ingredientRequest.ean().strip());
+    }
     ingredient = ingredientRepository.save(ingredient);
     return mapToIngredientResponse(ingredient);
   }
@@ -90,8 +95,8 @@ public class IngredientService {
 
 
   private void validateEan(String ean) {
-    if (ean.isBlank() || ean.length() != 13) {
-      throw new IllegalArgumentException("EAN must be 13 characters long");
+    if (ean.isBlank()) {
+      throw new IllegalArgumentException("Ean must not be blank");
     }
     int sum = 0;
     for (int i = 0; i < 12; i++) {
