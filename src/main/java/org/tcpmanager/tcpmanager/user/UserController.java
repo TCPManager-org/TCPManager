@@ -28,37 +28,37 @@ public class UserController {
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
   public List<UserResponse> getMeals() {
-    return userService.getAll();
+    return userService.getAllUsers();
   }
 
   @GetMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
   public UserResponse getMealById(@PathVariable Long id) {
-    return userService.getById(id);
+    return userService.getUserById(id);
   }
 
   @GetMapping(params = {"username"})
   @ResponseStatus(HttpStatus.OK)
   public UserResponse getMealById(@NotBlank @RequestParam(value = "username") String username) {
-    return userService.getByUsername(username);
+    return userService.getUserByUsername(username);
   }
 
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deleteMealById(@PathVariable Long id) {
-    userService.deleteById(id);
+    userService.deleteUserById(id);
   }
 
   @PatchMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
   public UserResponse updateMealById(@PathVariable Long id,
       @RequestBody @Valid UserRequest userRequest) {
-    return userService.updateById(id, userRequest);
+    return userService.updateUserById(id, userRequest);
   }
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public UserResponse addMeal(@RequestBody @Valid UserRequest userRequest) {
-    return userService.add(userRequest);
+    return userService.addUser(userRequest);
   }
 }

@@ -15,19 +15,19 @@ public class UserService {
 
   private final UserRepository userRepository;
 
-  public List<UserResponse> getAll() {
+  public List<UserResponse> getAllUsers() {
     return userRepository.findAll().stream()
         .map(user -> new UserResponse(user.getId(), user.getUsername())).toList();
   }
 
-  public UserResponse getById(Long id) {
+  public UserResponse getUserById(Long id) {
     User user = userRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
     return new UserResponse(user.getId(), user.getUsername());
   }
 
   @Transactional
-  public void deleteById(Long id) {
+  public void deleteUserById(Long id) {
     if (!userRepository.existsById(id)) {
       throw new EntityNotFoundException(generateNotFoundMessage(id));
     }
@@ -36,7 +36,7 @@ public class UserService {
   }
 
   @Transactional
-  public UserResponse updateById(Long id, UserRequest userRequest) {
+  public UserResponse updateUserById(Long id, UserRequest userRequest) {
     User user = userRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
     var username = userRequest.username().strip();
@@ -47,7 +47,7 @@ public class UserService {
   }
 
   @Transactional
-  public UserResponse add(UserRequest userRequest) {
+  public UserResponse addUser(UserRequest userRequest) {
     User user = new User();
     var username = userRequest.username().strip();
     validateUsername(username);
@@ -56,7 +56,7 @@ public class UserService {
     return new UserResponse(user.getId(), user.getUsername());
   }
 
-  public UserResponse getByUsername(String username) {
+  public UserResponse getUserByUsername(String username) {
     return userRepository.findByUsername(username)
         .map(user -> new UserResponse(user.getId(), user.getUsername())).orElseThrow(
             () -> new EntityNotFoundException("User with username " + username + " not found"));

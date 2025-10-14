@@ -50,7 +50,6 @@ public class IntakeHistory {
   @Column(name = "carbs_goal", nullable = false)
   private Integer carbsGoal;
 
-  @ManyToOne
-  @JoinColumn(name = "user_id", nullable = false)
-  private User user;
+  @Column(nullable = false)
+  private String username;
 }
