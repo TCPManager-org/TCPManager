@@ -1,6 +1,7 @@
 package org.tcpmanager.tcpmanager.calories.intakehistory;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.tcpmanager.tcpmanager.calories.intakehistory.dto.IntakeHistoryRequest;
@@ -13,6 +14,7 @@ public class IntakeHistoryService {
 
   private final IntakeHistoryRepository intakeHistoryRepository;
   private final UserService userService;
+
   private String generateNotFoundMessage(Long id) {
     return "Intake history with id " + id + " not found";
   }
@@ -21,8 +23,21 @@ public class IntakeHistoryService {
     return new IntakeHistoryResponse(intakeHistory.getId(), intakeHistory.getDate(),
         intakeHistory.getCalories(), intakeHistory.getProtein(), intakeHistory.getFat(),
         intakeHistory.getCarbs(), intakeHistory.getCaloriesGoal(), intakeHistory.getProteinGoal(),
-        intakeHistory.getFatGoal(), intakeHistory.getCarbsGoal(),
-        intakeHistory.getUsername());
+        intakeHistory.getFatGoal(), intakeHistory.getCarbsGoal(), intakeHistory.getUsername());
+  }
+
+  private void updateIntakeHistoryFields(IntakeHistory intakeHistory,
+      IntakeHistoryRequest intakeHistoryRequest) {
+    intakeHistory.setDate(intakeHistoryRequest.date());
+    intakeHistory.setCalories(intakeHistoryRequest.calories());
+    intakeHistory.setProtein(intakeHistoryRequest.protein());
+    intakeHistory.setFat(intakeHistoryRequest.fat());
+    intakeHistory.setCarbs(intakeHistoryRequest.carbs());
+    intakeHistory.setCaloriesGoal(intakeHistoryRequest.caloriesGoal());
+    intakeHistory.setProteinGoal(intakeHistoryRequest.proteinGoal());
+    intakeHistory.setFatGoal(intakeHistoryRequest.fatGoal());
+    intakeHistory.setCarbsGoal(intakeHistoryRequest.carbsGoal());
+    intakeHistory.setUsername(intakeHistoryRequest.username());
   }
 
   public IntakeHistoryResponse getIntakeHistoryById(Long id) {
@@ -41,16 +56,16 @@ public class IntakeHistoryService {
     //TODO: delete history for user if deleted;Dates unique per user
     userService.getUserByUsername(intakeHistoryRequest.username());
     IntakeHistory intakeHistory = new IntakeHistory();
-    intakeHistory.setDate(intakeHistoryRequest.date());
-    intakeHistory.setCalories(intakeHistoryRequest.calories());
-    intakeHistory.setProtein(intakeHistoryRequest.protein());
-    intakeHistory.setFat(intakeHistoryRequest.fat());
-    intakeHistory.setCarbs(intakeHistoryRequest.carbs());
-    intakeHistory.setCaloriesGoal(intakeHistoryRequest.caloriesGoal());
-    intakeHistory.setProteinGoal(intakeHistoryRequest.proteinGoal());
-    intakeHistory.setFatGoal(intakeHistoryRequest.fatGoal());
-    intakeHistory.setCarbsGoal(intakeHistoryRequest.carbsGoal());
-    intakeHistory.setUsername(intakeHistoryRequest.username());
+    updateIntakeHistoryFields(intakeHistory, intakeHistoryRequest);
+    intakeHistory = intakeHistoryRepository.save(intakeHistory);
+    return mapToIntakeHistoryResponse(intakeHistory);
+  }
+
+  public IntakeHistoryResponse updateIntakeHistoryById(Long id,
+      @Valid IntakeHistoryRequest intakeHistoryRequest) {
+    IntakeHistory intakeHistory = intakeHistoryRepository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
+    updateIntakeHistoryFields(intakeHistory, intakeHistoryRequest);
     intakeHistory = intakeHistoryRepository.save(intakeHistory);
     return mapToIntakeHistoryResponse(intakeHistory);
   }

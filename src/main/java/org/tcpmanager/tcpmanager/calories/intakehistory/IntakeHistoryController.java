@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,8 +35,16 @@ public class IntakeHistoryController {
   }
 
   @PostMapping
-  @ResponseStatus
-  public IntakeHistoryResponse addIntakeHistory(@RequestBody @Valid IntakeHistoryRequest intakeHistoryRequest){
+  @ResponseStatus(HttpStatus.CREATED)
+  public IntakeHistoryResponse addIntakeHistory(
+      @RequestBody @Valid IntakeHistoryRequest intakeHistoryRequest) {
     return intakeHistoryService.addIntakeHistory(intakeHistoryRequest);
+  }
+
+  @PatchMapping("/{id}")
+  @ResponseStatus(HttpStatus.OK)
+  public IntakeHistoryResponse updateIntakeHistoryById(
+      @RequestBody @Valid IntakeHistoryRequest intakeHistoryRequest, @PathVariable Long id) {
+    return intakeHistoryService.updateIntakeHistoryById(id, intakeHistoryRequest);
   }
 }
