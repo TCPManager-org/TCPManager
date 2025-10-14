@@ -44,7 +44,7 @@ public class MealService {
   public MealResponse updateById(Long id, MealPatch mealPatch) {
     Meal meal = mealRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
-    meal.setName(mealPatch.name());
+    meal.setName(mealPatch.name().strip());
     mealRepository.save(meal);
     return new MealResponse(meal.getId(), meal.getName());
   }
@@ -52,7 +52,7 @@ public class MealService {
   @Transactional
   public MealResponse add(MealRequest mealRequest) {
     Meal meal = new Meal();
-    meal.setName(mealRequest.name());
+    meal.setName(mealRequest.name().strip());
     meal = mealRepository.save(meal);
     return new MealResponse(meal.getId(), meal.getName());
   }
