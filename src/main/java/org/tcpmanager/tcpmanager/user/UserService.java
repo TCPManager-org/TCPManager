@@ -3,8 +3,11 @@ package org.tcpmanager.tcpmanager.user;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.tcpmanager.tcpmanager.events.UserDeletedEvent;
 import org.tcpmanager.tcpmanager.user.dto.UserRequest;
 import org.tcpmanager.tcpmanager.user.dto.UserResponse;
 
@@ -14,6 +17,7 @@ import org.tcpmanager.tcpmanager.user.dto.UserResponse;
 public class UserService {
 
   private final UserRepository userRepository;
+  private final ApplicationEventPublisher eventPublisher;
 
   public List<UserResponse> getAllUsers() {
     return userRepository.findAll().stream()
@@ -31,8 +35,9 @@ public class UserService {
     if (!userRepository.existsById(id)) {
       throw new EntityNotFoundException(generateNotFoundMessage(id));
     }
-
+    var username = userRepository.getUserById(id).getUsername();
     userRepository.deleteById(id);
+    eventPublisher.publishEvent(new UserDeletedEvent(username));
   }
 
   @Transactional

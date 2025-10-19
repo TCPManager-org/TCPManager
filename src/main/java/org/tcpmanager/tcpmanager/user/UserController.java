@@ -27,38 +27,39 @@ public class UserController {
 
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
-  public List<UserResponse> getMeals() {
+  public List<UserResponse> getUsers() {
     return userService.getAllUsers();
   }
 
   @GetMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
-  public UserResponse getMealById(@PathVariable Long id) {
+  public UserResponse getUserById(@PathVariable Long id) {
     return userService.getUserById(id);
   }
 
   @GetMapping(params = {"username"})
   @ResponseStatus(HttpStatus.OK)
-  public UserResponse getMealById(@NotBlank @RequestParam(value = "username") String username) {
+  public UserResponse getUserById(@NotBlank @RequestParam(value = "username") String username) {
     return userService.getUserByUsername(username);
   }
 
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deleteMealById(@PathVariable Long id) {
+  public void deleteUserById(@PathVariable Long id) {
     userService.deleteUserById(id);
   }
 
   @PatchMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
-  public UserResponse updateMealById(@PathVariable Long id,
+  public UserResponse updateUserById(@PathVariable Long id,
       @RequestBody @Valid UserRequest userRequest) {
     return userService.updateUserById(id, userRequest);
   }
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public UserResponse addMeal(@RequestBody @Valid UserRequest userRequest) {
+  public UserResponse addUser(@RequestBody @Valid UserRequest userRequest) {
     return userService.addUser(userRequest);
   }
+
 }
