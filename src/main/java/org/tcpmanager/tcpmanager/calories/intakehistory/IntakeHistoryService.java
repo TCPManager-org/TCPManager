@@ -25,7 +25,6 @@ public class IntakeHistoryService {
   }
 
   @ApplicationModuleListener
-  @Transactional
   public void on(UserDeletedEvent event) {
     intakeHistoryRepository.deleteIntakeHistoriesByUsername(event.username());
   }
