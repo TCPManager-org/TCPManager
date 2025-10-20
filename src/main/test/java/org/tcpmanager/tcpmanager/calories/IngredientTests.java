@@ -278,6 +278,32 @@ class IngredientTests {
   }
 
   @Test
+  void validation_EanIsNotUnique() throws Exception {
+    Ingredient ingredient = new Ingredient();
+    ingredient.setName("Test Ingredient");
+    ingredient.setEan("1234567890123");
+    ingredient.setCalories(BigDecimal.valueOf(1));
+    ingredient.setFats(BigDecimal.valueOf(2));
+    ingredient.setCarbs(BigDecimal.valueOf(3));
+    ingredient.setProteins(BigDecimal.valueOf(4));
+    ingredientRepository.save(ingredient);
+    String json = """
+        {
+          "name": "Name",
+          "calories": 1,
+          "fats": 1,
+          "carbs": 1,
+          "proteins": 1,
+          "ean": "1234567890123"
+        }
+        """;
+    mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/calories/ingredients").contentType("application/json")
+                .content(json)).andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("EAN must be unique"));
+  }
+
+  @Test
   void getIngredients_ShouldReturnAllIngredients() throws Exception {
     Ingredient ingredient = new Ingredient();
     ingredient.setName("Test Ingredient");

@@ -95,6 +95,10 @@ public class IngredientService {
 
 
   private void validateEan(String ean) {
+    var existing = ingredientRepository.findByEan(ean);
+    if (existing.isPresent()) {
+      throw new IllegalArgumentException("EAN must be unique");
+    }
     if (ean.isBlank()) {
       throw new IllegalArgumentException("Ean must not be blank");
     }

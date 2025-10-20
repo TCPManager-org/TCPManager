@@ -6,7 +6,7 @@ CREATE TABLE calories.ingredients
     fats      NUMERIC NOT NULL,
     carbs    NUMERIC NOT NULL,
     proteins  NUMERIC NOT NULL,
-    EAN      VARCHAR(13)
+    EAN      VARCHAR(13) UNIQUE
 );
 CREATE TABLE calories.meals
 (
