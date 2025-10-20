@@ -26,32 +26,32 @@ public class MealController {
 
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
-  public List<MealResponse> getMeals() {
-    return mealService.getAll();
+  public List<MealResponse> getAllMeals() {
+    return mealService.getAllMeals();
   }
 
-  @GetMapping("/{id}")
-  @ResponseStatus(HttpStatus.OK)
-  public MealResponse getMealById(@PathVariable Long id) {
-    return mealService.getById(id);
-  }
-
-  @DeleteMapping("/{id}")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deleteMealById(@PathVariable Long id) {
-    mealService.deleteById(id);
-  }
-
-  @PatchMapping("/{id}")
-  @ResponseStatus(HttpStatus.OK)
-  public MealResponse updateMealById(@PathVariable Long id,
-      @RequestBody @Valid MealPatch mealPatch) {
-    return mealService.updateById(id, mealPatch);
-  }
-
-  @PostMapping
-  @ResponseStatus(HttpStatus.CREATED)
-  public MealResponse addMeal(@RequestBody @Valid MealRequest mealRequest) {
-    return mealService.add(mealRequest);
-  }
+//  @GetMapping("/{id}")
+//  @ResponseStatus(HttpStatus.OK)
+//  public MealResponse getMealById(@PathVariable Long id) {
+//    return mealService.getById(id);
+//  }
+//
+//  @DeleteMapping("/{id}")
+//  @ResponseStatus(HttpStatus.NO_CONTENT)
+//  public void deleteMealById(@PathVariable Long id) {
+//    mealService.deleteById(id);
+//  }
+//
+//  @PatchMapping("/{id}")
+//  @ResponseStatus(HttpStatus.OK)
+//  public MealResponse updateMealById(@PathVariable Long id,
+//      @RequestBody @Valid MealPatch mealPatch) {
+//    return mealService.updateById(id, mealPatch);
+//  }
+//
+//  @PostMapping
+//  @ResponseStatus(HttpStatus.CREATED)
+//  public MealResponse addMeal(@RequestBody @Valid MealRequest mealRequest) {
+//    return mealService.add(mealRequest);
+//  }
 }
