@@ -1,6 +1,7 @@
 package org.tcpmanager.tcpmanager.calories.mealingredient;
 
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,5 +18,10 @@ public class MealIngredientController {
   @GetMapping
   public List<MealIngredientResponse> getAll() {
     return mealIngredientService.getAll();
+  }
+
+  @GetMapping("/{id}")
+  public MealIngredientResponse getById(Long id) {
+    return mealIngredientService.getById(id);
   }
 }
