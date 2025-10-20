@@ -1,11 +1,9 @@
 package org.tcpmanager.tcpmanager.calories.mealingredient;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -21,14 +19,15 @@ import org.tcpmanager.tcpmanager.calories.meal.Meal;
 @Table(name = "meal_ingredients", schema = "calories")
 public class MealIngredient {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
-  @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-  @JoinColumn(name = "meal_id", nullable = false)
+  @EmbeddedId
+  private MealIngredientKey id;
+
+  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "meal_id")
   private Meal meal;
-  @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-  @JoinColumn(name = "ingredient_id", nullable = false)
+
+  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "ingredient_id")
   private Ingredient ingredient;
 
   private BigDecimal amount;
