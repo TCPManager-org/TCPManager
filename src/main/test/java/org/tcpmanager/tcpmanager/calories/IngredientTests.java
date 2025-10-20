@@ -7,6 +7,8 @@ import java.math.BigDecimal;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -474,8 +476,9 @@ class IngredientTests {
         .andExpect(jsonPath("$.message").value("Name must not be blank"));
   }
 
-  @Test
-  void updateIngredient_Fats() throws Exception {
+  @ParameterizedTest
+  @ValueSource(strings = {"fats", "calories", "carbs", "proteins"})
+  void updateIngredient_Fats(String value) throws Exception {
     Ingredient ingredient = new Ingredient();
     ingredient.setName("Test Ingredient");
     ingredient.setEan("1234567890123");
@@ -486,76 +489,13 @@ class IngredientTests {
     ingredient = ingredientRepository.save(ingredient);
     String json = """
           {
-            "fats": 10
+            "%s": 10
           }
-        """;
+        """.formatted(value);
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/ingredients/" + ingredient.getId())
             .contentType("application/json").content(json)).andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(ingredient.getId()))
-        .andExpect(jsonPath("$.fats").value(10));
-  }
-
-  @Test
-  void updateIngredient_Calories() throws Exception {
-    Ingredient ingredient = new Ingredient();
-    ingredient.setName("Test Ingredient");
-    ingredient.setEan("1234567890123");
-    ingredient.setCalories(BigDecimal.valueOf(1));
-    ingredient.setFats(BigDecimal.valueOf(2));
-    ingredient.setCarbs(BigDecimal.valueOf(3));
-    ingredient.setProteins(BigDecimal.valueOf(4));
-    ingredient = ingredientRepository.save(ingredient);
-    String json = """
-          {
-            "calories": 10
-          }
-        """;
-    mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/ingredients/" + ingredient.getId())
-            .contentType("application/json").content(json)).andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(ingredient.getId()))
-        .andExpect(jsonPath("$.calories").value(10));
-  }
-
-  @Test
-  void updateIngredient_Carbs() throws Exception {
-    Ingredient ingredient = new Ingredient();
-    ingredient.setName("Test Ingredient");
-    ingredient.setEan("1234567890123");
-    ingredient.setCalories(BigDecimal.valueOf(1));
-    ingredient.setFats(BigDecimal.valueOf(2));
-    ingredient.setCarbs(BigDecimal.valueOf(3));
-    ingredient.setProteins(BigDecimal.valueOf(4));
-    ingredient = ingredientRepository.save(ingredient);
-    String json = """
-          {
-            "carbs": 10
-          }
-        """;
-    mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/ingredients/" + ingredient.getId())
-            .contentType("application/json").content(json)).andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(ingredient.getId()))
-        .andExpect(jsonPath("$.carbs").value(10));
-  }
-
-  @Test
-  void updateIngredient_Proteins() throws Exception {
-    Ingredient ingredient = new Ingredient();
-    ingredient.setName("Test Ingredient");
-    ingredient.setEan("1234567890123");
-    ingredient.setCalories(BigDecimal.valueOf(1));
-    ingredient.setFats(BigDecimal.valueOf(2));
-    ingredient.setCarbs(BigDecimal.valueOf(3));
-    ingredient.setProteins(BigDecimal.valueOf(4));
-    ingredient = ingredientRepository.save(ingredient);
-    String json = """
-          {
-            "proteins": 10
-          }
-        """;
-    mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/ingredients/" + ingredient.getId())
-            .contentType("application/json").content(json)).andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(ingredient.getId()))
-        .andExpect(jsonPath("$.proteins").value(10));
+        .andExpect(jsonPath("$." + value).value(10));
   }
 
   @Test
