@@ -3,8 +3,6 @@ package org.tcpmanager.tcpmanager.calories;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -16,8 +14,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.tcpmanager.tcpmanager.calories.meal.Meal;
 import org.tcpmanager.tcpmanager.calories.meal.MealRepository;
-import org.tcpmanager.tcpmanager.calories.meal.dto.MealPatch;
-import org.tcpmanager.tcpmanager.calories.meal.dto.MealRequest;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -91,11 +87,15 @@ class MealTests {
 
   @Test
   void addMeal_ShouldReturnCreated() throws Exception {
-    MealRequest mealRequest = new MealRequest("New Meal");
+    String json = """
+          {
+            "name": "New Meal"
+          }
+        """;
     mockMvc.perform(
             MockMvcRequestBuilders.post("/api/calories/meals").contentType("application/json")
-                .content(asJsonString(mealRequest))).andExpect(status().isCreated())
-        .andExpect(jsonPath("$.id").isNumber()).andExpect(jsonPath("$.name").value("New Meal"));
+                .content(json)).andExpect(status().isCreated()).andExpect(jsonPath("$.id").isNumber())
+        .andExpect(jsonPath("$.name").value("New Meal"));
   }
 
   @Test
@@ -124,10 +124,14 @@ class MealTests {
     Meal meal = new Meal();
     meal.setName("Test Meal");
     meal = mealRepository.save(meal);
-    MealPatch mealPatch = new MealPatch("Updated Meal");
+    String json = """
+          {
+            "name": "Updated Meal"
+          }
+        """;
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/meals/" + meal.getId())
-            .contentType("application/json").content(asJsonString(mealPatch)))
-        .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(meal.getId()))
+            .contentType("application/json").content(json)).andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(meal.getId()))
         .andExpect(jsonPath("$.name").value("Updated Meal"));
     Meal updatedMeal = mealRepository.findById(meal.getId()).orElseThrow();
     Assertions.assertEquals("Updated Meal", updatedMeal.getName());
@@ -138,32 +142,39 @@ class MealTests {
     Meal meal = new Meal();
     meal.setName("Test Meal");
     mealRepository.save(meal);
-    MealPatch mealPatch = new MealPatch("Updated Meal");
+    String json = """
+          {
+            "name": "Updated Meal"
+          }
+        """;
     mockMvc.perform(
             MockMvcRequestBuilders.patch("/api/calories/meals/123").contentType("application/json")
-                .content(asJsonString(mealPatch))).andExpect(status().isNotFound())
+                .content(json)).andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("Meal with id 123 not found"));
   }
 
   @Test
   void addMeal_ShouldReturnBadRequest_WhenNameIsBlank() throws Exception {
-    MealRequest mealRequest = new MealRequest(" ");
+    String json = """
+          {
+            "name": " "
+          }
+        """;
     mockMvc.perform(
             MockMvcRequestBuilders.post("/api/calories/meals").contentType("application/json")
-                .content(asJsonString(mealRequest))).andExpect(status().isBadRequest())
+                .content(json)).andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("Name must not be blank"));
   }
 
   @Test
   void addMeal_ShouldReturnBadRequest_WhenNameIsNull() throws Exception {
-    MealRequest mealRequest = new MealRequest(null);
+    String json = """
+          {
+          }
+        """;
     mockMvc.perform(
             MockMvcRequestBuilders.post("/api/calories/meals").contentType("application/json")
-                .content(asJsonString(mealRequest))).andExpect(status().isBadRequest())
+                .content(json)).andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("Name must not be blank"));
-  }
-
-  private String asJsonString(Object object) throws JsonProcessingException {
-    return new ObjectMapper().writeValueAsString(object);
   }
 }
