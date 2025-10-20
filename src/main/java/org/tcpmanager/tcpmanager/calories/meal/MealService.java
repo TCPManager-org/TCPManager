@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tcpmanager.tcpmanager.calories.ingredient.Ingredient;
 import org.tcpmanager.tcpmanager.calories.ingredient.IngredientRepository;
+import org.tcpmanager.tcpmanager.calories.meal.dto.MealPatch;
 import org.tcpmanager.tcpmanager.calories.meal.dto.MealRequest;
 import org.tcpmanager.tcpmanager.calories.meal.dto.MealResponse;
 import org.tcpmanager.tcpmanager.calories.meal.models.Meal;
@@ -32,17 +33,7 @@ public class MealService {
     return "Meal with id " + id + " not found";
   }
 
-  public List<MealResponse> getAllMeals() {
-    return mealRepository.findAll().stream().map(this::mapToMealResponse).toList();
-  }
-
-  public MealResponse getById(Long id) {
-    Meal meal = mealRepository.findById(id)
-        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
-    return mapToMealResponse(meal);
-  }
-
-  private MealResponse mapToMealResponse(@NonNull Meal meal) {
+  private static MealResponse mapToMealResponse(@NonNull Meal meal) {
     BigDecimal calories = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN);
     BigDecimal carbs = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN);
     BigDecimal fats = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN);
@@ -56,9 +47,8 @@ public class MealService {
       carbs = carbs.add(ingredient.getCarbs().multiply(
           BigDecimal.valueOf(mealIngredient.getWeight())
               .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_EVEN)));
-      fats = fats.add(ingredient.getFats().multiply(
-          BigDecimal.valueOf(mealIngredient.getWeight())
-              .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_EVEN)));
+      fats = fats.add(ingredient.getFats().multiply(BigDecimal.valueOf(mealIngredient.getWeight())
+          .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_EVEN)));
       proteins = proteins.add(ingredient.getProteins().multiply(
           BigDecimal.valueOf(mealIngredient.getWeight())
               .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_EVEN)));
@@ -68,25 +58,62 @@ public class MealService {
         ingredients);
   }
 
+  public List<MealResponse> getAllMeals() {
+    return mealRepository.findAll().stream().map(MealService::mapToMealResponse).toList();
+  }
+
+  public MealResponse getById(Long id) {
+    Meal meal = mealRepository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
+    return mapToMealResponse(meal);
+  }
+
   @Transactional
   public MealResponse addMeal(@Valid MealRequest mealRequest) {
     Meal meal = new Meal();
     meal.setName(mealRequest.name());
+    meal.setMealIngredients(mapToMealIngredients(mealRequest.ingredients()));
+    Meal savedMeal = mealRepository.save(meal);
+    return mapToMealResponse(savedMeal);
+  }
+
+  @Transactional
+  public void deleteById(Long id) {
+    if (!mealRepository.existsById(id)) {
+      throw new EntityNotFoundException(generateNotFoundMessage(id));
+    }
+    mealRepository.deleteById(id);
+  }
+
+  public MealResponse updateById(Long id, MealPatch mealPatch) {
+    Meal meal = mealRepository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
+    if (mealPatch.name() != null) {
+      if (mealPatch.name().isBlank()) {
+        throw new IllegalArgumentException("Meal name cannot be blank");
+      }
+      meal.setName(mealPatch.name());
+    }
+    if (mealPatch.ingredients() != null) {
+      meal.setMealIngredients(mapToMealIngredients(mealPatch.ingredients()));
+    }
+    Meal updatedMeal = mealRepository.save(meal);
+    return mapToMealResponse(updatedMeal);
+  }
+
+  private Set<MealIngredient> mapToMealIngredients(Map<Long, Integer> ingredients) {
     Set<MealIngredient> mealIngredients = new HashSet<>();
-    for (var entry : mealRequest.ingredients().entrySet()) {
+    for (var entry : ingredients.entrySet()) {
       if (entry.getValue() <= 0) {
         throw new IllegalArgumentException("Ingredient weight must be greater than zero");
       }
       MealIngredient ingredient = new MealIngredient();
-      ingredient.setMeal(meal);
       Ingredient foundIngredient = ingredientRepository.findById(entry.getKey()).orElseThrow(
           () -> new EntityNotFoundException("Ingredient with id " + entry.getKey() + " not found"));
       ingredient.setIngredient(foundIngredient);
       ingredient.setWeight(entry.getValue());
       mealIngredients.add(ingredient);
     }
-    meal.setMealIngredients(mealIngredients);
-    Meal savedMeal = mealRepository.save(meal);
-    return mapToMealResponse(savedMeal);
+    return mealIngredients;
   }
 }

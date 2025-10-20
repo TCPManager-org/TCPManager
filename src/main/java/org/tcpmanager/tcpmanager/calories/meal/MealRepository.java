@@ -9,4 +9,6 @@ import org.tcpmanager.tcpmanager.calories.meal.models.MealIngredientKey;
 public interface MealRepository extends JpaRepository<@NonNull Meal, @NonNull MealIngredientKey> {
 
   Optional<Meal> findById(Long mealId);
+  boolean existsById(Long mealId);
+  void deleteById(Long mealId);
 }
