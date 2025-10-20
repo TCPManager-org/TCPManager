@@ -53,8 +53,6 @@ class IngredientTests {
             "ean": "01234567"
           }
         """;
-    IngredientRequest ingredientRequest = new IngredientRequest("Name", BigDecimal.ONE,
-        BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE, "01234567");
     mockMvc.perform(
             MockMvcRequestBuilders.post("/api/calories/ingredients").contentType("application/json")
                 .content(json)).andExpect(status().isBadRequest())
@@ -184,8 +182,6 @@ class IngredientTests {
             "ean": "0123456789012"
           }
         """;
-    IngredientRequest ingredientRequest = new IngredientRequest("Name", BigDecimal.ONE, null,
-        BigDecimal.ONE, BigDecimal.ONE, "0123456789012");
     mockMvc.perform(
             MockMvcRequestBuilders.post("/api/calories/ingredients").contentType("application/json")
                 .content(json)).andExpect(status().isBadRequest())
@@ -204,8 +200,6 @@ class IngredientTests {
             "ean": "0123456789012"
           }
         """;
-    IngredientRequest ingredientRequest = new IngredientRequest("Name", BigDecimal.ONE,
-        BigDecimal.ZERO, BigDecimal.ONE, BigDecimal.ONE, "0123456789012");
     mockMvc.perform(
             MockMvcRequestBuilders.post("/api/calories/ingredients").contentType("application/json")
                 .content(json)).andExpect(status().isBadRequest())
