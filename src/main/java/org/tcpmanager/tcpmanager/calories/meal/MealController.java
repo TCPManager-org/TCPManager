@@ -36,6 +36,11 @@ public class MealController {
     return mealService.getById(id);
   }
 
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  public MealResponse addMeal(@RequestBody @Valid MealRequest mealRequest) {
+    return mealService.addMeal(mealRequest);
+  }
 //  @DeleteMapping("/{id}")
 //  @ResponseStatus(HttpStatus.NO_CONTENT)
 //  public void deleteMealById(@PathVariable Long id) {
@@ -47,11 +52,5 @@ public class MealController {
 //  public MealResponse updateMealById(@PathVariable Long id,
 //      @RequestBody @Valid MealPatch mealPatch) {
 //    return mealService.updateById(id, mealPatch);
-//  }
-//
-//  @PostMapping
-//  @ResponseStatus(HttpStatus.CREATED)
-//  public MealResponse addMeal(@RequestBody @Valid MealRequest mealRequest) {
-//    return mealService.add(mealRequest);
 //  }
 }

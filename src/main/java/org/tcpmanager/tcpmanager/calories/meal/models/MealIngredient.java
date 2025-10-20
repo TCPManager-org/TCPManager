@@ -1,6 +1,5 @@
 package org.tcpmanager.tcpmanager.calories.meal.models;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -31,5 +30,5 @@ public class MealIngredient {
   @JoinColumn(name = "ingredient_id")
   private Ingredient ingredient;
 
-  private Integer amount;
+  private Integer weight;
 }

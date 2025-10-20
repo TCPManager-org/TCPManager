@@ -18,7 +18,7 @@ CREATE TABLE calories.meals_ingredients
 (
     meal_id       BIGINT NOT NULL,
     ingredient_id BIGINT NOT NULL,
-    amount        INT    NOT NULL,
+    weight        INT    NOT NULL,
     PRIMARY KEY (meal_id, ingredient_id),
     FOREIGN KEY (meal_id) REFERENCES calories.meals (id),
     FOREIGN KEY (ingredient_id) REFERENCES calories.ingredients (id)
