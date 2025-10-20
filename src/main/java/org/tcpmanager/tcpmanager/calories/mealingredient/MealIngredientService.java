@@ -49,4 +49,9 @@ public class MealIngredientService {
         ingredient.getCalories(), ingredient.getFats(), ingredient.getCarbs(),
         ingredient.getProteins(), ingredient.getEan());
   }
+
+  public List<MealIngredientResponse> getAllMealIngredientsByIngredientName(String ingredientName) {
+    return mealIngredientRepository.findAllByIngredientName(ingredientName).stream()
+        .map(this::mapToMealIngredientResponse).toList();
+  }
 }
