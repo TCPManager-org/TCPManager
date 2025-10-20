@@ -41,6 +41,7 @@ public class MealController {
   public MealResponse addMeal(@RequestBody @Valid MealRequest mealRequest) {
     return mealService.addMeal(mealRequest);
   }
+
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deleteMealById(@PathVariable Long id) {

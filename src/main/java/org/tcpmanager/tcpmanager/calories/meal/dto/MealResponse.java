@@ -6,4 +6,5 @@ import java.util.Map;
 
 public record MealResponse(Long id, String name, BigDecimal calories, BigDecimal fats,
                            BigDecimal carbs, BigDecimal proteins, Map<Long, String> ingredients) {
+
 }
