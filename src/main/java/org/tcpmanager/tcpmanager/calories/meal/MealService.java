@@ -20,40 +20,5 @@ public class MealService {
     return "Meal with id " + id + " not found";
   }
 
-  public List<MealResponse> getAll() {
-    return mealRepository.findAll().stream()
-        .map(meal -> new MealResponse(meal.getId(), meal.getName())).toList();
-  }
 
-  public MealResponse getById(Long id) {
-    Meal meal = mealRepository.findById(id)
-        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
-    return new MealResponse(meal.getId(), meal.getName());
-  }
-
-  @Transactional
-  public void deleteById(Long id) {
-    if (!mealRepository.existsById(id)) {
-      throw new EntityNotFoundException(generateNotFoundMessage(id));
-    }
-
-    mealRepository.deleteById(id);
-  }
-
-  @Transactional
-  public MealResponse updateById(Long id, MealPatch mealPatch) {
-    Meal meal = mealRepository.findById(id)
-        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
-    meal.setName(mealPatch.name().strip());
-    mealRepository.save(meal);
-    return new MealResponse(meal.getId(), meal.getName());
-  }
-
-  @Transactional
-  public MealResponse add(MealRequest mealRequest) {
-    Meal meal = new Meal();
-    meal.setName(mealRequest.name().strip());
-    meal = mealRepository.save(meal);
-    return new MealResponse(meal.getId(), meal.getName());
-  }
 }

@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import lombok.Data;
@@ -23,12 +24,14 @@ public class MealIngredient {
   private MealIngredientKey id;
 
   @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @MapsId(value = "mealId")
   @JoinColumn(name = "meal_id")
   private Meal meal;
 
   @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @MapsId(value = "ingredientId")
   @JoinColumn(name = "ingredient_id")
   private Ingredient ingredient;
 
-  private BigDecimal amount;
+  private Integer amount;
 }
