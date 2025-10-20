@@ -30,12 +30,12 @@ public class MealController {
     return mealService.getAllMeals();
   }
 
-//  @GetMapping("/{id}")
-//  @ResponseStatus(HttpStatus.OK)
-//  public MealResponse getMealById(@PathVariable Long id) {
-//    return mealService.getById(id);
-//  }
-//
+  @GetMapping("/{id}")
+  @ResponseStatus(HttpStatus.OK)
+  public MealResponse getMealById(@PathVariable Long id) {
+    return mealService.getById(id);
+  }
+
 //  @DeleteMapping("/{id}")
 //  @ResponseStatus(HttpStatus.NO_CONTENT)
 //  public void deleteMealById(@PathVariable Long id) {

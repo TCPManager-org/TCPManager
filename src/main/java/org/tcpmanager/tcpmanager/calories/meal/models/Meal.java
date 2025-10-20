@@ -25,5 +25,5 @@ public class Meal {
   private String name;
 
   @OneToMany(mappedBy = "meal")
-  private Set<MealIngredient> ingredients;
+  private Set<MealIngredient> mealIngredients;
 }
