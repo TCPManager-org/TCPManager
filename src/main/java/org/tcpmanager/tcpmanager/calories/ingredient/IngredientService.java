@@ -95,12 +95,12 @@ public class IngredientService {
 
 
   private void validateEan(String ean) {
+    if (ean.isBlank()) {
+      throw new IllegalArgumentException("Ean must not be blank");
+    }
     var existing = ingredientRepository.findByEan(ean);
     if (existing.isPresent()) {
       throw new IllegalArgumentException("EAN must be unique");
-    }
-    if (ean.isBlank()) {
-      throw new IllegalArgumentException("Ean must not be blank");
     }
     int sum = 0;
     for (int i = 0; i < 12; i++) {
