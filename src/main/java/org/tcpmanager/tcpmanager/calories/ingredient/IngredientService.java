@@ -2,12 +2,17 @@ package org.tcpmanager.tcpmanager.calories.ingredient;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tcpmanager.tcpmanager.calories.ingredient.dto.IngredientPatch;
 import org.tcpmanager.tcpmanager.calories.ingredient.dto.IngredientRequest;
 import org.tcpmanager.tcpmanager.calories.ingredient.dto.IngredientResponse;
+import org.tcpmanager.tcpmanager.calories.meal.models.Meal;
+import org.tcpmanager.tcpmanager.calories.meal.models.MealIngredient;
 
 @Service
 @RequiredArgsConstructor
@@ -32,10 +37,16 @@ public class IngredientService {
 
   @Transactional
   public void deleteById(Long id) {
-    if (!ingredientRepository.existsById(id)) {
+
+    Optional<Ingredient> ingredient = ingredientRepository.findById(id);
+    if (ingredient.isEmpty()) {
       throw new EntityNotFoundException(generateNotFoundMessage(id));
     }
-
+    Set<Meal> meals = ingredient.get().getMealIngredients().stream().map(MealIngredient::getMeal)
+        .collect(Collectors.toSet());
+    if (!meals.isEmpty()) {
+      throw new IllegalArgumentException("Ingredient is used in meals and cannot be deleted");
+    }
     ingredientRepository.deleteById(id);
   }
 

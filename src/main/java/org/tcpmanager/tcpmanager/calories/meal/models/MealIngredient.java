@@ -23,12 +23,12 @@ public class MealIngredient {
 
   @ManyToOne
   @MapsId("mealId")
-  @JoinColumn(name = "meal_id")
+  @JoinColumn(name = "meal_id", nullable = false)
   private Meal meal;
 
   @ManyToOne
   @MapsId("ingredientId")
-  @JoinColumn(name = "ingredient_id")
+  @JoinColumn(name = "ingredient_id", nullable = false)
   private Ingredient ingredient;
 
   private Integer weight;

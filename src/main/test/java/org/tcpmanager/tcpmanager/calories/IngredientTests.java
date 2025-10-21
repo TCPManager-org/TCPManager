@@ -4,8 +4,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.math.BigDecimal;
+import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -17,6 +19,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.tcpmanager.tcpmanager.calories.ingredient.Ingredient;
 import org.tcpmanager.tcpmanager.calories.ingredient.IngredientRepository;
+import org.tcpmanager.tcpmanager.calories.meal.MealRepository;
+import org.tcpmanager.tcpmanager.calories.meal.models.Meal;
+import org.tcpmanager.tcpmanager.calories.meal.models.MealIngredient;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -41,6 +46,47 @@ class IngredientTests {
 
   @Autowired
   private IngredientRepository ingredientRepository;
+  @Autowired
+  private MealRepository mealRepository;
+
+  private static Meal createMeal() {
+    MealIngredient mealIngredient1 = new MealIngredient();
+    Meal meal = new Meal();
+    meal.setName("Test Meal");
+
+    mealIngredient1.setMeal(meal);
+    Ingredient ingredient1 = new Ingredient();
+    ingredient1.setName("Test Ingredient1");
+    ingredient1.setCalories(BigDecimal.valueOf(100));
+    ingredient1.setFats(BigDecimal.valueOf(10));
+    ingredient1.setCarbs(BigDecimal.valueOf(20));
+    ingredient1.setProteins(BigDecimal.valueOf(30));
+    ingredient1.setEan("0123456789012");
+
+    mealIngredient1.setIngredient(ingredient1);
+    mealIngredient1.setWeight(100);
+
+    MealIngredient mealIngredient2 = new MealIngredient();
+    meal.setName("Test Meal");
+    mealIngredient2.setMeal(meal);
+    Ingredient ingredient2 = new Ingredient();
+    ingredient2.setName("Test Ingredient2");
+    ingredient2.setCalories(BigDecimal.valueOf(1000));
+    ingredient2.setFats(BigDecimal.valueOf(100));
+    ingredient2.setCarbs(BigDecimal.valueOf(200));
+    ingredient2.setProteins(BigDecimal.valueOf(300));
+    ingredient2.setEan("2345678901234");
+    mealIngredient2.setIngredient(ingredient2);
+    mealIngredient2.setWeight(100);
+    meal.setMealIngredients(Set.of(mealIngredient1, mealIngredient2));
+    return meal;
+  }
+
+  @BeforeEach
+  void beforeEach() {
+    ingredientRepository.deleteAll();
+    mealRepository.deleteAll();
+  }
 
   @Test
   void validation_EanIsShorter() throws Exception {
@@ -458,6 +504,16 @@ class IngredientTests {
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("Ingredient with id 123 not found"));
     Assertions.assertEquals(1, ingredientRepository.count());
+  }
+
+  @Test
+  void deleteIngredient_ShouldReturnBadRequest_WhenIngredientIsUsedInMeal() throws Exception {
+    Meal meal = createMeal();
+    meal = mealRepository.save(meal);
+    mockMvc.perform(MockMvcRequestBuilders.delete(
+        "/api/calories/ingredients/" + meal.getMealIngredients().iterator().next().getId()
+            .ingredientId())).andExpect(status().isBadRequest()).andExpect(
+        jsonPath("$.message").value("Ingredient is used in meals and cannot be deleted"));
   }
 
   @Test
