@@ -12,4 +12,3 @@ spring:
     url: ${POSTGRES_URL}
   flyway:
     enabled: true
-    schemas: "calories"

@@ -26,14 +26,20 @@ public class MealController {
 
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
-  public List<MealResponse> getMeals() {
-    return mealService.getAll();
+  public List<MealResponse> getAllMeals() {
+    return mealService.getAllMeals();
   }
 
   @GetMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
   public MealResponse getMealById(@PathVariable Long id) {
     return mealService.getById(id);
+  }
+
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  public MealResponse addMeal(@RequestBody @Valid MealRequest mealRequest) {
+    return mealService.addMeal(mealRequest);
   }
 
   @DeleteMapping("/{id}")
@@ -47,11 +53,5 @@ public class MealController {
   public MealResponse updateMealById(@PathVariable Long id,
       @RequestBody @Valid MealPatch mealPatch) {
     return mealService.updateById(id, mealPatch);
-  }
-
-  @PostMapping
-  @ResponseStatus(HttpStatus.CREATED)
-  public MealResponse addMeal(@RequestBody @Valid MealRequest mealRequest) {
-    return mealService.add(mealRequest);
   }
 }
