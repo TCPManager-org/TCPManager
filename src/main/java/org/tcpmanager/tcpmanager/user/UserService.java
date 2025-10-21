@@ -15,6 +15,7 @@ import org.tcpmanager.tcpmanager.user.dto.UserResponse;
 public class UserService {
 
   private final UserRepository userRepository;
+
   public List<UserResponse> getAll() {
     return userRepository.findAll().stream()
         .map(user -> new UserResponse(user.getId(), user.getUsername())).toList();

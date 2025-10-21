@@ -165,6 +165,7 @@ class MealTests {
                 .content(mealJson)).andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("Ingredient with id 9999 not found"));
   }
+
   @Test
   void addMeal_ShouldReturnBadRequest_ForWeightZero() throws Exception {
     Ingredient ingredient1 = new Ingredient();
@@ -190,6 +191,7 @@ class MealTests {
                 .content(mealJson)).andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("Ingredient weight must be greater than zero"));
   }
+
   @Test
   void deleteMeal_ShouldDeleteMeal() throws Exception {
     Meal meal = createMeal();
@@ -204,6 +206,7 @@ class MealTests {
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("Meal with id 9999 not found"));
   }
+
   @Test
   void updateMeal_ShouldUpdateIngredients() throws Exception {
     Meal meal = createMeal();
@@ -225,15 +228,15 @@ class MealTests {
             "%d": 100
           }
         }
-        """.formatted(ingredient3.getId(), meal.getMealIngredients().iterator().next().getIngredient().getId());
+        """.formatted(ingredient3.getId(),
+        meal.getMealIngredients().iterator().next().getIngredient().getId());
 
-    mockMvc.perform(
-            MockMvcRequestBuilders.patch("/api/calories/meals/" + meal.getId())
-                .contentType("application/json").content(mealPatchJson))
-        .andExpect(status().isOk())
+    mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/meals/" + meal.getId())
+            .contentType("application/json").content(mealPatchJson)).andExpect(status().isOk())
         .andExpect(jsonPath("$.name").value("Test Meal"))
         .andExpect(jsonPath("$.ingredients.size()").value(2));
   }
+
   @Test
   void updateMeal_ShouldUpdateName() throws Exception {
     Meal meal = createMeal();
@@ -245,13 +248,12 @@ class MealTests {
         }
         """;
 
-    mockMvc.perform(
-            MockMvcRequestBuilders.patch("/api/calories/meals/" + meal.getId())
-                .contentType("application/json").content(mealPatchJson))
-        .andExpect(status().isOk())
+    mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/meals/" + meal.getId())
+            .contentType("application/json").content(mealPatchJson)).andExpect(status().isOk())
         .andExpect(jsonPath("$.name").value("Updated Meal"))
         .andExpect(jsonPath("$.ingredients.size()").value(2));
   }
+
   @Test
   void updateMeal_ShouldReturnNotFound() throws Exception {
     String mealPatchJson = """
@@ -261,11 +263,11 @@ class MealTests {
         """;
 
     mockMvc.perform(
-            MockMvcRequestBuilders.patch("/api/calories/meals/9999")
-                .contentType("application/json").content(mealPatchJson))
-        .andExpect(status().isNotFound())
+            MockMvcRequestBuilders.patch("/api/calories/meals/9999").contentType("application/json")
+                .content(mealPatchJson)).andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("Meal with id 9999 not found"));
   }
+
   @Test
   void updateMeal_ShouldReturnBadRequest_ForBlankName() throws Exception {
     Meal meal = createMeal();
@@ -277,10 +279,8 @@ class MealTests {
         }
         """;
 
-    mockMvc.perform(
-            MockMvcRequestBuilders.patch("/api/calories/meals/" + meal.getId())
-                .contentType("application/json").content(mealPatchJson))
-        .andExpect(status().isBadRequest())
+    mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/meals/" + meal.getId())
+            .contentType("application/json").content(mealPatchJson)).andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("Meal name cannot be blank"));
   }
 }
