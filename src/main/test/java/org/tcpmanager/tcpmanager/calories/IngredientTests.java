@@ -281,7 +281,7 @@ class IngredientTests {
   void validation_EanIsNotUnique() throws Exception {
     Ingredient ingredient = new Ingredient();
     ingredient.setName("Test Ingredient");
-    ingredient.setEan("1234567890123");
+    ingredient.setEan("0123456789012");
     ingredient.setCalories(BigDecimal.valueOf(1));
     ingredient.setFats(BigDecimal.valueOf(2));
     ingredient.setCarbs(BigDecimal.valueOf(3));
@@ -294,7 +294,7 @@ class IngredientTests {
           "fats": 1,
           "carbs": 1,
           "proteins": 1,
-          "ean": "1234567890123"
+          "ean": "0123456789012"
         }
         """;
     mockMvc.perform(
