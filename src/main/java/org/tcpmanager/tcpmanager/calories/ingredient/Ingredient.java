@@ -1,17 +1,23 @@
 package org.tcpmanager.tcpmanager.calories.ingredient;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
-import lombok.Data;
+import java.util.Set;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.tcpmanager.tcpmanager.calories.meal.models.MealIngredient;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Table(name = "ingredients", schema = "calories")
 public class Ingredient {
@@ -37,4 +43,7 @@ public class Ingredient {
 
   @Column(nullable = false, length = 13)
   private String ean;
+
+  @OneToMany(mappedBy = "ingredient", cascade = CascadeType.ALL, orphanRemoval = true)
+  private Set<MealIngredient> mealIngredients;
 }

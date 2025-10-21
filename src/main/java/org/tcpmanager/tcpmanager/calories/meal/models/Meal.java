@@ -1,5 +1,6 @@
 package org.tcpmanager.tcpmanager.calories.meal.models;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -26,6 +27,6 @@ public class Meal {
   @Column(nullable = false, unique = true)
   private String name;
 
-  @OneToMany(mappedBy = "meal")
+  @OneToMany(mappedBy = "meal", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<MealIngredient> mealIngredients;
 }

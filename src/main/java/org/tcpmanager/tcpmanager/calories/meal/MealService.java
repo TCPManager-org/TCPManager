@@ -72,7 +72,7 @@ public class MealService {
   public MealResponse addMeal(@Valid MealRequest mealRequest) {
     Meal meal = new Meal();
     meal.setName(mealRequest.name());
-    meal.setMealIngredients(mapToMealIngredients(mealRequest.ingredients()));
+    meal.setMealIngredients(mapToMealIngredients(meal, mealRequest.ingredients()));
     Meal savedMeal = mealRepository.save(meal);
     return mapToMealResponse(savedMeal);
   }
@@ -95,24 +95,25 @@ public class MealService {
       meal.setName(mealPatch.name());
     }
     if (mealPatch.ingredients() != null) {
-      meal.setMealIngredients(mapToMealIngredients(mealPatch.ingredients()));
+      meal.setMealIngredients(mapToMealIngredients(meal, mealPatch.ingredients()));
     }
     Meal updatedMeal = mealRepository.save(meal);
     return mapToMealResponse(updatedMeal);
   }
 
-  private Set<MealIngredient> mapToMealIngredients(Map<Long, Integer> ingredients) {
+  private Set<MealIngredient> mapToMealIngredients(Meal meal, Map<Long, Integer> ingredients) {
     Set<MealIngredient> mealIngredients = new HashSet<>();
     for (var entry : ingredients.entrySet()) {
       if (entry.getValue() <= 0) {
         throw new IllegalArgumentException("Ingredient weight must be greater than zero");
       }
-      MealIngredient ingredient = new MealIngredient();
+      MealIngredient mealIngredient = new MealIngredient();
       Ingredient foundIngredient = ingredientRepository.findById(entry.getKey()).orElseThrow(
           () -> new EntityNotFoundException("Ingredient with id " + entry.getKey() + " not found"));
-      ingredient.setIngredient(foundIngredient);
-      ingredient.setWeight(entry.getValue());
-      mealIngredients.add(ingredient);
+      mealIngredient.setIngredient(foundIngredient);
+      mealIngredient.setWeight(entry.getValue());
+      mealIngredient.setMeal(meal);
+      mealIngredients.add(mealIngredient);
     }
     return mealIngredients;
   }
