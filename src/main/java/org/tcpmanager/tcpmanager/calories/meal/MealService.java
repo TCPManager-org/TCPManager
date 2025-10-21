@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +32,7 @@ public class MealService {
     return "Meal with id " + id + " not found";
   }
 
-  private static MealResponse mapToMealResponse(@NonNull Meal meal) {
+  private static MealResponse mapToMealResponse(Meal meal) {
     BigDecimal calories = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN);
     BigDecimal carbs = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN);
     BigDecimal fats = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN);
