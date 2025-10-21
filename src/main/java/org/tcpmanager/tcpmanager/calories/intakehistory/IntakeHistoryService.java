@@ -4,13 +4,12 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.modulith.events.ApplicationModuleListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tcpmanager.tcpmanager.calories.intakehistory.dto.IntakeHistoryRequest;
 import org.tcpmanager.tcpmanager.calories.intakehistory.dto.IntakeHistoryResponse;
-import org.tcpmanager.tcpmanager.events.UserDeletedEvent;
-import org.tcpmanager.tcpmanager.user.UserService;
+import org.tcpmanager.tcpmanager.user.User;
+import org.tcpmanager.tcpmanager.user.UserRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -18,22 +17,34 @@ import org.tcpmanager.tcpmanager.user.UserService;
 public class IntakeHistoryService {
 
   private final IntakeHistoryRepository intakeHistoryRepository;
-  private final UserService userService;
+  private final UserRepository userRepository;
 
   private static String generateNotFoundMessage(Long id) {
     return "Intake history with id " + id + " not found";
   }
 
-  @ApplicationModuleListener
-  public void on(UserDeletedEvent event) {
-    intakeHistoryRepository.deleteIntakeHistoriesByUsername(event.username());
+  private static IntakeHistory mapToIntakeHistory(IntakeHistoryRequest intakeHistoryRequest,
+      User user) {
+    IntakeHistory intakeHistory = new IntakeHistory();
+    intakeHistory.setUser(user);
+    intakeHistory.setProtein(intakeHistoryRequest.protein());
+    intakeHistory.setFat(intakeHistoryRequest.fat());
+    intakeHistory.setCarbs(intakeHistoryRequest.carbs());
+    intakeHistory.setDate(intakeHistoryRequest.date());
+    intakeHistory.setCalories(intakeHistoryRequest.calories());
+    intakeHistory.setCaloriesGoal(intakeHistoryRequest.caloriesGoal());
+    intakeHistory.setProteinGoal(intakeHistoryRequest.proteinGoal());
+    intakeHistory.setFatGoal(intakeHistoryRequest.fatGoal());
+    intakeHistory.setCarbsGoal(intakeHistoryRequest.carbsGoal());
+    return intakeHistory;
   }
 
   private IntakeHistoryResponse mapToIntakeHistoryResponse(IntakeHistory intakeHistory) {
     return new IntakeHistoryResponse(intakeHistory.getId(), intakeHistory.getDate(),
         intakeHistory.getCalories(), intakeHistory.getProtein(), intakeHistory.getFat(),
         intakeHistory.getCarbs(), intakeHistory.getCaloriesGoal(), intakeHistory.getProteinGoal(),
-        intakeHistory.getFatGoal(), intakeHistory.getCarbsGoal(), intakeHistory.getUsername());
+        intakeHistory.getFatGoal(), intakeHistory.getCarbsGoal(),
+        intakeHistory.getUser().getUsername());
   }
 
   private void updateIntakeHistoryFields(IntakeHistory intakeHistory,
@@ -47,12 +58,9 @@ public class IntakeHistoryService {
     intakeHistory.setProteinGoal(intakeHistoryRequest.proteinGoal());
     intakeHistory.setFatGoal(intakeHistoryRequest.fatGoal());
     intakeHistory.setCarbsGoal(intakeHistoryRequest.carbsGoal());
-    intakeHistory.setUsername(intakeHistoryRequest.username());
-  }
-
-  private void checkIfUserExistByUsername(String username) {
-    userService.getUserByUsername(
-        username); //it throws exception when user with username does not exist
+    intakeHistory.setUser(userRepository.findByUsername(intakeHistoryRequest.username())
+        .orElseThrow(() -> new EntityNotFoundException(
+            "User with username " + intakeHistoryRequest.username() + " not found")));
   }
 
   public IntakeHistoryResponse getIntakeHistoryById(Long id) {
@@ -70,15 +78,16 @@ public class IntakeHistoryService {
 
   @Transactional
   public IntakeHistoryResponse addIntakeHistory(IntakeHistoryRequest intakeHistoryRequest) {
-    checkIfUserExistByUsername(intakeHistoryRequest.username());
+    User user = userRepository.findByUsername(intakeHistoryRequest.username()).orElseThrow(
+        () -> new EntityNotFoundException(
+            "User with username " + intakeHistoryRequest.username() + " not found"));
     boolean isDateUnique = intakeHistoryRepository.getAllByDate(intakeHistoryRequest.date())
-        .stream().map(IntakeHistory::getUsername)
+        .stream().map(IntakeHistory::getUser).map(User::getUsername)
         .noneMatch(s -> s.equals(intakeHistoryRequest.username()));
     if (!isDateUnique) {
       throw new IllegalArgumentException("Date must be unique");
     }
-    IntakeHistory intakeHistory = new IntakeHistory();
-    updateIntakeHistoryFields(intakeHistory, intakeHistoryRequest);
+    IntakeHistory intakeHistory = mapToIntakeHistory(intakeHistoryRequest, user);
     intakeHistory = intakeHistoryRepository.save(intakeHistory);
     return mapToIntakeHistoryResponse(intakeHistory);
   }
