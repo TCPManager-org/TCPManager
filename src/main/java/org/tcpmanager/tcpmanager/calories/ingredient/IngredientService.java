@@ -98,10 +98,6 @@ public class IngredientService {
     if (ean.isBlank()) {
       throw new IllegalArgumentException("Ean must not be blank");
     }
-    var existing = ingredientRepository.findByEan(ean);
-    if (existing.isPresent()) {
-      throw new IllegalArgumentException("EAN must be unique");
-    }
     int sum = 0;
     for (int i = 0; i < 12; i++) {
       if (!Character.isDigit(ean.charAt(i))) {
@@ -116,6 +112,10 @@ public class IngredientService {
     sum += Character.getNumericValue(ean.charAt(ean.length() - 1));
     if (sum % 10 != 0) {
       throw new IllegalArgumentException("EAN is not valid");
+    }
+    var existing = ingredientRepository.findByEan(ean);
+    if (existing.isPresent()) {
+      throw new IllegalArgumentException("EAN must be unique");
     }
   }
 }
