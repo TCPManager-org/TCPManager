@@ -104,7 +104,7 @@ public class IntakeHistoryService {
 
   @Transactional
   public void deleteHistoryByUsername(String username) {
-    intakeHistoryRepository.deleteIntakeHistoriesByUsername(username);
+    intakeHistoryRepository.deleteIntakeHistoriesByUserUsername(username);
   }
 
   public List<IntakeHistoryResponse> getAllIntakeHistories() {

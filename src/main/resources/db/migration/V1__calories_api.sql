@@ -40,5 +40,5 @@ CREATE TABLE calories.intake_history
     protein_goal  INT     NOT NULL,
     fat_goal      INT     NOT NULL,
     carbs_goal    INT     NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES public.users (id)
+    FOREIGN KEY (user_id) REFERENCES public.users (id) ON DELETE CASCADE
 );

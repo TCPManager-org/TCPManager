@@ -8,9 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface IntakeHistoryRepository extends
     JpaRepository<@NonNull IntakeHistory, @NonNull Long> {
 
-  void deleteIntakeHistoriesByUsername(String username);
-
-  List<IntakeHistory> getAllByUsername(String username);
+  void deleteIntakeHistoriesByUserUsername(String username);
 
   List<IntakeHistory> getAllByDate(Date date);
 }
