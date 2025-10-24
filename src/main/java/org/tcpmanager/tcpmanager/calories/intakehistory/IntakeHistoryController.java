@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.tcpmanager.tcpmanager.calories.intakehistory.dto.IntakeHistoryPatch;
 import org.tcpmanager.tcpmanager.calories.intakehistory.dto.IntakeHistoryRequest;
 import org.tcpmanager.tcpmanager.calories.intakehistory.dto.IntakeHistoryResponse;
 
@@ -52,8 +53,8 @@ public class IntakeHistoryController {
   @PatchMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
   public IntakeHistoryResponse updateIntakeHistoryById(
-      @RequestBody @Valid IntakeHistoryRequest intakeHistoryRequest, @PathVariable Long id) {
-    return intakeHistoryService.updateIntakeHistoryById(id, intakeHistoryRequest);
+      @RequestBody @Valid IntakeHistoryPatch intakeHistoryPatch, @PathVariable Long id) {
+    return intakeHistoryService.updateIntakeHistoryById(id, intakeHistoryPatch);
   }
   @DeleteMapping(params = "username")
   @ResponseStatus(HttpStatus.NO_CONTENT)

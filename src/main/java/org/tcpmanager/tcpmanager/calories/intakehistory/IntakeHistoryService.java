@@ -6,6 +6,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.tcpmanager.tcpmanager.calories.intakehistory.dto.IntakeHistoryPatch;
 import org.tcpmanager.tcpmanager.calories.intakehistory.dto.IntakeHistoryRequest;
 import org.tcpmanager.tcpmanager.calories.intakehistory.dto.IntakeHistoryResponse;
 import org.tcpmanager.tcpmanager.user.User;
@@ -47,22 +48,6 @@ public class IntakeHistoryService {
         intakeHistory.getUser().getUsername());
   }
 
-  private void updateIntakeHistoryFields(IntakeHistory intakeHistory,
-      IntakeHistoryRequest intakeHistoryRequest) {
-    intakeHistory.setDate(intakeHistoryRequest.date());
-    intakeHistory.setCalories(intakeHistoryRequest.calories());
-    intakeHistory.setProtein(intakeHistoryRequest.protein());
-    intakeHistory.setFat(intakeHistoryRequest.fat());
-    intakeHistory.setCarbs(intakeHistoryRequest.carbs());
-    intakeHistory.setCaloriesGoal(intakeHistoryRequest.caloriesGoal());
-    intakeHistory.setProteinGoal(intakeHistoryRequest.proteinGoal());
-    intakeHistory.setFatGoal(intakeHistoryRequest.fatGoal());
-    intakeHistory.setCarbsGoal(intakeHistoryRequest.carbsGoal());
-    intakeHistory.setUser(userRepository.findByUsername(intakeHistoryRequest.username())
-        .orElseThrow(() -> new EntityNotFoundException(
-            "User with username " + intakeHistoryRequest.username() + " not found")));
-  }
-
   public IntakeHistoryResponse getIntakeHistoryById(Long id) {
     return mapToIntakeHistoryResponse(intakeHistoryRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id))));
@@ -94,10 +79,33 @@ public class IntakeHistoryService {
 
   @Transactional
   public IntakeHistoryResponse updateIntakeHistoryById(Long id,
-      @Valid IntakeHistoryRequest intakeHistoryRequest) {
+      @Valid IntakeHistoryPatch intakeHistoryPatch) {
     IntakeHistory intakeHistory = intakeHistoryRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
-    updateIntakeHistoryFields(intakeHistory, intakeHistoryRequest);
+    if(intakeHistoryPatch.calories()!=null) {
+      intakeHistory.setCalories(intakeHistoryPatch.calories());
+    }
+    if(intakeHistoryPatch.protein()!=null) {
+      intakeHistory.setProtein(intakeHistoryPatch.protein());
+    }
+    if(intakeHistoryPatch.fat()!=null) {
+      intakeHistory.setFat(intakeHistoryPatch.fat());
+    }
+    if(intakeHistoryPatch.carbs()!=null) {
+      intakeHistory.setCarbs(intakeHistoryPatch.carbs());
+    }
+    if(intakeHistoryPatch.caloriesGoal()!=null) {
+      intakeHistory.setCaloriesGoal(intakeHistoryPatch.caloriesGoal());
+    }
+    if(intakeHistoryPatch.proteinGoal()!=null) {
+      intakeHistory.setProteinGoal(intakeHistoryPatch.proteinGoal());
+    }
+    if(intakeHistoryPatch.fatGoal()!=null) {
+      intakeHistory.setFatGoal(intakeHistoryPatch.fatGoal());
+    }
+    if(intakeHistoryPatch.carbsGoal()!=null) {
+      intakeHistory.setCarbsGoal(intakeHistoryPatch.carbsGoal());
+    }
     intakeHistory = intakeHistoryRepository.save(intakeHistory);
     return mapToIntakeHistoryResponse(intakeHistory);
   }
