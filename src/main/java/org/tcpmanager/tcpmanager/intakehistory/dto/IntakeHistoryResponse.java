@@ -1,4 +1,4 @@
-package org.tcpmanager.tcpmanager.calories.intakehistory.dto;
+package org.tcpmanager.tcpmanager.intakehistory.dto;
 
 import java.math.BigDecimal;
 import java.sql.Date;

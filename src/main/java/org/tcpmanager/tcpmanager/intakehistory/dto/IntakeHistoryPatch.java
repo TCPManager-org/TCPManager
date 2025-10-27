@@ -1,4 +1,4 @@
-package org.tcpmanager.tcpmanager.calories.intakehistory.dto;
+package org.tcpmanager.tcpmanager.intakehistory.dto;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import jakarta.validation.constraints.DecimalMin;

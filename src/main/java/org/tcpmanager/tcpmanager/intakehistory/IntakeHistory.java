@@ -1,4 +1,4 @@
-package org.tcpmanager.tcpmanager.calories.intakehistory;
+package org.tcpmanager.tcpmanager.intakehistory;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

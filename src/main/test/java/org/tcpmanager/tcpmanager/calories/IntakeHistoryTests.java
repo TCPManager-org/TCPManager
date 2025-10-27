@@ -14,9 +14,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.tcpmanager.tcpmanager.calories.intakehistory.IntakeHistory;
-import org.tcpmanager.tcpmanager.calories.intakehistory.IntakeHistoryRepository;
+import org.tcpmanager.tcpmanager.intakehistory.IntakeHistory;
+import org.tcpmanager.tcpmanager.intakehistory.IntakeHistoryRepository;
 import org.tcpmanager.tcpmanager.user.User;
+import org.tcpmanager.tcpmanager.user.UserRepository;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -41,10 +42,13 @@ class IntakeHistoryTests {
 
   @Autowired
   private IntakeHistoryRepository intakeHistoryRepository;
+  @Autowired
+  private UserRepository userRepository;
 
   @AfterEach
   void afterEach() {
     intakeHistoryRepository.deleteAll();
+    userRepository.deleteAll();
   }
 
   @Test
@@ -63,7 +67,7 @@ class IntakeHistoryTests {
     ih.setFatGoal(10);
     ih.setCaloriesGoal(10);
     ih = intakeHistoryRepository.save(ih);
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/calories/intake-history/" + ih.getId()))
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/intake-history/" + ih.getId()))
         .andExpect(status().isOk()).andExpect(jsonPath("$.username").value("testUser"))
         .andExpect(jsonPath("$.fat").value(BigDecimal.valueOf(10)))
         .andExpect(jsonPath("$.protein").value(BigDecimal.valueOf(10)))
@@ -76,7 +80,7 @@ class IntakeHistoryTests {
 
   @Test
   void getIntakeHistoryById_ShouldReturnNotFound() throws Exception {
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/calories/intake-history/9999"))
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/intake-history/9999"))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("Intake history with id 9999 not found"));
   }
@@ -111,7 +115,7 @@ class IntakeHistoryTests {
     ih2.setFatGoal(20);
     ih2.setCaloriesGoal(20);
     ih2 = intakeHistoryRepository.save(ih2);
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/calories/intake-history"))
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/intake-history"))
         .andExpect(status().isOk()).andExpect(jsonPath("$.size()").value(2))
         .andExpect(jsonPath("$[0].id").value(ih1.getId()))
         .andExpect(jsonPath("$[1].id").value(ih2.getId()));
@@ -133,13 +137,13 @@ class IntakeHistoryTests {
     ih.setCaloriesGoal(10);
     ih = intakeHistoryRepository.save(ih);
     mockMvc.perform(
-            MockMvcRequestBuilders.delete("/api/calories/intake-history/" + ih.getId()))
+            MockMvcRequestBuilders.delete("/api/intake-history/" + ih.getId()))
         .andExpect(status().isNoContent());
   }
   @Test
   void deleteIntakeHistoryById_ShouldReturnNotFound() throws Exception {
     mockMvc.perform(
-            MockMvcRequestBuilders.delete("/api/calories/intake-history/9999"))
+            MockMvcRequestBuilders.delete("/api/intake-history/9999"))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("Intake history with id 9999 not found"));
   }

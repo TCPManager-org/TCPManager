@@ -1,4 +1,4 @@
-package org.tcpmanager.tcpmanager.calories.intakehistory;
+package org.tcpmanager.tcpmanager.intakehistory;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
@@ -6,9 +6,9 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.tcpmanager.tcpmanager.calories.intakehistory.dto.IntakeHistoryPatch;
-import org.tcpmanager.tcpmanager.calories.intakehistory.dto.IntakeHistoryRequest;
-import org.tcpmanager.tcpmanager.calories.intakehistory.dto.IntakeHistoryResponse;
+import org.tcpmanager.tcpmanager.intakehistory.dto.IntakeHistoryPatch;
+import org.tcpmanager.tcpmanager.intakehistory.dto.IntakeHistoryRequest;
+import org.tcpmanager.tcpmanager.intakehistory.dto.IntakeHistoryResponse;
 import org.tcpmanager.tcpmanager.user.User;
 import org.tcpmanager.tcpmanager.user.UserRepository;
 

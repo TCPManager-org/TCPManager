@@ -1,4 +1,4 @@
-package org.tcpmanager.tcpmanager.calories.intakehistory;
+package org.tcpmanager.tcpmanager.intakehistory;
 
 import java.sql.Date;
 import java.util.List;
