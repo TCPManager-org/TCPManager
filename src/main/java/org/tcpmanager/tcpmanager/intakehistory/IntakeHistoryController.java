@@ -1,6 +1,7 @@
 package org.tcpmanager.tcpmanager.intakehistory;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -31,10 +32,10 @@ public class IntakeHistoryController {
     return intakeHistoryService.getIntakeHistoryById(id);
   }
 
-  @GetMapping
+  @GetMapping(params = "username")
   @ResponseStatus(HttpStatus.OK)
-  public List<IntakeHistoryResponse> getIntakeHistories(){//TODO getIntakeHistoriesByUsername
-    return intakeHistoryService.getAllIntakeHistories();
+  public List<IntakeHistoryResponse> getIntakeHistoriesByUsername(@NotBlank @RequestParam String username){
+    return intakeHistoryService.getAllIntakeHistoriesByUsername(username);
   }
 
   @DeleteMapping("/{id}")

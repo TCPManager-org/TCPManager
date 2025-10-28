@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -89,11 +90,11 @@ class IntakeHistoryTests {
   }
 
   @Test
-  void getIntakeHistories_ShouldReturnAllIntakeHistories() throws Exception {
+  void getIntakeHistoriesByUsername_ShouldReturnAllIntakeHistories() throws Exception {
     IntakeHistory ih1 = new IntakeHistory();
-    User user1 = new User();
-    user1.setUsername("testUser1");
-    ih1.setUser(user1);
+    User user = new User();
+    user.setUsername("testUser");
+    ih1.setUser(user);
     ih1.setFat(BigDecimal.valueOf(10));
     ih1.setProtein(BigDecimal.valueOf(11));
     ih1.setCalories(BigDecimal.valueOf(12));
@@ -105,20 +106,18 @@ class IntakeHistoryTests {
     ih1.setCaloriesGoal(17);
     ih1 = intakeHistoryRepository.save(ih1);
     IntakeHistory ih2 = new IntakeHistory();
-    User user2 = new User();
-    user2.setUsername("testUser2");
-    ih2.setUser(user2);
+    ih2.setUser(ih1.getUser());
     ih2.setFat(BigDecimal.valueOf(20));
     ih2.setProtein(BigDecimal.valueOf(21));
     ih2.setCalories(BigDecimal.valueOf(22));
     ih2.setCarbs(BigDecimal.valueOf(23));
-    ih2.setDate(new Date(0));
+    ih2.setDate(new Date(86400001));
     ih2.setCarbsGoal(24);
     ih2.setProteinGoal(25);
     ih2.setFatGoal(26);
     ih2.setCaloriesGoal(27);
-    ih2 = intakeHistoryRepository.save(ih2);
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/intake-history")).andExpect(status().isOk())
+    ih2 = intakeHistoryRepository.save(ih2);//TODO fix
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/intake-history?username="+user.getUsername())).andExpect(status().isOk())
         .andExpect(jsonPath("$.size()").value(2)).andExpect(jsonPath("$[0].id").value(ih1.getId()))
         .andExpect(jsonPath("$[1].id").value(ih2.getId()));
   }
@@ -276,7 +275,6 @@ class IntakeHistoryTests {
   void deleteIntakeHistoryByUsername_ShouldDeleteIntakeHistories() throws Exception {
     User user = new User();
     user.setUsername("testUser");
-    userRepository.save(user);
     IntakeHistory ih1 = new IntakeHistory();
     ih1.setUser(user);
     ih1.setFat(BigDecimal.valueOf(10));
@@ -303,6 +301,6 @@ class IntakeHistoryTests {
     intakeHistoryRepository.save(ih2);
     mockMvc.perform(MockMvcRequestBuilders.delete("/api/intake-history/user/testUser"))
         .andExpect(status().isNoContent());
-    Assert.assertTrue(`intakeHistoryRepository.getAllByUser("testUser").isEmpty());
+    Assertions.assertTrue(intakeHistoryRepository.getAllByUserUsername("testUser").isEmpty());
   }
 }

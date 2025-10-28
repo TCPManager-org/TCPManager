@@ -115,8 +115,8 @@ public class IntakeHistoryService {
     intakeHistoryRepository.deleteIntakeHistoriesByUserUsername(username);
   }
 
-  public List<IntakeHistoryResponse> getAllIntakeHistories() {
-    return intakeHistoryRepository.findAll().stream().map(this::mapToIntakeHistoryResponse)
+  public List<IntakeHistoryResponse> getAllIntakeHistoriesByUsername(String username) {
+    return intakeHistoryRepository.getAllByUserUsername(username).stream().map(this::mapToIntakeHistoryResponse)
         .toList();
   }
 }
