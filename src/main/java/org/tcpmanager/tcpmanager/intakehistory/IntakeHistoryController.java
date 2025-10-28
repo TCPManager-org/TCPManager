@@ -33,7 +33,7 @@ public class IntakeHistoryController {
 
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
-  public List<IntakeHistoryResponse> getIntakeHistories(){
+  public List<IntakeHistoryResponse> getIntakeHistories(){//TODO getIntakeHistoriesByUsername
     return intakeHistoryService.getAllIntakeHistories();
   }
 
