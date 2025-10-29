@@ -82,28 +82,28 @@ public class IntakeHistoryService {
       @Valid IntakeHistoryPatch intakeHistoryPatch) {
     IntakeHistory intakeHistory = intakeHistoryRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
-    if(intakeHistoryPatch.calories()!=null) {
+    if (intakeHistoryPatch.calories() != null) {
       intakeHistory.setCalories(intakeHistoryPatch.calories());
     }
-    if(intakeHistoryPatch.protein()!=null) {
+    if (intakeHistoryPatch.protein() != null) {
       intakeHistory.setProtein(intakeHistoryPatch.protein());
     }
-    if(intakeHistoryPatch.fat()!=null) {
+    if (intakeHistoryPatch.fat() != null) {
       intakeHistory.setFat(intakeHistoryPatch.fat());
     }
-    if(intakeHistoryPatch.carbs()!=null) {
+    if (intakeHistoryPatch.carbs() != null) {
       intakeHistory.setCarbs(intakeHistoryPatch.carbs());
     }
-    if(intakeHistoryPatch.caloriesGoal()!=null) {
+    if (intakeHistoryPatch.caloriesGoal() != null) {
       intakeHistory.setCaloriesGoal(intakeHistoryPatch.caloriesGoal());
     }
-    if(intakeHistoryPatch.proteinGoal()!=null) {
+    if (intakeHistoryPatch.proteinGoal() != null) {
       intakeHistory.setProteinGoal(intakeHistoryPatch.proteinGoal());
     }
-    if(intakeHistoryPatch.fatGoal()!=null) {
+    if (intakeHistoryPatch.fatGoal() != null) {
       intakeHistory.setFatGoal(intakeHistoryPatch.fatGoal());
     }
-    if(intakeHistoryPatch.carbsGoal()!=null) {
+    if (intakeHistoryPatch.carbsGoal() != null) {
       intakeHistory.setCarbsGoal(intakeHistoryPatch.carbsGoal());
     }
     intakeHistory = intakeHistoryRepository.save(intakeHistory);
@@ -116,7 +116,7 @@ public class IntakeHistoryService {
   }
 
   public List<IntakeHistoryResponse> getAllIntakeHistoriesByUsername(String username) {
-    return intakeHistoryRepository.getAllByUserUsername(username).stream().map(this::mapToIntakeHistoryResponse)
-        .toList();
+    return intakeHistoryRepository.getAllByUserUsername(username).stream()
+        .map(this::mapToIntakeHistoryResponse).toList();
   }
 }

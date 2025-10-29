@@ -34,7 +34,8 @@ public class IntakeHistoryController {
 
   @GetMapping(params = "username")
   @ResponseStatus(HttpStatus.OK)
-  public List<IntakeHistoryResponse> getIntakeHistoriesByUsername(@NotBlank @RequestParam String username){
+  public List<IntakeHistoryResponse> getIntakeHistoriesByUsername(
+      @NotBlank @RequestParam String username) {
     return intakeHistoryService.getAllIntakeHistoriesByUsername(username);
   }
 
@@ -57,6 +58,7 @@ public class IntakeHistoryController {
       @RequestBody @Valid IntakeHistoryPatch intakeHistoryPatch, @PathVariable Long id) {
     return intakeHistoryService.updateIntakeHistoryById(id, intakeHistoryPatch);
   }
+
   @DeleteMapping(params = "username")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deleteHistoryByUsername(@RequestParam String username) {

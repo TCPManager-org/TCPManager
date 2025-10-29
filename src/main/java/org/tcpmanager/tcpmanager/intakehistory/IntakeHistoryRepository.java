@@ -11,5 +11,6 @@ public interface IntakeHistoryRepository extends
   void deleteIntakeHistoriesByUserUsername(String username);
 
   List<IntakeHistory> getAllByDate(Date date);
+
   List<IntakeHistory> getAllByUserUsername(String username);
 }
