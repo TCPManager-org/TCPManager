@@ -6,7 +6,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.math.BigDecimal;
 import java.sql.Date;
-import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -57,9 +56,10 @@ class IntakeHistoryTests {
 
   @Test
   void getIntakeHistoryById_ShouldReturnIntakeHistory() throws Exception {
-    IntakeHistory ih = new IntakeHistory();
     User user = new User();
     user.setUsername("testUser");
+    user = userRepository.save(user);
+    IntakeHistory ih = new IntakeHistory();
     ih.setUser(user);
     ih.setFat(BigDecimal.valueOf(10));
     ih.setProtein(BigDecimal.valueOf(11));
@@ -91,9 +91,10 @@ class IntakeHistoryTests {
 
   @Test
   void getIntakeHistoriesByUsername_ShouldReturnAllIntakeHistories() throws Exception {
-    IntakeHistory ih1 = new IntakeHistory();
     User user = new User();
     user.setUsername("testUser");
+    user = userRepository.save(user);
+    IntakeHistory ih1 = new IntakeHistory();
     ih1.setUser(user);
     ih1.setFat(BigDecimal.valueOf(10));
     ih1.setProtein(BigDecimal.valueOf(11));
@@ -116,17 +117,20 @@ class IntakeHistoryTests {
     ih2.setProteinGoal(25);
     ih2.setFatGoal(26);
     ih2.setCaloriesGoal(27);
-    ih2 = intakeHistoryRepository.save(ih2);//TODO fix
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/intake-history?username="+user.getUsername())).andExpect(status().isOk())
-        .andExpect(jsonPath("$.size()").value(2)).andExpect(jsonPath("$[0].id").value(ih1.getId()))
+    ih2 = intakeHistoryRepository.save(ih2);
+    mockMvc.perform(
+            MockMvcRequestBuilders.get("/api/intake-history?username=" + user.getUsername()))
+        .andExpect(status().isOk()).andExpect(jsonPath("$.size()").value(2))
+        .andExpect(jsonPath("$[0].id").value(ih1.getId()))
         .andExpect(jsonPath("$[1].id").value(ih2.getId()));
   }
 
   @Test
   void deleteIntakeHistoryById_ShouldDeleteIntakeHistory() throws Exception {
-    IntakeHistory ih = new IntakeHistory();
     User user = new User();
     user.setUsername("testUser");
+    user = userRepository.save(user);
+    IntakeHistory ih = new IntakeHistory();
     ih.setUser(user);
     ih.setFat(BigDecimal.valueOf(10));
     ih.setProtein(BigDecimal.valueOf(11));
@@ -153,9 +157,10 @@ class IntakeHistoryTests {
   @ValueSource(strings = {"fat", "protein", "calories", "carbs", "caloriesGoal", "proteinGoal",
       "fatGoal", "carbsGoal"})
   void updateIntakeHistoryById_ShouldUpdateIntakeHistory(String value) throws Exception {
-    IntakeHistory ih = new IntakeHistory();
     User user = new User();
     user.setUsername("testUser");
+    user = userRepository.save(user);
+    IntakeHistory ih = new IntakeHistory();
     ih.setUser(user);
     ih.setFat(BigDecimal.valueOf(10));
     ih.setProtein(BigDecimal.valueOf(11));
@@ -176,6 +181,7 @@ class IntakeHistoryTests {
             .contentType("application/json").content(patchJson)).andExpect(status().isOk())
         .andExpect(jsonPath("$." + value).value(20));
   }
+
   @Test
   void addIntakeHistory_ShouldAddIntakeHistory() throws Exception {
     User user = new User();
@@ -195,17 +201,16 @@ class IntakeHistoryTests {
           "caloriesGoal": 17
         }
         """;
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/intake-history")
-            .contentType("application/json").content(postJson)).andExpect(status().isCreated())
-        .andExpect(jsonPath("$.username").value("testUser"))
-        .andExpect(jsonPath("$.fat").value(10))
-        .andExpect(jsonPath("$.protein").value(11))
-        .andExpect(jsonPath("$.calories").value(12))
-        .andExpect(jsonPath("$.carbs").value(13))
-        .andExpect(jsonPath("$.date").value("1970-01-01"))
+    mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/intake-history").contentType("application/json")
+                .content(postJson)).andExpect(status().isCreated())
+        .andExpect(jsonPath("$.username").value("testUser")).andExpect(jsonPath("$.fat").value(10))
+        .andExpect(jsonPath("$.protein").value(11)).andExpect(jsonPath("$.calories").value(12))
+        .andExpect(jsonPath("$.carbs").value(13)).andExpect(jsonPath("$.date").value("1970-01-01"))
         .andExpect(jsonPath("$.carbsGoal").value(14)).andExpect(jsonPath("$.proteinGoal").value(15))
         .andExpect(jsonPath("$.fatGoal").value(16)).andExpect(jsonPath("$.caloriesGoal").value(17));
   }
+
   @Test
   void addIntakeHistory_InvalidUsername() throws Exception {
     String postJson = """
@@ -222,14 +227,17 @@ class IntakeHistoryTests {
           "caloriesGoal": 17
         }
         """;
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/intake-history")
-            .contentType("application/json").content(postJson)).andExpect(status().isNotFound())
+    mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/intake-history").contentType("application/json")
+                .content(postJson)).andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("User with username nonExistentUser not found"));
   }
+
   @Test
   void addIntakeHistory_NonUniqueDate() throws Exception {
     User user = new User();
     user.setUsername("testUser");
+    user = userRepository.save(user);
     IntakeHistory ih = new IntakeHistory();
     ih.setUser(user);
     ih.setFat(BigDecimal.valueOf(10));
@@ -256,10 +264,12 @@ class IntakeHistoryTests {
           "caloriesGoal": 17
         }
         """;
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/intake-history")
-            .contentType("application/json").content(postJson)).andExpect(status().isBadRequest())
+    mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/intake-history").contentType("application/json")
+                .content(postJson)).andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("Date must be unique"));
   }
+
   @Test
   void updateIntakeHistoryById_ShouldReturnNotFound() throws Exception {
     String patchJson = """
@@ -267,14 +277,17 @@ class IntakeHistoryTests {
           "fat": 20
         }
         """;
-    mockMvc.perform(MockMvcRequestBuilders.patch("/api/intake-history/9999")
-            .contentType("application/json").content(patchJson)).andExpect(status().isNotFound())
+    mockMvc.perform(
+            MockMvcRequestBuilders.patch("/api/intake-history/9999").contentType("application/json")
+                .content(patchJson)).andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("Intake history with id 9999 not found"));
   }
+
   @Test
   void deleteIntakeHistoryByUsername_ShouldDeleteIntakeHistories() throws Exception {
     User user = new User();
     user.setUsername("testUser");
+    user = userRepository.save(user);
     IntakeHistory ih1 = new IntakeHistory();
     ih1.setUser(user);
     ih1.setFat(BigDecimal.valueOf(10));
@@ -299,7 +312,8 @@ class IntakeHistoryTests {
     ih2.setFatGoal(26);
     ih2.setCaloriesGoal(27);
     intakeHistoryRepository.save(ih2);
-    mockMvc.perform(MockMvcRequestBuilders.delete("/api/intake-history/user/testUser"))
+    mockMvc.perform(
+            MockMvcRequestBuilders.delete("/api/intake-history").param("username", "testUser"))
         .andExpect(status().isNoContent());
     Assertions.assertTrue(intakeHistoryRepository.getAllByUserUsername("testUser").isEmpty());
   }
