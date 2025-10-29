@@ -54,7 +54,7 @@ public class UserController {
   @ResponseStatus(HttpStatus.OK)
   public UserResponse updateUserById(@PathVariable Long id,
       @RequestBody @Valid UserPatch userPatch) {
-    return userService.updateById(id, userPatch);
+    return userService.updateUserById(id, userPatch);
   }
 
   @PostMapping
