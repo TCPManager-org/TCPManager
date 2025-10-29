@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.tcpmanager.tcpmanager.calories.meal.dto.MealPatch;
 import org.tcpmanager.tcpmanager.calories.meal.dto.MealRequest;
 import org.tcpmanager.tcpmanager.calories.meal.dto.MealResponse;
 
@@ -25,14 +26,20 @@ public class MealController {
 
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
-  public List<MealResponse> getMeals() {
-    return mealService.getAll();
+  public List<MealResponse> getAllMeals() {
+    return mealService.getAllMeals();
   }
 
   @GetMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
   public MealResponse getMealById(@PathVariable Long id) {
     return mealService.getById(id);
+  }
+
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  public MealResponse addMeal(@RequestBody @Valid MealRequest mealRequest) {
+    return mealService.addMeal(mealRequest);
   }
 
   @DeleteMapping("/{id}")
@@ -44,13 +51,7 @@ public class MealController {
   @PatchMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
   public MealResponse updateMealById(@PathVariable Long id,
-      @RequestBody @Valid MealRequest mealRequest) {
-    return mealService.updateById(id, mealRequest);
-  }
-
-  @PostMapping
-  @ResponseStatus(HttpStatus.CREATED)
-  public MealResponse addMeal(@RequestBody @Valid MealRequest mealRequest) {
-    return mealService.add(mealRequest);
+      @RequestBody @Valid MealPatch mealPatch) {
+    return mealService.updateById(id, mealPatch);
   }
 }

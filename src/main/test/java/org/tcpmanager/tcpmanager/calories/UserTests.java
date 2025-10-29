@@ -3,8 +3,6 @@ package org.tcpmanager.tcpmanager.calories;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -16,7 +14,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.tcpmanager.tcpmanager.user.User;
 import org.tcpmanager.tcpmanager.user.UserRepository;
-import org.tcpmanager.tcpmanager.user.dto.UserRequest;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -52,26 +49,28 @@ class UserTests {
     User user = new User();
     user.setUsername("TestUser");
     userRepository.save(user);
-    UserRequest userRequest = new UserRequest("TestUser");
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/users").contentType("application/json")
-            .content(asJsonString(userRequest))).andExpect(status().isBadRequest())
+    String json = """
+          {
+            "username": "TestUser"
+          }
+        """;
+    mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/users").contentType("application/json").content(json))
+        .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("Username TestUser is already taken"));
   }
 
   @Test
   void invalidUsername_NotAlphanumeric() throws Exception {
-    UserRequest userRequest = new UserRequest("Test User!");
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/users").contentType("application/json")
-            .content(asJsonString(userRequest))).andExpect(status().isBadRequest())
+    String json = """
+          {
+            "username": "TestUser!"
+          }
+        """;
+    mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/users").contentType("application/json").content(json))
+        .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("Username can only contain letters and digits"));
-  }
-
-  @Test
-  void invalidRequestBody() throws Exception {
-    UserRequest userRequest = new UserRequest("");
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/users").contentType("application/json")
-            .content(asJsonString(userRequest))).andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("Username must not be blank"));
   }
 
   @Test
@@ -139,10 +138,15 @@ class UserTests {
 
   @Test
   void addUser_ShouldReturnCreated() throws Exception {
-    UserRequest userRequest = new UserRequest("NewUser");
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/users").contentType("application/json")
-            .content(asJsonString(userRequest))).andExpect(status().isCreated())
-        .andExpect(jsonPath("$.id").isNumber()).andExpect(jsonPath("$.username").value("NewUser"));
+    String json = """
+          {
+            "username": "NewUser"
+          }
+        """;
+    mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/users").contentType("application/json").content(json))
+        .andExpect(status().isCreated()).andExpect(jsonPath("$.id").isNumber())
+        .andExpect(jsonPath("$.username").value("NewUser"));
   }
 
   @Test
@@ -171,10 +175,14 @@ class UserTests {
     User user = new User();
     user.setUsername("TestUser");
     user = userRepository.save(user);
-    UserRequest userRequest = new UserRequest("UpdatedUser");
+    String json = """
+          {
+            "username": "UpdatedUser"
+          }
+        """;
     mockMvc.perform(
             MockMvcRequestBuilders.patch("/api/users/" + user.getId()).contentType("application/json")
-                .content(asJsonString(userRequest))).andExpect(status().isOk())
+                .content(json)).andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(user.getId()))
         .andExpect(jsonPath("$.username").value("UpdatedUser"));
     User updatedUser = userRepository.findById(user.getId()).orElseThrow();
@@ -186,29 +194,38 @@ class UserTests {
     User user = new User();
     user.setUsername("TestUser");
     userRepository.save(user);
-    UserRequest userRequest = new UserRequest("UpdatedUser");
+    String json = """
+          {
+            "username": "UpdatedUser"
+          }
+        """;
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/users/123").contentType("application/json")
-            .content(asJsonString(userRequest))).andExpect(status().isNotFound())
+            .content(json)).andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("User with id 123 not found"));
   }
 
   @Test
   void addUser_ShouldReturnBadRequest_WhenNameIsBlank() throws Exception {
-    UserRequest userRequest = new UserRequest(" ");
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/users").contentType("application/json")
-            .content(asJsonString(userRequest))).andExpect(status().isBadRequest())
+    String json = """
+          {
+            "username": " "
+          }
+        """;
+    mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/users").contentType("application/json").content(json))
+        .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("Username must not be blank"));
   }
 
   @Test
   void addUser_ShouldReturnBadRequest_WhenNameIsNull() throws Exception {
-    UserRequest userRequest = new UserRequest(null);
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/users").contentType("application/json")
-            .content(asJsonString(userRequest))).andExpect(status().isBadRequest())
+    String json = """
+          {
+          }
+        """;
+    mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/users").contentType("application/json").content(json))
+        .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("Username must not be blank"));
-  }
-
-  private String asJsonString(Object object) throws JsonProcessingException {
-    return new ObjectMapper().writeValueAsString(object);
   }
 }

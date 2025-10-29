@@ -1,13 +1,18 @@
 package org.tcpmanager.tcpmanager.calories.ingredient;
 
 import jakarta.persistence.EntityNotFoundException;
-import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.tcpmanager.tcpmanager.calories.ingredient.dto.IngredientPatch;
 import org.tcpmanager.tcpmanager.calories.ingredient.dto.IngredientRequest;
 import org.tcpmanager.tcpmanager.calories.ingredient.dto.IngredientResponse;
+import org.tcpmanager.tcpmanager.calories.meal.models.Meal;
+import org.tcpmanager.tcpmanager.calories.meal.models.MealIngredient;
 
 @Service
 @RequiredArgsConstructor
@@ -32,42 +37,44 @@ public class IngredientService {
 
   @Transactional
   public void deleteById(Long id) {
-    if (!ingredientRepository.existsById(id)) {
+
+    Optional<Ingredient> ingredient = ingredientRepository.findById(id);
+    if (ingredient.isEmpty()) {
       throw new EntityNotFoundException(generateNotFoundMessage(id));
     }
-
+    Set<Meal> meals = ingredient.get().getMealIngredients().stream().map(MealIngredient::getMeal)
+        .collect(Collectors.toSet());
+    if (!meals.isEmpty()) {
+      throw new IllegalArgumentException("Ingredient is used in meals and cannot be deleted");
+    }
     ingredientRepository.deleteById(id);
   }
 
   @Transactional
-  public IngredientResponse updateById(Long id, IngredientRequest ingredientRequest) {
+  public IngredientResponse updateById(Long id, IngredientPatch ingredientPatch) {
     Ingredient ingredient = ingredientRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
-    if (ingredientRequest.name() != null) {
-      if (ingredientRequest.name().isBlank()) {
+    if (ingredientPatch.name() != null) {
+      if (ingredientPatch.name().isBlank()) {
         throw new IllegalArgumentException("Name must not be blank");
       }
-      ingredient.setName(ingredientRequest.name());
+      ingredient.setName(ingredientPatch.name().strip());
     }
-    if (ingredientRequest.calories() != null) {
-      validateNutritionValue(ingredientRequest.calories(), "Calories");
-      ingredient.setCalories(ingredientRequest.calories());
+    if (ingredientPatch.calories() != null) {
+      ingredient.setCalories(ingredientPatch.calories());
     }
-    if (ingredientRequest.fats() != null) {
-      validateNutritionValue(ingredientRequest.fats(), "Fats");
-      ingredient.setFats(ingredientRequest.fats());
+    if (ingredientPatch.fats() != null) {
+      ingredient.setFats(ingredientPatch.fats());
     }
-    if (ingredientRequest.carbs() != null) {
-      validateNutritionValue(ingredientRequest.carbs(), "Carbs");
-      ingredient.setCarbs(ingredientRequest.carbs());
+    if (ingredientPatch.carbs() != null) {
+      ingredient.setCarbs(ingredientPatch.carbs());
     }
-    if (ingredientRequest.proteins() != null) {
-      validateNutritionValue(ingredientRequest.proteins(), "Proteins");
-      ingredient.setProteins(ingredientRequest.proteins());
+    if (ingredientPatch.proteins() != null) {
+      ingredient.setProteins(ingredientPatch.proteins());
     }
-    if (ingredientRequest.ean() != null && !ingredientRequest.ean().isBlank()) {
-      validateEan(ingredientRequest.ean());
-      ingredient.setEan(ingredientRequest.ean());
+    if (ingredientPatch.ean() != null) {
+      validateEan(ingredientPatch.ean().strip());
+      ingredient.setEan(ingredientPatch.ean().strip());
     }
     ingredientRepository.save(ingredient);
     return mapToIngredientResponse(ingredient);
@@ -75,14 +82,18 @@ public class IngredientService {
 
   @Transactional
   public IngredientResponse add(IngredientRequest ingredientRequest) {
-    validateIngredientRequest(ingredientRequest);
+    if (ingredientRequest.ean() != null) {
+      validateEan(ingredientRequest.ean().strip());
+    }
     Ingredient ingredient = new Ingredient();
-    ingredient.setName(ingredientRequest.name());
+    ingredient.setName(ingredientRequest.name().strip());
     ingredient.setCalories(ingredientRequest.calories());
     ingredient.setFats(ingredientRequest.fats());
     ingredient.setCarbs(ingredientRequest.carbs());
     ingredient.setProteins(ingredientRequest.proteins());
-    ingredient.setEan(ingredientRequest.ean());
+    if (ingredientRequest.ean() != null) {
+      ingredient.setEan(ingredientRequest.ean().strip());
+    }
     ingredient = ingredientRepository.save(ingredient);
     return mapToIngredientResponse(ingredient);
   }
@@ -93,34 +104,10 @@ public class IngredientService {
         ingredient.getProteins(), ingredient.getEan());
   }
 
-  private void validateIngredientRequest(IngredientRequest ingredientRequest) {
-    if (ingredientRequest.name() == null || ingredientRequest.name().isBlank()) {
-      throw new IllegalArgumentException("Name must not be blank");
-    }
-    if (ingredientRequest.calories() == null
-        || ingredientRequest.calories().compareTo(BigDecimal.ZERO) <= 0) {
-      throw new IllegalArgumentException("Calories must be greater than 0");
-    }
-    if (ingredientRequest.fats() == null
-        || ingredientRequest.fats().compareTo(BigDecimal.ZERO) <= 0) {
-      throw new IllegalArgumentException("Fats must be greater than 0");
-    }
-    if (ingredientRequest.carbs() == null
-        || ingredientRequest.carbs().compareTo(BigDecimal.ZERO) <= 0) {
-      throw new IllegalArgumentException("Carbs must be greater than 0");
-    }
-    if (ingredientRequest.proteins() == null
-        || ingredientRequest.proteins().compareTo(BigDecimal.ZERO) <= 0) {
-      throw new IllegalArgumentException("Proteins must be greater than 0");
-    }
-    if(ingredientRequest.ean() != null) {
-      validateEan(ingredientRequest.ean());
-    }
-  }
 
   private void validateEan(String ean) {
-    if (ean.isBlank() || ean.length() != 13) {
-      throw new IllegalArgumentException("EAN must be 13 characters long");
+    if (ean.isBlank()) {
+      throw new IllegalArgumentException("Ean must not be blank");
     }
     int sum = 0;
     for (int i = 0; i < 12; i++) {
@@ -137,11 +124,9 @@ public class IngredientService {
     if (sum % 10 != 0) {
       throw new IllegalArgumentException("EAN is not valid");
     }
-  }
-
-  void validateNutritionValue(BigDecimal value, String fieldName) {
-    if (value == null || value.compareTo(BigDecimal.ZERO) <= 0) {
-      throw new IllegalArgumentException(fieldName + " must be greater than 0");
+    var existing = ingredientRepository.findByEan(ean);
+    if (existing.isPresent()) {
+      throw new IllegalArgumentException("EAN must be unique");
     }
   }
 }

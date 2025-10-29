@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.tcpmanager.tcpmanager.user.dto.UserPatch;
 import org.tcpmanager.tcpmanager.user.dto.UserRequest;
 import org.tcpmanager.tcpmanager.user.dto.UserResponse;
 
@@ -39,10 +40,10 @@ public class UserService {
   }
 
   @Transactional
-  public UserResponse updateUserById(Long id, UserRequest userRequest) {
+  public UserResponse updateUserById(Long id, UserPatch userPatch) {
     User user = userRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
-    var username = userRequest.username().strip();
+    var username = userPatch.username().strip();
     validateUsername(username);
     user.setUsername(username);
     userRepository.save(user);

@@ -1,34 +1,35 @@
-package org.tcpmanager.tcpmanager.calories.mealingredient;
+package org.tcpmanager.tcpmanager.calories.meal.models;
 
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
-import java.math.BigDecimal;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.tcpmanager.tcpmanager.calories.ingredient.Ingredient;
-import org.tcpmanager.tcpmanager.calories.meal.Meal;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
-@Table(name = "meal_ingredients", schema = "calories")
+@Table(name = "meals_ingredients", schema = "calories")
 public class MealIngredient {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  @EmbeddedId
+  private MealIngredientKey id;
+
   @ManyToOne
+  @MapsId("mealId")
   @JoinColumn(name = "meal_id", nullable = false)
   private Meal meal;
 
   @ManyToOne
+  @MapsId("ingredientId")
   @JoinColumn(name = "ingredient_id", nullable = false)
   private Ingredient ingredient;
 
-  private BigDecimal amount;
+  private Integer weight;
 }

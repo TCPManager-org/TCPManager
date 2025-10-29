@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.tcpmanager.tcpmanager.calories.ingredient.dto.IngredientPatch;
 import org.tcpmanager.tcpmanager.calories.ingredient.dto.IngredientRequest;
 import org.tcpmanager.tcpmanager.calories.ingredient.dto.IngredientResponse;
 
@@ -44,8 +45,8 @@ public class IngredientController {
   @PatchMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
   public IngredientResponse updateMealById(@PathVariable Long id,
-      @RequestBody @Valid IngredientRequest ingredientRequest) {
-    return ingredientService.updateById(id, ingredientRequest);
+      @RequestBody @Valid IngredientPatch ingredientPatch) {
+    return ingredientService.updateById(id, ingredientPatch);
   }
 
   @PostMapping
