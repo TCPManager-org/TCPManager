@@ -28,38 +28,38 @@ public class UserController {
 
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
-  public List<UserResponse> getMeals() {
-    return userService.getAll();
+  public List<UserResponse> getUsers() {
+    return userService.getAllUsers();
   }
 
   @GetMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
-  public UserResponse getMealById(@PathVariable Long id) {
-    return userService.getById(id);
+  public UserResponse getUserById(@PathVariable Long id) {
+    return userService.getUserById(id);
   }
 
   @GetMapping(params = {"username"})
   @ResponseStatus(HttpStatus.OK)
-  public UserResponse getMealById(@NotBlank @RequestParam(value = "username") String username) {
-    return userService.getByUsername(username);
+  public UserResponse getUserById(@NotBlank @RequestParam(value = "username") String username) {
+    return userService.getUserByUsername(username);
   }
 
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deleteMealById(@PathVariable Long id) {
-    userService.deleteById(id);
+  public void deleteUserById(@PathVariable Long id) {
+    userService.deleteUserById(id);
   }
 
   @PatchMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
-  public UserResponse updateMealById(@PathVariable Long id,
+  public UserResponse updateUserById(@PathVariable Long id,
       @RequestBody @Valid UserPatch userPatch) {
-    return userService.updateById(id, userPatch);
+    return userService.updateUserById(id, userPatch);
   }
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public UserResponse addMeal(@RequestBody @Valid UserRequest userRequest) {
-    return userService.add(userRequest);
+  public UserResponse addUser(@RequestBody @Valid UserRequest userRequest) {
+    return userService.addUser(userRequest);
   }
 }
