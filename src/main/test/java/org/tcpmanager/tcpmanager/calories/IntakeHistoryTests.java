@@ -278,7 +278,8 @@ class IntakeHistoryTests {
         }
         """;
     mockMvc.perform(
-            MockMvcRequestBuilders.patch("/api/intake-history/1970-01-01").contentType("application/json")
+            MockMvcRequestBuilders.patch("/api/intake-history/1970-01-01")
+                .contentType("application/json")
                 .content(patchJson)).andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("Intake history with date 1970-01-01 not found"));
   }

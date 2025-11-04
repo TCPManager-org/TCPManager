@@ -50,7 +50,7 @@ class MealTests {
     Meal meal = new Meal();
     meal.setName("Test Meal");
     meal.setFavorite(false);
-    
+
     mealIngredient1.setMeal(meal);
     Ingredient ingredient1 = new Ingredient();
     ingredient1.setName("Test Ingredient1");
@@ -257,6 +257,7 @@ class MealTests {
         .andExpect(jsonPath("$.name").value("Updated Meal"))
         .andExpect(jsonPath("$.ingredients.size()").value(2));
   }
+
   @Test
   void updateMeal_ShouldUpdateFavourite() throws Exception {
     Meal meal = createMeal();
@@ -274,6 +275,7 @@ class MealTests {
         .andExpect(jsonPath("$.ingredients.size()").value(2))
         .andExpect(jsonPath("$.favorite").value(true));
   }
+
   @Test
   void updateMeal_ShouldReturnNotFound() throws Exception {
     String mealPatchJson = """

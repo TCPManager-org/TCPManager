@@ -53,7 +53,8 @@ public class MealService {
               .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_EVEN)));
       ingredients.put(ingredient.getId(), ingredient.getName());
     }
-    return new MealResponse(meal.getId(), meal.getName(), meal.getFavorite(), calories, carbs, fats, proteins,
+    return new MealResponse(meal.getId(), meal.getName(), meal.getFavorite(), calories, carbs, fats,
+        proteins,
         ingredients);
   }
 
@@ -97,7 +98,7 @@ public class MealService {
     if (mealPatch.ingredients() != null) {
       meal.setMealIngredients(mapToMealIngredients(meal, mealPatch.ingredients()));
     }
-    if(mealPatch.favorite() != null) {
+    if (mealPatch.favorite() != null) {
       meal.setFavorite(mealPatch.favorite());
     }
     Meal updatedMeal = mealRepository.save(meal);
