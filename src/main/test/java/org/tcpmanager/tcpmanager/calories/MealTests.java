@@ -304,6 +304,7 @@ class MealTests {
             .contentType("application/json").content(mealPatchJson)).andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("Meal name cannot be blank"));
   }
+
   @Test
   void getMealsByMinIngredients_ShouldReturnMeals() throws Exception {
     Meal meal1 = createMeal();
@@ -325,17 +326,17 @@ class MealTests {
 
     mealIngredient1.setIngredient(ingredient1);
     mealIngredient1.setWeight(100);
-    
+
     meal2.setMealIngredients(Set.of(mealIngredient1));
     mealRepository.save(meal2);
-    
+
     mockMvc.perform(
-            MockMvcRequestBuilders.get("/api/calories/meals?minIngredients=2")).andExpect(
-        status().isOk())
+            MockMvcRequestBuilders.get("/api/calories/meals?minIngredients=2"))
+        .andExpect(status().isOk())
         .andExpect(jsonPath("$.size()").value(1))
         .andExpect(jsonPath("$[0].id").value(meal1.getId()))
         .andExpect(jsonPath("$[0].calories").value(BigDecimal.valueOf(1100.0)))
         .andExpect(jsonPath("$[0].ingredients.size()").value(2));
   }
-  
+
 }

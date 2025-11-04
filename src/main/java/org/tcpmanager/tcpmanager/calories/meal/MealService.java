@@ -58,10 +58,6 @@ public class MealService {
         ingredients);
   }
 
-  public List<MealResponse> getAllMeals() {
-    return mealRepository.findAll().stream().map(MealService::mapToMealResponse).toList();
-  }
-
   public MealResponse getById(Long id) {
     Meal meal = mealRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
@@ -122,9 +118,17 @@ public class MealService {
     return mealIngredients;
   }
 
-  public List<MealResponse> getMealsWithMinIngredients(Integer minIngredients) {
-    return mealRepository.findAll().stream()
-        .filter(meal -> meal.getMealIngredients().size() >= minIngredients)
-        .map(MealService::mapToMealResponse).toList();
+  public List<MealResponse> getMealsWithMinIngredients(Integer minIngredients,
+      Integer maxIngredients) {
+    var mealIngredients = mealRepository.findAll();
+    if (minIngredients != null) {
+      mealIngredients = mealIngredients.stream()
+          .filter(meal -> meal.getMealIngredients().size() >= minIngredients).toList();
+    }
+    if (maxIngredients != null) {
+      mealIngredients = mealIngredients.stream()
+          .filter(meal -> meal.getMealIngredients().size() <= maxIngredients).toList();
+    }
+    return mealIngredients.stream().map(MealService::mapToMealResponse).toList();
   }
 }

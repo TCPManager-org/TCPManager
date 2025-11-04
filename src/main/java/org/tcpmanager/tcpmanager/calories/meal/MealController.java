@@ -26,9 +26,10 @@ public class MealController {
   private final MealService mealService;
 
   @GetMapping
-  @ResponseStatus(HttpStatus.OK)
-  public List<MealResponse> getAllMeals() {
-    return mealService.getAllMeals();
+  public List<MealResponse> getMealsByMinIngredients(
+      @RequestParam(required = false) Integer minIngredients,
+      @RequestParam(required = false) Integer maxIngredients) {
+    return mealService.getMealsWithMinIngredients(minIngredients, maxIngredients);
   }
 
   @GetMapping("/{id}")
@@ -37,11 +38,6 @@ public class MealController {
     return mealService.getById(id);
   }
 
-  @GetMapping(params = {"minIngredients"})
-  public List<MealResponse> getMealsByMinIngredients(
-      @RequestParam Integer minIngredients) {
-    return mealService.getMealsWithMinIngredients(minIngredients);
-  }
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
