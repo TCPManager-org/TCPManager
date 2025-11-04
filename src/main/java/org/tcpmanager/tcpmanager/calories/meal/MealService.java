@@ -121,4 +121,10 @@ public class MealService {
     }
     return mealIngredients;
   }
+
+  public List<MealResponse> getMealsWithMinIngredients(Integer minIngredients) {
+    return mealRepository.findAll().stream()
+        .filter(meal -> meal.getMealIngredients().size() >= minIngredients)
+        .map(MealService::mapToMealResponse).toList();
+  }
 }

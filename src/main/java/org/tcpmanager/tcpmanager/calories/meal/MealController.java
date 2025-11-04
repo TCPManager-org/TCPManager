@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.tcpmanager.tcpmanager.calories.meal.dto.MealPatch;
@@ -34,6 +35,12 @@ public class MealController {
   @ResponseStatus(HttpStatus.OK)
   public MealResponse getMealById(@PathVariable Long id) {
     return mealService.getById(id);
+  }
+
+  @GetMapping(params = {"minIngredients"})
+  public List<MealResponse> getMealsByMinIngredients(
+      @RequestParam Integer minIngredients) {
+    return mealService.getMealsWithMinIngredients(minIngredients);
   }
 
   @PostMapping
