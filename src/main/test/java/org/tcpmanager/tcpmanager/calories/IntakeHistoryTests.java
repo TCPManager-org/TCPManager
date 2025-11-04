@@ -71,7 +71,7 @@ class IntakeHistoryTests {
     ih.setFatGoal(16);
     ih.setCaloriesGoal(17);
     ih = intakeHistoryRepository.save(ih);
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/intake-history/" + ih.getId()))
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/intake-history/" + ih.getDate().toString()))
         .andExpect(status().isOk()).andExpect(jsonPath("$.username").value("testUser"))
         .andExpect(jsonPath("$.fat").value(BigDecimal.valueOf(10)))
         .andExpect(jsonPath("$.protein").value(BigDecimal.valueOf(11)))
@@ -84,9 +84,9 @@ class IntakeHistoryTests {
 
   @Test
   void getIntakeHistoryById_ShouldReturnNotFound() throws Exception {
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/intake-history/9999"))
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/intake-history/1970-01-01"))
         .andExpect(status().isNotFound())
-        .andExpect(jsonPath("$.message").value("Intake history with id 9999 not found"));
+        .andExpect(jsonPath("$.message").value("Intake history with date 1970-01-01 not found"));
   }
 
   @Test
@@ -121,8 +121,8 @@ class IntakeHistoryTests {
     mockMvc.perform(
             MockMvcRequestBuilders.get("/api/intake-history?username=" + user.getUsername()))
         .andExpect(status().isOk()).andExpect(jsonPath("$.size()").value(2))
-        .andExpect(jsonPath("$[0].id").value(ih1.getId()))
-        .andExpect(jsonPath("$[1].id").value(ih2.getId()));
+        .andExpect(jsonPath("$[0].date").value(ih1.getDate().toString()))
+        .andExpect(jsonPath("$[1].date").value(ih2.getDate().toString()));
   }
 
   @Test
@@ -142,15 +142,15 @@ class IntakeHistoryTests {
     ih.setFatGoal(16);
     ih.setCaloriesGoal(17);
     ih = intakeHistoryRepository.save(ih);
-    mockMvc.perform(MockMvcRequestBuilders.delete("/api/intake-history/" + ih.getId()))
+    mockMvc.perform(MockMvcRequestBuilders.delete("/api/intake-history/" + ih.getDate().toString()))
         .andExpect(status().isNoContent());
   }
 
   @Test
   void deleteIntakeHistoryById_ShouldReturnNotFound() throws Exception {
-    mockMvc.perform(MockMvcRequestBuilders.delete("/api/intake-history/9999"))
+    mockMvc.perform(MockMvcRequestBuilders.delete("/api/intake-history/1970-01-01"))
         .andExpect(status().isNotFound())
-        .andExpect(jsonPath("$.message").value("Intake history with id 9999 not found"));
+        .andExpect(jsonPath("$.message").value("Intake history with date 1970-01-01 not found"));
   }
 
   @ParameterizedTest
@@ -177,7 +177,7 @@ class IntakeHistoryTests {
           "%s": 20
         }
         """.formatted(value);
-    mockMvc.perform(MockMvcRequestBuilders.patch("/api/intake-history/" + ih.getId())
+    mockMvc.perform(MockMvcRequestBuilders.patch("/api/intake-history/" + ih.getDate().toString())
             .contentType("application/json").content(patchJson)).andExpect(status().isOk())
         .andExpect(jsonPath("$." + value).value(20));
   }
@@ -278,9 +278,9 @@ class IntakeHistoryTests {
         }
         """;
     mockMvc.perform(
-            MockMvcRequestBuilders.patch("/api/intake-history/9999").contentType("application/json")
+            MockMvcRequestBuilders.patch("/api/intake-history/1970-01-01").contentType("application/json")
                 .content(patchJson)).andExpect(status().isNotFound())
-        .andExpect(jsonPath("$.message").value("Intake history with id 9999 not found"));
+        .andExpect(jsonPath("$.message").value("Intake history with date 1970-01-01 not found"));
   }
 
   @Test

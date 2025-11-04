@@ -2,6 +2,7 @@ package org.tcpmanager.tcpmanager.intakehistory;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import java.sql.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,8 +21,8 @@ public class IntakeHistoryService {
   private final IntakeHistoryRepository intakeHistoryRepository;
   private final UserRepository userRepository;
 
-  private static String generateNotFoundMessage(Long id) {
-    return "Intake history with id " + id + " not found";
+  private static String generateNotFoundMessage(Date date) {
+    return "Intake history with date " + date.toString() + " not found";
   }
 
   private static IntakeHistory mapToIntakeHistory(IntakeHistoryRequest intakeHistoryRequest,
@@ -41,24 +42,24 @@ public class IntakeHistoryService {
   }
 
   private IntakeHistoryResponse mapToIntakeHistoryResponse(IntakeHistory intakeHistory) {
-    return new IntakeHistoryResponse(intakeHistory.getId(), intakeHistory.getDate(),
+    return new IntakeHistoryResponse(intakeHistory.getDate(),
         intakeHistory.getCalories(), intakeHistory.getProtein(), intakeHistory.getFat(),
         intakeHistory.getCarbs(), intakeHistory.getCaloriesGoal(), intakeHistory.getProteinGoal(),
         intakeHistory.getFatGoal(), intakeHistory.getCarbsGoal(),
         intakeHistory.getUser().getUsername());
   }
 
-  public IntakeHistoryResponse getIntakeHistoryById(Long id) {
-    return mapToIntakeHistoryResponse(intakeHistoryRepository.findById(id)
-        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id))));
+  public IntakeHistoryResponse getIntakeHistoryById(Date date) {
+    return mapToIntakeHistoryResponse(intakeHistoryRepository.findByDate(date)
+        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(date))));
   }
 
   @Transactional
-  public void deleteIntakeHistoryById(Long id) {
-    if (!intakeHistoryRepository.existsById(id)) {
-      throw new EntityNotFoundException(generateNotFoundMessage(id));
+  public void deleteIntakeHistoryById(Date date) {
+    if (!intakeHistoryRepository.existsByDate(date)) {
+      throw new EntityNotFoundException(generateNotFoundMessage(date));
     }
-    intakeHistoryRepository.deleteById(id);
+    intakeHistoryRepository.deleteByDate(date);
   }
 
   @Transactional
@@ -78,10 +79,10 @@ public class IntakeHistoryService {
   }
 
   @Transactional
-  public IntakeHistoryResponse updateIntakeHistoryById(Long id,
+  public IntakeHistoryResponse updateIntakeHistoryById(Date date,
       @Valid IntakeHistoryPatch intakeHistoryPatch) {
-    IntakeHistory intakeHistory = intakeHistoryRepository.findById(id)
-        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
+    IntakeHistory intakeHistory = intakeHistoryRepository.findByDate(date)
+        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(date)));
     if (intakeHistoryPatch.calories() != null) {
       intakeHistory.setCalories(intakeHistoryPatch.calories());
     }

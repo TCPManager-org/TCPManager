@@ -20,10 +20,7 @@ import org.tcpmanager.tcpmanager.user.User;
 @NoArgsConstructor
 @Table(name = "intake_history", schema = "statistics")
 public class IntakeHistory {
-
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
   @Column(nullable = false)
   private Date date;
 
