@@ -1,7 +1,10 @@
 package org.tcpmanager.tcpmanager.calories.day.models;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
@@ -21,6 +24,13 @@ public class DayMeal {
   @EmbeddedId
   private DayMealKey id;
 
+  @Column(nullable = false)
+  private Integer weight;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "meal_type", nullable = false, length = 20)
+  private MealType mealType;
+
   @ManyToOne
   @MapsId("dayDate")
   @JoinColumn(name = "day_date", nullable = false)
@@ -30,9 +40,4 @@ public class DayMeal {
   @MapsId("mealId")
   @JoinColumn(name = "meal_id", nullable = false)
   private Meal meal;
-
-  private Integer weight;
-
-  //TODO: add type of meal (breakfast, lunch, dinner)
-
 }

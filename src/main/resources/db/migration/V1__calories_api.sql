@@ -54,6 +54,7 @@ CREATE TABLE calories.day_meal
     day_date DATE   NOT NULL,
     meal_id  BIGINT NOT NULL,
     weight   INT    NOT NULL,
+    meal_type VARCHAR(20) NOT NULL,
     PRIMARY KEY (day_date, meal_id),
     FOREIGN KEY (day_date) REFERENCES day (date) ON DELETE CASCADE,
     FOREIGN KEY (meal_id) REFERENCES calories.meals (id) ON DELETE CASCADE
