@@ -17,7 +17,7 @@ import org.tcpmanager.tcpmanager.user.User;
 @Entity
 @Data
 @NoArgsConstructor
-@Table(name = "intake_history", schema = "calories")
+@Table(name = "intake_history", schema = "statistics")
 public class IntakeHistory {
 
   @Id

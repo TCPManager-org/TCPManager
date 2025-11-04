@@ -20,10 +20,11 @@ import lombok.Setter;
 @Table(name = "meals", schema = "calories")
 public class Meal {
 
+  @Column(nullable = false)
+  Boolean favorite;
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
-
   @Column(nullable = false, unique = true)
   private String name;
 

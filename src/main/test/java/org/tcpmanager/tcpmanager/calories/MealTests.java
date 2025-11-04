@@ -49,7 +49,8 @@ class MealTests {
     MealIngredient mealIngredient1 = new MealIngredient();
     Meal meal = new Meal();
     meal.setName("Test Meal");
-
+    meal.setFavorite(false);
+    
     mealIngredient1.setMeal(meal);
     Ingredient ingredient1 = new Ingredient();
     ingredient1.setName("Test Ingredient1");
@@ -134,6 +135,7 @@ class MealTests {
     String mealJson = """
         {
           "name": "New Meal",
+          "favorite": false,
           "ingredients": {
             "%d": 150,
             "%d": 200
@@ -154,6 +156,7 @@ class MealTests {
     String mealJson = """
         {
           "name": "New Meal",
+          "favorite": false,
           "ingredients": {
             "9999": 150
           }
@@ -180,6 +183,7 @@ class MealTests {
     String mealJson = """
         {
           "name": "New Meal",
+          "favorite": false,
           "ingredients": {
             "%d": 0
           }
@@ -253,7 +257,23 @@ class MealTests {
         .andExpect(jsonPath("$.name").value("Updated Meal"))
         .andExpect(jsonPath("$.ingredients.size()").value(2));
   }
+  @Test
+  void updateMeal_ShouldUpdateFavourite() throws Exception {
+    Meal meal = createMeal();
+    meal = mealRepository.save(meal);
 
+    String mealPatchJson = """
+        {
+          "favorite": true
+        }
+        """;
+
+    mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/meals/" + meal.getId())
+            .contentType("application/json").content(mealPatchJson)).andExpect(status().isOk())
+        .andExpect(jsonPath("$.name").value("Test Meal"))
+        .andExpect(jsonPath("$.ingredients.size()").value(2))
+        .andExpect(jsonPath("$.favorite").value(true));
+  }
   @Test
   void updateMeal_ShouldReturnNotFound() throws Exception {
     String mealPatchJson = """
