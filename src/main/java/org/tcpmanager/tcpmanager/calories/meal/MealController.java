@@ -1,6 +1,7 @@
 package org.tcpmanager.tcpmanager.calories.meal;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,8 +28,8 @@ public class MealController {
 
   @GetMapping
   public List<MealResponse> getMealsByMinIngredients(
-      @RequestParam(required = false) Integer minIngredients,
-      @RequestParam(required = false) Integer maxIngredients) {
+      @RequestParam(required = false) @Min(1) Integer minIngredients,
+      @RequestParam(required = false) @Min(1) Integer maxIngredients) {
     return mealService.getMealsWithMinIngredients(minIngredients, maxIngredients);
   }
 
