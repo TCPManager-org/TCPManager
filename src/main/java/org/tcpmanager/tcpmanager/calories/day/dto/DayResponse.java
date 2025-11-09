@@ -1,5 +1,8 @@
 package org.tcpmanager.tcpmanager.calories.day.dto;
 
-public record DayResponse() {
+import java.sql.Date;
+import java.util.Map;
+
+public record DayResponse(Date date, Map<Long, Integer>portionsByMealId) {
 
 }
