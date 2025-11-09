@@ -22,5 +22,4 @@ public class DayController {
     return dayService.getAllDays();
   }
 
-
 }

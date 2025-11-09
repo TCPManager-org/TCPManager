@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Data
 @NoArgsConstructor
-@Table(name = "days", schema = "calories")
+@Table(name = "day", schema = "calories")
 public class Day {
 
   @Id

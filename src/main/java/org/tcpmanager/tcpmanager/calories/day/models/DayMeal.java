@@ -18,7 +18,7 @@ import org.tcpmanager.tcpmanager.calories.meal.models.Meal;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "days_meal", schema = "calories")
+@Table(name = "day_meal", schema = "calories")
 public class DayMeal {
 
   @EmbeddedId

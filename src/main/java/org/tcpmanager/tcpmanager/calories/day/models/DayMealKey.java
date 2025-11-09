@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.sql.Date;
 
 @Embeddable
-public record DayMealKey(@Column Date date, @Column(name = "meal_id") Long mealId) implements
+public record DayMealKey(@Column(name = "day_date") Date dayDate, @Column(name = "meal_id") Long mealId) implements
     Serializable {
 
 }
