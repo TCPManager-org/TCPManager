@@ -1,13 +1,21 @@
 package org.tcpmanager.tcpmanager.calories.day;
 
-import java.util.HashMap;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.tcpmanager.tcpmanager.calories.day.dto.DayMealRequest;
+import org.tcpmanager.tcpmanager.calories.day.dto.DayMealResponse;
+import org.tcpmanager.tcpmanager.calories.day.dto.DayRequest;
 import org.tcpmanager.tcpmanager.calories.day.dto.DayResponse;
 import org.tcpmanager.tcpmanager.calories.day.models.Day;
+import org.tcpmanager.tcpmanager.calories.day.models.DayMeal;
+import org.tcpmanager.tcpmanager.calories.meal.MealRepository;
+import org.tcpmanager.tcpmanager.calories.meal.models.Meal;
 
 @Service
 @RequiredArgsConstructor
@@ -15,17 +23,42 @@ import org.tcpmanager.tcpmanager.calories.day.models.Day;
 public class DayService {
 
   private final DayRepository dayRepository;
+  private final MealRepository mealRepository;
 
   private static DayResponse mapToDayResponse(Day day) {
-    Map<Long, Integer> portionsByMealId = new HashMap<>();
-    day.getDayMeals()
-        .forEach(dayMeal -> portionsByMealId.put(dayMeal.getMeal().getId(), dayMeal.getWeight()));
-    return new DayResponse(day.getDate(), portionsByMealId);
+    List<DayMealResponse> dayMealResponses = day.getDayMeals().stream().map(
+        dayMeal -> new DayMealResponse(dayMeal.getMeal().getId(), dayMeal.getWeight(),
+            dayMeal.getMealType())).toList();
+    return new DayResponse(day.getDate(), dayMealResponses);
   }
 
   public List<DayResponse> getAllDays() {
-    return dayRepository.findAll().stream()
-        .map(DayService::mapToDayResponse)
-        .toList();
+    return dayRepository.findAll().stream().map(DayService::mapToDayResponse).toList();
+  }
+
+  @Transactional
+  public DayResponse addDay(@Valid DayRequest dayRequest) {
+    Day day = new Day();
+    day.setDate(dayRequest.date());
+    day.setUserId(dayRequest.userId());
+    day.setDayMeals(mapToDayMeals(day, dayRequest.dayMeals()));
+    Day savedDay = dayRepository.save(day);
+    return mapToDayResponse(savedDay);
+  }
+
+  private Set<DayMeal> mapToDayMeals(Day day, Set<DayMealRequest> dayMealsRequest) {
+    Set<DayMeal> dayMeals = new HashSet<>();
+    for (DayMealRequest dayMealRequest : dayMealsRequest) {
+      DayMeal dayMeal = new DayMeal();
+      dayMeal.setDay(day);
+      Meal foundMeal = mealRepository.findById(dayMealRequest.mealId()).orElseThrow(
+          () -> new EntityNotFoundException(
+              "Meal with id " + dayMealRequest.mealId() + " not found"));
+      dayMeal.setMeal(foundMeal);
+      dayMeal.setMealType(dayMealRequest.mealType());
+      dayMeal.setWeight(dayMealRequest.weight());
+      dayMeals.add(dayMeal);
+    }
+    return dayMeals;
   }
 }
