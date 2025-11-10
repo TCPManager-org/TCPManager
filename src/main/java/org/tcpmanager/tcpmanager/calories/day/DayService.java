@@ -16,6 +16,7 @@ import org.tcpmanager.tcpmanager.calories.day.models.Day;
 import org.tcpmanager.tcpmanager.calories.day.models.DayMeal;
 import org.tcpmanager.tcpmanager.calories.meal.MealRepository;
 import org.tcpmanager.tcpmanager.calories.meal.models.Meal;
+import org.tcpmanager.tcpmanager.user.UserRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +25,7 @@ public class DayService {
 
   private final DayRepository dayRepository;
   private final MealRepository mealRepository;
+  private final UserRepository userRepository;
 
   private static DayResponse mapToDayResponse(Day day) {
     List<DayMealResponse> dayMealResponses = day.getDayMeals().stream().map(
@@ -38,6 +40,15 @@ public class DayService {
 
   @Transactional
   public DayResponse addDay(@Valid DayRequest dayRequest) {
+    if (!userRepository.existsById(dayRequest.userId())) {
+      throw new EntityNotFoundException(
+          "User with id " + dayRequest.userId() + " not found");
+    }
+    if( dayRepository.existsByDateAndUserId(dayRequest.date(), dayRequest.userId())) {
+      throw new IllegalArgumentException(
+          "Day for date " + dayRequest.date() + " and user with id " + dayRequest.userId()
+              + " already exists");
+    }
     Day day = new Day();
     day.setDate(dayRequest.date());
     day.setUserId(dayRequest.userId());
