@@ -28,6 +28,6 @@ public class Meal {
   @Column(nullable = false, unique = true)
   private String name;
 
-  @OneToMany(mappedBy = "meal", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "meal", cascade = CascadeType.ALL)
   private Set<MealIngredient> mealIngredients;
 }

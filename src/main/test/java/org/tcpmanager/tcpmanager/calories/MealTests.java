@@ -228,7 +228,7 @@ class MealTests {
         {
           "ingredients": {
             "%d": 200,
-            "%d": 100
+            "%d": 150
           }
         }
         """.formatted(ingredient3.getId(),
@@ -237,7 +237,7 @@ class MealTests {
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/meals/" + meal.getId())
             .contentType("application/json").content(mealPatchJson)).andExpect(status().isOk())
         .andExpect(jsonPath("$.name").value("Test Meal"))
-        .andExpect(jsonPath("$.ingredients.size()").value(2));
+        .andExpect(jsonPath("$.ingredients.size()").value(3));
   }
 
   @Test
