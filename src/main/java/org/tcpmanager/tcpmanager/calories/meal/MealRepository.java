@@ -16,4 +16,6 @@ public interface MealRepository extends JpaRepository<@NonNull Meal, @NonNull Lo
   void deleteById(Long mealId);
 
   Optional<Meal> findByName(String name);
+
+  boolean existsByName(String name);
 }

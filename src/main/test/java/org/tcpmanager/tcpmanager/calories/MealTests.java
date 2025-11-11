@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.math.BigDecimal;
 import java.util.Set;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,7 @@ class MealTests {
     MealIngredient mealIngredient1 = new MealIngredient();
     Meal meal = new Meal();
     meal.setName("Test Meal");
+    meal.setFavorite(false);
 
     mealIngredient1.setMeal(meal);
     Ingredient ingredient1 = new Ingredient();
@@ -63,7 +65,6 @@ class MealTests {
     mealIngredient1.setWeight(100);
 
     MealIngredient mealIngredient2 = new MealIngredient();
-    meal.setName("Test Meal");
     mealIngredient2.setMeal(meal);
     Ingredient ingredient2 = new Ingredient();
     ingredient2.setName("Test Ingredient2");
@@ -76,6 +77,28 @@ class MealTests {
     mealIngredient2.setWeight(100);
     meal.setMealIngredients(Set.of(mealIngredient1, mealIngredient2));
     return meal;
+  }
+
+  private static @NotNull Meal createMeal2() {
+    MealIngredient mealIngredient1 = new MealIngredient();
+    Meal meal2 = new Meal();
+    meal2.setName("Test Meal2");
+    meal2.setFavorite(false);
+
+    mealIngredient1.setMeal(meal2);
+    Ingredient ingredient1 = new Ingredient();
+    ingredient1.setName("Test Ingredient11");
+    ingredient1.setCalories(BigDecimal.valueOf(100));
+    ingredient1.setFats(BigDecimal.valueOf(10));
+    ingredient1.setCarbs(BigDecimal.valueOf(20));
+    ingredient1.setProteins(BigDecimal.valueOf(30));
+    ingredient1.setEan("978020137962");
+
+    mealIngredient1.setIngredient(ingredient1);
+    mealIngredient1.setWeight(100);
+
+    meal2.setMealIngredients(Set.of(mealIngredient1));
+    return meal2;
   }
 
   @AfterEach
@@ -134,6 +157,7 @@ class MealTests {
     String mealJson = """
         {
           "name": "New Meal",
+          "favorite": false,
           "ingredients": {
             "%d": 150,
             "%d": 200
@@ -154,6 +178,7 @@ class MealTests {
     String mealJson = """
         {
           "name": "New Meal",
+          "favorite": false,
           "ingredients": {
             "9999": 150
           }
@@ -180,6 +205,7 @@ class MealTests {
     String mealJson = """
         {
           "name": "New Meal",
+          "favorite": false,
           "ingredients": {
             "%d": 0
           }
@@ -190,6 +216,27 @@ class MealTests {
             MockMvcRequestBuilders.post("/api/calories/meals").contentType("application/json")
                 .content(mealJson)).andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("Ingredient weight must be greater than zero"));
+  }
+
+  @Test
+  void addMeal_ShouldReturnBadRequestForDuplicateMealName() throws Exception {
+    Meal meal = createMeal();
+    mealRepository.save(meal);
+
+    String mealJson = """
+        {
+          "name": "Test Meal",
+          "favorite": false,
+          "ingredients": {
+            "%d": 150
+          }
+        }
+        """.formatted(ingredientRepository.findAll().getFirst().getId());
+
+    mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/calories/meals").contentType("application/json")
+                .content(mealJson)).andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("Meal with name Test Meal already exists"));
   }
 
   @Test
@@ -225,7 +272,7 @@ class MealTests {
         {
           "ingredients": {
             "%d": 200,
-            "%d": 100
+            "%d": 150
           }
         }
         """.formatted(ingredient3.getId(),
@@ -234,7 +281,7 @@ class MealTests {
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/meals/" + meal.getId())
             .contentType("application/json").content(mealPatchJson)).andExpect(status().isOk())
         .andExpect(jsonPath("$.name").value("Test Meal"))
-        .andExpect(jsonPath("$.ingredients.size()").value(2));
+        .andExpect(jsonPath("$.ingredients.size()").value(3));
   }
 
   @Test
@@ -252,6 +299,24 @@ class MealTests {
             .contentType("application/json").content(mealPatchJson)).andExpect(status().isOk())
         .andExpect(jsonPath("$.name").value("Updated Meal"))
         .andExpect(jsonPath("$.ingredients.size()").value(2));
+  }
+
+  @Test
+  void updateMeal_ShouldUpdateFavourite() throws Exception {
+    Meal meal = createMeal();
+    meal = mealRepository.save(meal);
+
+    String mealPatchJson = """
+        {
+          "favorite": true
+        }
+        """;
+
+    mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/meals/" + meal.getId())
+            .contentType("application/json").content(mealPatchJson)).andExpect(status().isOk())
+        .andExpect(jsonPath("$.name").value("Test Meal"))
+        .andExpect(jsonPath("$.ingredients.size()").value(2))
+        .andExpect(jsonPath("$.favorite").value(true));
   }
 
   @Test
@@ -282,5 +347,57 @@ class MealTests {
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/meals/" + meal.getId())
             .contentType("application/json").content(mealPatchJson)).andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("Meal name cannot be blank"));
+  }
+
+  @Test
+  void updateMeal_ShouldReturnBadRequestWhenIngredientDoesNotExist() throws Exception {
+    Meal meal = createMeal();
+    meal = mealRepository.save(meal);
+
+    String mealPatchJson = """
+        {
+          "ingredients": {
+            "9999": 200
+          }
+        }
+        """;
+
+    mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/meals/" + meal.getId())
+            .contentType("application/json").content(mealPatchJson)).andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.message").value("Ingredient with id 9999 not found"));
+  }
+
+  @Test
+  void getMealsWithMinIngredients_ShouldReturnMeals() throws Exception {
+    Meal meal1 = createMeal();
+    meal1 = mealRepository.save(meal1);
+
+    Meal meal2 = createMeal2();
+    mealRepository.save(meal2);
+
+    mockMvc.perform(
+            MockMvcRequestBuilders.get("/api/calories/meals?minIngredients=2"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.size()").value(1))
+        .andExpect(jsonPath("$[0].id").value(meal1.getId()))
+        .andExpect(jsonPath("$[0].calories").value(BigDecimal.valueOf(1100.0)))
+        .andExpect(jsonPath("$[0].ingredients.size()").value(2));
+  }
+
+  @Test
+  void getMealsWithMaxIngredients_ShouldReturnMeals() throws Exception {
+    Meal meal1 = createMeal();
+    mealRepository.save(meal1);
+
+    Meal meal2 = createMeal2();
+    mealRepository.save(meal2);
+
+    mockMvc.perform(
+            MockMvcRequestBuilders.get("/api/calories/meals?maxIngredients=1"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.size()").value(1))
+        .andExpect(jsonPath("$[0].id").value(meal2.getId()))
+        .andExpect(jsonPath("$[0].calories").value(BigDecimal.valueOf(100.0)))
+        .andExpect(jsonPath("$[0].ingredients.size()").value(1));
   }
 }

@@ -12,3 +12,6 @@ spring:
     url: ${POSTGRES_URL}
   flyway:
     enabled: true
+springdoc:
+  swagger-ui:
+    path: /docs.html
