@@ -149,7 +149,7 @@ public class MealService {
     return mealIngredients;
   }
 
-  public List<MealResponse> getMealsWithMinIngredients(Integer minIngredients,
+  public List<MealResponse> getMeals(Integer minIngredients,
       Integer maxIngredients) {
     var mealIngredients = mealRepository.findAll();
     if (minIngredients != null) {

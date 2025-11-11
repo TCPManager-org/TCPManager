@@ -27,10 +27,10 @@ public class MealController {
   private final MealService mealService;
 
   @GetMapping
-  public List<MealResponse> getMealsByMinIngredients(
+  public List<MealResponse> getMeals(
       @RequestParam(required = false) @Min(1) Integer minIngredients,
       @RequestParam(required = false) @Min(1) Integer maxIngredients) {
-    return mealService.getMealsWithMinIngredients(minIngredients, maxIngredients);
+    return mealService.getMeals(minIngredients, maxIngredients);
   }
 
   @GetMapping("/{id}")
