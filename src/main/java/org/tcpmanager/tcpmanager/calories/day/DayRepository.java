@@ -15,5 +15,5 @@ public interface DayRepository extends JpaRepository<@NonNull Day, @NonNull Long
 
   void deleteByDate(Date date);
 
-  Optional<Day> findByDate(Date date);
+  Optional<Day> findByDateAndUserId(Date date, Long userId);
 }
