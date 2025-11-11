@@ -32,7 +32,7 @@ public class IntakeHistoryController {
     return intakeHistoryService.getIntakeHistoryById(id);
   }
 
-  @GetMapping(params = "username")
+  @GetMapping(params = "username", produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
   public List<IntakeHistoryResponse> getIntakeHistoriesByUsername(
       @NotBlank @RequestParam String username) {
@@ -45,7 +45,7 @@ public class IntakeHistoryController {
     intakeHistoryService.deleteIntakeHistoryById(id);
   }
 
-  @PostMapping
+  @PostMapping(produces = "application/json")
   @ResponseStatus(HttpStatus.CREATED)
   public IntakeHistoryResponse addIntakeHistory(
       @RequestBody @Valid IntakeHistoryRequest intakeHistoryRequest) {

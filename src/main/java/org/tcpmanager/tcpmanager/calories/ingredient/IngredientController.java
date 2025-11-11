@@ -24,13 +24,13 @@ public class IngredientController {
 
   private final IngredientService ingredientService;
 
-  @GetMapping
+  @GetMapping(produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
   public List<IngredientResponse> getMeals() {
     return ingredientService.getAll();
   }
 
-  @GetMapping("/{id}")
+  @GetMapping(value = "/{id}", produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
   public IngredientResponse getMealById(@PathVariable Long id) {
     return ingredientService.getById(id);
@@ -42,14 +42,14 @@ public class IngredientController {
     ingredientService.deleteById(id);
   }
 
-  @PatchMapping("/{id}")
+  @PatchMapping(value = "/{id}", produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
   public IngredientResponse updateMealById(@PathVariable Long id,
       @RequestBody @Valid IngredientPatch ingredientPatch) {
     return ingredientService.updateById(id, ingredientPatch);
   }
 
-  @PostMapping
+  @PostMapping(produces = "application/json")
   @ResponseStatus(HttpStatus.CREATED)
   public IngredientResponse addMeal(@RequestBody @Valid IngredientRequest ingredientRequest) {
     return ingredientService.add(ingredientRequest);
