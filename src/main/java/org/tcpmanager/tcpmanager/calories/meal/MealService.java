@@ -32,7 +32,7 @@ public class MealService {
     return "Meal with id " + id + " not found";
   }
 
-  private static MealResponse mapToMealResponse(Meal meal) {
+  public static MealResponse mapToMealResponse(Meal meal) {
     BigDecimal calories = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN);
     BigDecimal carbs = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN);
     BigDecimal fats = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN);
