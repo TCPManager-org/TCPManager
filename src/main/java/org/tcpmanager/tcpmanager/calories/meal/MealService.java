@@ -66,6 +66,10 @@ public class MealService {
 
   @Transactional
   public MealResponse addMeal(@Valid MealRequest mealRequest) {
+    if (mealRepository.existsByName(mealRequest.name())) {
+      throw new IllegalArgumentException(
+          "Meal with name " + mealRequest.name() + " already exists");
+    }
     Meal meal = new Meal();
     meal.setName(mealRequest.name());
     meal.setFavorite(mealRequest.favorite());

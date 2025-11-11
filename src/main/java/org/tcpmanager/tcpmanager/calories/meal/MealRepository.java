@@ -12,4 +12,6 @@ public interface MealRepository extends JpaRepository<@NonNull Meal, @NonNull Lo
   boolean existsById(Long mealId);
 
   void deleteById(Long mealId);
+
+  boolean existsByName(String name);
 }
