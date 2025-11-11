@@ -28,8 +28,8 @@ public class MealService {
   private final MealRepository mealRepository;
   private final IngredientRepository ingredientRepository;
 
-  private static String generateNotFoundMessage(String field, Long id) {
-    return field + " with id " + id + " not found";
+  private static String generateNotFoundMessage(String entity, Long id) {
+    return entity + " with id " + id + " not found";
   }
 
   private static MealResponse mapToMealResponse(Meal meal) {
