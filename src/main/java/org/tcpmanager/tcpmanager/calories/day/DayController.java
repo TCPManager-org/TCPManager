@@ -35,6 +35,7 @@ public class DayController {
       @RequestBody @Valid DayMealRequest dayMealRequest) {
     return dayService.addMealToDay(dayMealRequest);
   }
+
   @DeleteMapping
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deleteMealFromDay(

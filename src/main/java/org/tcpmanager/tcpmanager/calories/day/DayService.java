@@ -63,8 +63,9 @@ public class DayService {
   @Transactional
   public DayResponse addMealToDay(DayMealRequest dayMealRequest) {
     Optional<User> userOptional = userRepository.findByUsername(dayMealRequest.username());
-    if(userOptional.isEmpty()){
-      throw new EntityNotFoundException("User with username " + dayMealRequest.username() + " not found");
+    if (userOptional.isEmpty()) {
+      throw new EntityNotFoundException(
+          "User with username " + dayMealRequest.username() + " not found");
     }
     User user = userOptional.get();
     Optional<Day> dayOptional = dayRepository.findByDateAndUserUsername(dayMealRequest.date(),
@@ -87,7 +88,8 @@ public class DayService {
 
   public void deleteMealFromDay(DayMealRequest dayMealRequest) {
     if (!userRepository.existsByUsername(dayMealRequest.username())) {
-      throw new EntityNotFoundException("User with username " + dayMealRequest.username() + " not found");
+      throw new EntityNotFoundException(
+          "User with username " + dayMealRequest.username() + " not found");
     }
     Optional<Day> dayOptional = dayRepository.findByDateAndUserUsername(dayMealRequest.date(),
         dayMealRequest.username());
@@ -96,7 +98,8 @@ public class DayService {
       throw new EntityNotFoundException("Day with date " + dayMealRequest.date() + " not found");
     }
     if (mealOptional.isEmpty()) {
-      throw new EntityNotFoundException("Meal with name " + dayMealRequest.mealName() + " not found");
+      throw new EntityNotFoundException(
+          "Meal with name " + dayMealRequest.mealName() + " not found");
     }
     Day day = dayOptional.get();
     Set<DayMeal> dayMeals = day.getDayMeals();
