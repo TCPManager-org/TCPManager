@@ -2,6 +2,7 @@ package org.tcpmanager.tcpmanager.intakehistory;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import java.sql.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,10 +27,10 @@ public class IntakeHistoryController {
 
   private final IntakeHistoryService intakeHistoryService;
 
-  @GetMapping("/{id}")
+  @GetMapping("/{date}")
   @ResponseStatus(HttpStatus.OK)
-  public IntakeHistoryResponse getIntakeHistoryById(@PathVariable Long id) {
-    return intakeHistoryService.getIntakeHistoryById(id);
+  public IntakeHistoryResponse getIntakeHistoryById(@PathVariable Date date) {
+    return intakeHistoryService.getIntakeHistoryById(date);
   }
 
   @GetMapping(params = "username")
@@ -39,10 +40,10 @@ public class IntakeHistoryController {
     return intakeHistoryService.getAllIntakeHistoriesByUsername(username);
   }
 
-  @DeleteMapping("/{id}")
+  @DeleteMapping("/{date}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deleteIntakeHistoryById(@PathVariable Long id) {
-    intakeHistoryService.deleteIntakeHistoryById(id);
+  public void deleteIntakeHistoryById(@PathVariable Date date) {
+    intakeHistoryService.deleteIntakeHistoryById(date);
   }
 
   @PostMapping
@@ -52,11 +53,11 @@ public class IntakeHistoryController {
     return intakeHistoryService.addIntakeHistory(intakeHistoryRequest);
   }
 
-  @PatchMapping("/{id}")
+  @PatchMapping("/{date}")
   @ResponseStatus(HttpStatus.OK)
   public IntakeHistoryResponse updateIntakeHistoryById(
-      @RequestBody @Valid IntakeHistoryPatch intakeHistoryPatch, @PathVariable Long id) {
-    return intakeHistoryService.updateIntakeHistoryById(id, intakeHistoryPatch);
+      @RequestBody @Valid IntakeHistoryPatch intakeHistoryPatch, @PathVariable Date date) {
+    return intakeHistoryService.updateIntakeHistoryById(date, intakeHistoryPatch);
   }
 
   @DeleteMapping(params = "username")

@@ -53,7 +53,7 @@ class IngredientTests {
     MealIngredient mealIngredient1 = new MealIngredient();
     Meal meal = new Meal();
     meal.setName("Test Meal");
-
+    meal.setFavorite(false);
     mealIngredient1.setMeal(meal);
     Ingredient ingredient1 = new Ingredient();
     ingredient1.setName("Test Ingredient1");
