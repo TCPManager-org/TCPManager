@@ -1,5 +1,8 @@
 package org.tcpmanager.tcpmanager.gateway;
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +21,11 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(MethodArgumentNotValidException.class)
   @ResponseBody
   @ResponseStatus(HttpStatus.BAD_REQUEST)
+  @ApiResponse(
+      responseCode = "400",
+      description = "Bad Request",
+      content = @Content(mediaType = "application/json", schema =  @Schema(implementation = ErrorResponse.class))
+  )
   public ErrorResponse handleValidationExceptions(MethodArgumentNotValidException ex) {
     Map<String, String> errors = new HashMap<>();
 
@@ -32,6 +40,11 @@ public class GlobalExceptionHandler {
   @ExceptionHandler({EntityNotFoundException.class})
   @ResponseBody
   @ResponseStatus(HttpStatus.NOT_FOUND)
+  @ApiResponse(
+      responseCode = "404",
+      description = "Not Found",
+      content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+  )
   public ErrorResponse handleEntityNotFoundException(EntityNotFoundException ex) {
     return new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
   }
@@ -39,6 +52,11 @@ public class GlobalExceptionHandler {
   @ExceptionHandler({IllegalArgumentException.class})
   @ResponseBody
   @ResponseStatus(HttpStatus.BAD_REQUEST)
+  @ApiResponse(
+      responseCode = "400",
+      description = "Bad Request",
+      content = @Content(mediaType = "application/json", schema =  @Schema(implementation = ErrorResponse.class))
+  )
   public ErrorResponse handleIllegalArgumentException(IllegalArgumentException ex) {
     return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
   }

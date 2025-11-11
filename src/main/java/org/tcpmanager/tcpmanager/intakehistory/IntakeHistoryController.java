@@ -27,13 +27,13 @@ public class IntakeHistoryController {
 
   private final IntakeHistoryService intakeHistoryService;
 
-  @GetMapping("/{date}")
+  @GetMapping(value = "/{date}", produces="application/json")
   @ResponseStatus(HttpStatus.OK)
   public IntakeHistoryResponse getIntakeHistoryById(@PathVariable Date date) {
     return intakeHistoryService.getIntakeHistoryById(date);
   }
 
-  @GetMapping(params = "username")
+  @GetMapping(params = "username", produces="application/json")
   @ResponseStatus(HttpStatus.OK)
   public List<IntakeHistoryResponse> getIntakeHistoriesByUsername(
       @NotBlank @RequestParam String username) {
@@ -46,14 +46,14 @@ public class IntakeHistoryController {
     intakeHistoryService.deleteIntakeHistoryById(date);
   }
 
-  @PostMapping
+  @PostMapping(produces="application/json")
   @ResponseStatus(HttpStatus.CREATED)
   public IntakeHistoryResponse addIntakeHistory(
       @RequestBody @Valid IntakeHistoryRequest intakeHistoryRequest) {
     return intakeHistoryService.addIntakeHistory(intakeHistoryRequest);
   }
 
-  @PatchMapping("/{date}")
+  @PatchMapping(value = "/{date}", produces="application/json")
   @ResponseStatus(HttpStatus.OK)
   public IntakeHistoryResponse updateIntakeHistoryById(
       @RequestBody @Valid IntakeHistoryPatch intakeHistoryPatch, @PathVariable Date date) {

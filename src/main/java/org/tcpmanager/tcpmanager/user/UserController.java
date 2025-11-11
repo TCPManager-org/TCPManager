@@ -26,19 +26,19 @@ public class UserController {
 
   private final UserService userService;
 
-  @GetMapping
+  @GetMapping(produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
   public List<UserResponse> getUsers() {
     return userService.getAllUsers();
   }
 
-  @GetMapping("/{id}")
+  @GetMapping(value = "/{id}", produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
   public UserResponse getUserById(@PathVariable Long id) {
     return userService.getUserById(id);
   }
 
-  @GetMapping(params = {"username"})
+  @GetMapping(params = {"username"}, produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
   public UserResponse getUserById(@NotBlank @RequestParam(value = "username") String username) {
     return userService.getUserByUsername(username);
@@ -50,14 +50,14 @@ public class UserController {
     userService.deleteUserById(id);
   }
 
-  @PatchMapping("/{id}")
+  @PatchMapping(value = "/{id}", produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
   public UserResponse updateUserById(@PathVariable Long id,
       @RequestBody @Valid UserPatch userPatch) {
     return userService.updateUserById(id, userPatch);
   }
 
-  @PostMapping
+  @PostMapping(produces = "application/json")
   @ResponseStatus(HttpStatus.CREATED)
   public UserResponse addUser(@RequestBody @Valid UserRequest userRequest) {
     return userService.addUser(userRequest);
