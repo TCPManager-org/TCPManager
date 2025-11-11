@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
   @ApiResponse(
       responseCode = "400",
       description = "Bad Request",
-      content = @Content(mediaType = "application/json", schema =  @Schema(implementation = ErrorResponse.class))
+      content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
   )
   public ErrorResponse handleValidationExceptions(MethodArgumentNotValidException ex) {
     Map<String, String> errors = new HashMap<>();
@@ -55,7 +55,7 @@ public class GlobalExceptionHandler {
   @ApiResponse(
       responseCode = "400",
       description = "Bad Request",
-      content = @Content(mediaType = "application/json", schema =  @Schema(implementation = ErrorResponse.class))
+      content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
   )
   public ErrorResponse handleIllegalArgumentException(IllegalArgumentException ex) {
     return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
