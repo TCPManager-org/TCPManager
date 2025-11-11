@@ -20,6 +20,8 @@ import org.tcpmanager.tcpmanager.user.User;
 public class IntakeHistory {
 
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
   @Column(nullable = false)
   private Date date;
 
