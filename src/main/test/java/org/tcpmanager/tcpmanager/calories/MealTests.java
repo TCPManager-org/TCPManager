@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.math.BigDecimal;
 import java.util.Set;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +77,28 @@ class MealTests {
     mealIngredient2.setWeight(100);
     meal.setMealIngredients(Set.of(mealIngredient1, mealIngredient2));
     return meal;
+  }
+
+  private static @NotNull Meal createMeal2() {
+    MealIngredient mealIngredient1 = new MealIngredient();
+    Meal meal2 = new Meal();
+    meal2.setName("Test Meal2");
+    meal2.setFavorite(false);
+
+    mealIngredient1.setMeal(meal2);
+    Ingredient ingredient1 = new Ingredient();
+    ingredient1.setName("Test Ingredient11");
+    ingredient1.setCalories(BigDecimal.valueOf(100));
+    ingredient1.setFats(BigDecimal.valueOf(10));
+    ingredient1.setCarbs(BigDecimal.valueOf(20));
+    ingredient1.setProteins(BigDecimal.valueOf(30));
+    ingredient1.setEan("978020137962");
+
+    mealIngredient1.setIngredient(ingredient1);
+    mealIngredient1.setWeight(100);
+
+    meal2.setMealIngredients(Set.of(mealIngredient1));
+    return meal2;
   }
 
   @AfterEach
@@ -194,6 +217,7 @@ class MealTests {
                 .content(mealJson)).andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("Ingredient weight must be greater than zero"));
   }
+
   @Test
   void addMeal_ShouldReturnBadRequestForDuplicateMealName() throws Exception {
     Meal meal = createMeal();
@@ -214,6 +238,7 @@ class MealTests {
                 .content(mealJson)).andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("Meal with name Test Meal already exists"));
   }
+
   @Test
   void deleteMeal_ShouldDeleteMeal() throws Exception {
     Meal meal = createMeal();
@@ -325,28 +350,29 @@ class MealTests {
   }
 
   @Test
-  void getMealsByMinIngredients_ShouldReturnMeals() throws Exception {
+  void updateMeal_ShouldReturnBadRequestWhenIngredientDoesNotExist() throws Exception {
+    Meal meal = createMeal();
+    meal = mealRepository.save(meal);
+
+    String mealPatchJson = """
+        {
+          "ingredients": {
+            "9999": 200
+          }
+        }
+        """;
+
+    mockMvc.perform(MockMvcRequestBuilders.patch("/api/calories/meals/" + meal.getId())
+            .contentType("application/json").content(mealPatchJson)).andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.message").value("Ingredient with id 9999 not found"));
+  }
+
+  @Test
+  void getMealsWithMinIngredients_ShouldReturnMeals() throws Exception {
     Meal meal1 = createMeal();
     meal1 = mealRepository.save(meal1);
 
-    MealIngredient mealIngredient1 = new MealIngredient();
-    Meal meal2 = new Meal();
-    meal2.setName("Test Meal2");
-    meal2.setFavorite(false);
-
-    mealIngredient1.setMeal(meal2);
-    Ingredient ingredient1 = new Ingredient();
-    ingredient1.setName("Test Ingredient11");
-    ingredient1.setCalories(BigDecimal.valueOf(100));
-    ingredient1.setFats(BigDecimal.valueOf(10));
-    ingredient1.setCarbs(BigDecimal.valueOf(20));
-    ingredient1.setProteins(BigDecimal.valueOf(30));
-    ingredient1.setEan("978020137962");
-
-    mealIngredient1.setIngredient(ingredient1);
-    mealIngredient1.setWeight(100);
-
-    meal2.setMealIngredients(Set.of(mealIngredient1));
+    Meal meal2 = createMeal2();
     mealRepository.save(meal2);
 
     mockMvc.perform(
@@ -358,4 +384,20 @@ class MealTests {
         .andExpect(jsonPath("$[0].ingredients.size()").value(2));
   }
 
+  @Test
+  void getMealsWithMaxIngredients_ShouldReturnMeals() throws Exception {
+    Meal meal1 = createMeal();
+    mealRepository.save(meal1);
+
+    Meal meal2 = createMeal2();
+    mealRepository.save(meal2);
+
+    mockMvc.perform(
+            MockMvcRequestBuilders.get("/api/calories/meals?maxIngredients=1"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.size()").value(1))
+        .andExpect(jsonPath("$[0].id").value(meal2.getId()))
+        .andExpect(jsonPath("$[0].calories").value(BigDecimal.valueOf(100.0)))
+        .andExpect(jsonPath("$[0].ingredients.size()").value(1));
+  }
 }

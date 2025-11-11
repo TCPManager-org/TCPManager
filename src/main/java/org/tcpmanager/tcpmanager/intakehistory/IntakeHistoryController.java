@@ -2,7 +2,6 @@ package org.tcpmanager.tcpmanager.intakehistory;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import java.sql.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,10 +26,10 @@ public class IntakeHistoryController {
 
   private final IntakeHistoryService intakeHistoryService;
 
-  @GetMapping(value = "/{date}", produces = "application/json")
+  @GetMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
-  public IntakeHistoryResponse getIntakeHistoryById(@PathVariable Date date) {
-    return intakeHistoryService.getIntakeHistoryById(date);
+  public IntakeHistoryResponse getIntakeHistoryById(@PathVariable Long id) {
+    return intakeHistoryService.getIntakeHistoryById(id);
   }
 
   @GetMapping(params = "username", produces = "application/json")
@@ -40,10 +39,10 @@ public class IntakeHistoryController {
     return intakeHistoryService.getAllIntakeHistoriesByUsername(username);
   }
 
-  @DeleteMapping("/{date}")
+  @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deleteIntakeHistoryById(@PathVariable Date date) {
-    intakeHistoryService.deleteIntakeHistoryById(date);
+  public void deleteIntakeHistoryById(@PathVariable Long id) {
+    intakeHistoryService.deleteIntakeHistoryById(id);
   }
 
   @PostMapping(produces = "application/json")
@@ -53,11 +52,11 @@ public class IntakeHistoryController {
     return intakeHistoryService.addIntakeHistory(intakeHistoryRequest);
   }
 
-  @PatchMapping(value = "/{date}", produces = "application/json")
+  @PatchMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
   public IntakeHistoryResponse updateIntakeHistoryById(
-      @RequestBody @Valid IntakeHistoryPatch intakeHistoryPatch, @PathVariable Date date) {
-    return intakeHistoryService.updateIntakeHistoryById(date, intakeHistoryPatch);
+      @RequestBody @Valid IntakeHistoryPatch intakeHistoryPatch, @PathVariable Long id) {
+    return intakeHistoryService.updateIntakeHistoryById(id, intakeHistoryPatch);
   }
 
   @DeleteMapping(params = "username")
