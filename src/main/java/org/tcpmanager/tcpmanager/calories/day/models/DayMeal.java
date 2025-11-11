@@ -1,10 +1,12 @@
 package org.tcpmanager.tcpmanager.calories.day.models;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
@@ -21,8 +23,9 @@ import org.tcpmanager.tcpmanager.calories.meal.models.Meal;
 @Table(name = "day_meal", schema = "calories")
 public class DayMeal {
 
-  @EmbeddedId
-  private DayMealKey id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private long id;
 
   @Column(nullable = false)
   private Integer weight;
@@ -32,12 +35,10 @@ public class DayMeal {
   private MealType mealType;
 
   @ManyToOne
-  @MapsId("dayDate")
-  @JoinColumn(name = "day_date", nullable = false)
+  @JoinColumn(name = "day_id", nullable = false)
   private Day day;
 
   @ManyToOne
-  @MapsId("mealId")
   @JoinColumn(name = "meal_id", nullable = false)
   private Meal meal;
 }

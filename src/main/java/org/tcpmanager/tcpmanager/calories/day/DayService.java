@@ -15,6 +15,7 @@ import org.tcpmanager.tcpmanager.calories.day.models.Day;
 import org.tcpmanager.tcpmanager.calories.day.models.DayMeal;
 import org.tcpmanager.tcpmanager.calories.meal.MealRepository;
 import org.tcpmanager.tcpmanager.calories.meal.models.Meal;
+import org.tcpmanager.tcpmanager.user.User;
 import org.tcpmanager.tcpmanager.user.UserRepository;
 
 @Service
@@ -60,15 +61,17 @@ public class DayService {
 
   @Transactional
   public DayResponse addMealToDay(DayMealRequest dayMealRequest) {
-    if (!userRepository.existsById(dayMealRequest.userId())) {
+    Optional<User> userOptional = userRepository.findById(dayMealRequest.userId());
+    if(userOptional.isEmpty()){
       throw new EntityNotFoundException("User with id " + dayMealRequest.userId() + " not found");
     }
+    User user = userOptional.get();
     Optional<Day> dayOptional = dayRepository.findByDateAndUserId(dayMealRequest.date(),
         dayMealRequest.userId());
     if (dayOptional.isEmpty()) {
       Day day = new Day();
       day.setDate(dayMealRequest.date());
-      day.setUserId(dayMealRequest.userId());
+      day.setUser(user);
       day.setDayMeals(Set.of(mapToDayMeals(day, dayMealRequest)));
       Day savedDay = dayRepository.save(day);
       return mapToDayResponse(savedDay);
