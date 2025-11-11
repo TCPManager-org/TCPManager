@@ -194,7 +194,26 @@ class MealTests {
                 .content(mealJson)).andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("Ingredient weight must be greater than zero"));
   }
+  @Test
+  void addMeal_ShouldReturnBadRequestForDuplicateMealName() throws Exception {
+    Meal meal = createMeal();
+    mealRepository.save(meal);
 
+    String mealJson = """
+        {
+          "name": "Test Meal",
+          "favorite": false,
+          "ingredients": {
+            "%d": 150
+          }
+        }
+        """.formatted(ingredientRepository.findAll().getFirst().getId());
+
+    mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/calories/meals").contentType("application/json")
+                .content(mealJson)).andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("Meal with name Test Meal already exists"));
+  }
   @Test
   void deleteMeal_ShouldDeleteMeal() throws Exception {
     Meal meal = createMeal();
