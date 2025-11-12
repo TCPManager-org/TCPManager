@@ -1,7 +1,6 @@
 package org.tcpmanager.tcpmanager.calories.day;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import java.sql.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
