@@ -1,6 +1,7 @@
 package org.tcpmanager.tcpmanager.calories.day;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import java.sql.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.tcpmanager.tcpmanager.calories.day.dto.DayMealRequest;
@@ -36,17 +38,17 @@ public class DayController {
     return dayService.addMealToDay(dayMealRequest);
   }
 
-  @DeleteMapping
+  @DeleteMapping("/{date}/{dayMealId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deleteMealFromDay(
-      @RequestBody @Valid DayMealRequest dayMealRequest) {
-    dayService.deleteMealFromDay(dayMealRequest);
+  public void deleteMealFromDay(@PathVariable Date date,
+      @PathVariable Long dayMealId, @RequestParam String username) {
+    dayService.deleteMealFromDay(date, dayMealId, username);
   }
 
   @DeleteMapping("/{date}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deleteDayByDate(@PathVariable Date date) {
-    dayService.deleteByDate(date);
+  public void deleteDayByDate(@RequestParam String username, @PathVariable Date date) {
+    dayService.deleteByDate(username, date);
   }
 
 }

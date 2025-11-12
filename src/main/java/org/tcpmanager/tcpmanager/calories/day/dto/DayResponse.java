@@ -4,6 +4,6 @@ import java.sql.Date;
 import java.util.List;
 
 
-public record DayResponse(Date date, List<DayMealResponse> dayMeals) {
+public record DayResponse(Long id, Date date, List<DayMealResponse> dayMeals) {
 
 }
