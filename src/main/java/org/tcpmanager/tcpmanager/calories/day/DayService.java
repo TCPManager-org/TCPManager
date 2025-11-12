@@ -91,9 +91,7 @@ public class DayService {
 
   @Transactional
   public void deleteMealFromDay(Date date, Long dayMealId, String username) {
-    if (!userRepository.existsByUsername(username)) {
-      throw new EntityNotFoundException("User with username " + username + " not found");
-    }
+    checkUsername(username);
     Day day = dayRepository.findByDateAndDayMealsId(date, dayMealId).orElseThrow(
         () -> new EntityNotFoundException(
             "DayMeal with id " + dayMealId + " and date " + date + " not found"));
@@ -105,11 +103,10 @@ public class DayService {
     dayRepository.save(day);
   }
 
+  @Transactional
   public DayResponse updateMealFromDay(Date date, Long dayMealId, String username,
       DayMealPatch dayMealPatch) {
-    if (!userRepository.existsByUsername(username)) {
-      throw new EntityNotFoundException("User with username " + username + " not found");
-    }
+    checkUsername(username);
     Day day = dayRepository.findByDateAndDayMealsId(date, dayMealId).orElseThrow(
         () -> new EntityNotFoundException(
             "DayMeal with id " + dayMealId + " and date " + date + " not found"));
@@ -119,10 +116,10 @@ public class DayService {
     }
     day.getDayMeals().forEach(dayMeal -> {
       if (dayMeal.getId() == (dayMealId)) {
-        if (dayMealPatch.mealName() != null) {
-          Meal foundMeal = mealRepository.findByName(dayMealPatch.mealName()).orElseThrow(
+        if (dayMealPatch.mealId() != null) {
+          Meal foundMeal = mealRepository.findById(dayMealPatch.mealId()).orElseThrow(
               () -> new EntityNotFoundException(
-                  "Meal with name " + dayMealPatch.mealName() + " not found"));
+                  "Meal with name " + dayMealPatch.mealId() + " not found"));
           dayMeal.setMeal(foundMeal);
         }
         if (dayMealPatch.weight() != null) {
@@ -135,5 +132,11 @@ public class DayService {
     });
     dayRepository.save(day);
     return mapToDayResponse(day);
+  }
+
+  private void checkUsername(String username) {
+    if (!userRepository.existsByUsername(username)) {
+      throw new EntityNotFoundException("User with username " + username + " not found");
+    }
   }
 }
