@@ -34,7 +34,7 @@ public class Day {
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
 
-  @OneToMany(mappedBy = "day", cascade = CascadeType.ALL)
+  @OneToMany(mappedBy = "day", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<DayMeal> dayMeals;
 
 }

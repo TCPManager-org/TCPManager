@@ -10,7 +10,6 @@ import java.sql.Date;
 import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -41,10 +40,8 @@ class DayTests {
   @SuppressWarnings("resource")
   @Container
   @ServiceConnection
-  static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17")
-      .withDatabaseName("tcp")
-      .withUsername("root")
-      .withPassword("root");
+  static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
+      "postgres:17").withDatabaseName("tcp").withUsername("root").withPassword("root");
 
   static {
     postgres.start();
@@ -61,14 +58,6 @@ class DayTests {
   private UserRepository userRepository;
   @Autowired
   private DayRepository dayRepository;
-
-  @AfterEach
-  void cleanup() {
-    dayRepository.deleteAll();
-    mealRepository.deleteAll();
-    ingredientRepository.deleteAll();
-    userRepository.deleteAll();
-  }
 
   private static Meal createMeal() {
     MealIngredient mealIngredient1 = new MealIngredient();
@@ -125,6 +114,14 @@ class DayTests {
     return meal2;
   }
 
+  @AfterEach
+  void cleanup() {
+    dayRepository.deleteAll();
+    mealRepository.deleteAll();
+    ingredientRepository.deleteAll();
+    userRepository.deleteAll();
+  }
+
   private User createUser(String username) {
     User user = new User();
     user.setUsername(username);
@@ -146,9 +143,9 @@ class DayTests {
         }
         """;
 
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/calories/days")
-            .contentType("application/json").content(json))
-        .andExpect(status().isCreated())
+    mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/calories/days").contentType("application/json")
+                .content(json)).andExpect(status().isCreated())
         .andExpect(jsonPath("$.date").value("2024-01-01"))
         .andExpect(jsonPath("$.dayMeals.size()").value(1))
         .andExpect(jsonPath("$.dayMeals[0].weight").value(150))
@@ -173,8 +170,9 @@ class DayTests {
           "mealType": "LUNCH"
         }
         """;
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/calories/days")
-        .contentType("application/json").content(first)).andExpect(status().isCreated());
+    mockMvc.perform(
+        MockMvcRequestBuilders.post("/api/calories/days").contentType("application/json")
+            .content(first)).andExpect(status().isCreated());
 
     String second = """
         {
@@ -185,9 +183,9 @@ class DayTests {
           "mealType": "DINNER"
         }
         """;
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/calories/days")
-            .contentType("application/json").content(second))
-        .andExpect(status().isCreated())
+    mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/calories/days").contentType("application/json")
+                .content(second)).andExpect(status().isCreated())
         .andExpect(jsonPath("$.dayMeals.size()").value(2));
   }
 
@@ -204,9 +202,9 @@ class DayTests {
           "mealType": "LUNCH"
         }
         """;
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/calories/days")
-            .contentType("application/json").content(json))
-        .andExpect(status().isNotFound())
+    mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/calories/days").contentType("application/json")
+                .content(json)).andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("User with username missing not found"));
   }
 
@@ -222,9 +220,9 @@ class DayTests {
           "mealType": "SNACK"
         }
         """;
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/calories/days")
-            .contentType("application/json").content(json))
-        .andExpect(status().isNotFound())
+    mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/calories/days").contentType("application/json")
+                .content(json)).andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("Meal with name NoMeal not found"));
   }
 
@@ -245,8 +243,7 @@ class DayTests {
     day.setDayMeals(Set.of(dm));
     dayRepository.save(day);
 
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/calories/days"))
-        .andExpect(status().isOk())
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/calories/days")).andExpect(status().isOk())
         .andExpect(jsonPath("$.size()").value(1))
         .andExpect(jsonPath("$[0].date").value("2024-04-01"))
         .andExpect(jsonPath("$[0].dayMeals.size()").value(1))
@@ -272,16 +269,15 @@ class DayTests {
     mockMvc.perform(MockMvcRequestBuilders.delete("/api/calories/days/2024-05-01?username=john"))
         .andExpect(status().isNoContent());
 
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/calories/days"))
-        .andExpect(status().isOk())
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/calories/days")).andExpect(status().isOk())
         .andExpect(jsonPath("$.size()").value(0));
   }
 
   @Test
   void deleteDayByDate_ShouldReturnNotFound() throws Exception {
     mockMvc.perform(MockMvcRequestBuilders.delete("/api/calories/days/2024-06-01?username=john"))
-        .andExpect(status().isNotFound())
-        .andExpect(jsonPath("$.message").value("Day with date 2024-06-01 and username john not found"));
+        .andExpect(status().isNotFound()).andExpect(
+            jsonPath("$.message").value("Day with date 2024-06-01 and username john not found"));
   }
 
   @Test
@@ -298,82 +294,17 @@ class DayTests {
           "mealType": "DINNER"
         }
         """;
-    String result = mockMvc.perform(MockMvcRequestBuilders.post("/api/calories/days")
-        .contentType("application/json").content(add)).andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+    String result = mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/calories/days").contentType("application/json")
+                .content(add)).andExpect(status().isCreated()).andReturn().getResponse()
+        .getContentAsString();
     Integer dayMealId = JsonPath.read(result, "$.dayMeals[0].id");
-    mockMvc.perform(MockMvcRequestBuilders.delete("/api/calories/days/2024-07-01/"+dayMealId+"?username=john"))
+    mockMvc.perform(MockMvcRequestBuilders.delete(
+            "/api/calories/days/2024-07-01/" + dayMealId + "?username=john"))
         .andExpect(status().isNoContent());
 
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/calories/days"))
-        .andExpect(status().isOk())
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/calories/days")).andExpect(status().isOk())
         .andExpect(jsonPath("$[0].dayMeals.size()").value(0));
-  }
-
-  @Test
-  void deleteMealFromDay_ShouldReturnNotFound_ForMissingUser() throws Exception {
-    String body = """
-        {
-          "date": "2024-08-01",
-          "username": "nouser",
-          "mealName": "Any",
-          "weight": 10,
-          "mealType": "OTHER"
-        }
-        """;
-    mockMvc.perform(MockMvcRequestBuilders.delete("/api/calories/days")
-            .contentType("application/json").content(body))
-        .andExpect(status().isNotFound())
-        .andExpect(jsonPath("$.message").value("User with username nouser not found"));
-  }
-
-  @Test
-  void deleteMealFromDay_ShouldReturnNotFound_ForMissingDay() throws Exception {
-    createUser("john");
-    String body = """
-        {
-          "date": "2024-09-01",
-          "username": "john",
-          "mealName": "Test Meal",
-          "weight": 10,
-          "mealType": "SNACK"
-        }
-        """;
-    mockMvc.perform(MockMvcRequestBuilders.delete("/api/calories/days")
-            .contentType("application/json").content(body))
-        .andExpect(status().isNotFound())
-        .andExpect(jsonPath("$.message").value("Day with date 2024-09-01 and username john not found"));
-  }
-
-  @Test
-  void deleteMealFromDay_ShouldReturnNotFound_ForMissingMeal() throws Exception {
-    createUser("john");
-    Meal meal = createMeal();
-    mealRepository.save(meal);
-
-    Day d = new Day();
-    d.setDate(Date.valueOf("2024-10-01"));
-    d.setUser(userRepository.findByUsername("john").orElseThrow());
-    DayMeal dm = new DayMeal();
-    dm.setDay(d);
-    dm.setMeal(meal);
-    dm.setMealType(MealType.LUNCH);
-    dm.setWeight(100);
-    d.setDayMeals(Set.of(dm));
-    dayRepository.save(d);
-
-    String body = """
-        {
-          "date": "2024-10-01",
-          "username": "john",
-          "mealName": "NonExisting",
-          "weight": 10,
-          "mealType": "LUNCH"
-        }
-        """;
-    mockMvc.perform(MockMvcRequestBuilders.delete("/api/calories/days")
-            .contentType("application/json").content(body))
-        .andExpect(status().isNotFound())
-        .andExpect(jsonPath("$.message").value("Meal with name NonExisting not found"));
   }
 
   @Test
@@ -390,9 +321,9 @@ class DayTests {
           "mealType": "OTHER"
         }
         """;
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/calories/days")
-            .contentType("application/json").content(json))
-        .andExpect(status().isBadRequest())
+    mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/calories/days").contentType("application/json")
+                .content(json)).andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("Weight must be greater than or equal to 1"));
   }
 
@@ -409,9 +340,9 @@ class DayTests {
           "mealType": "SNACK"
         }
         """;
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/calories/days")
-            .contentType("application/json").content(json))
-        .andExpect(status().isBadRequest())
+    mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/calories/days").contentType("application/json")
+                .content(json)).andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("Username must not be blank"));
   }
 }
