@@ -8,6 +8,7 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.tcpmanager.tcpmanager.calories.day.dto.DayMealPatch;
 import org.tcpmanager.tcpmanager.calories.day.dto.DayMealRequest;
 import org.tcpmanager.tcpmanager.calories.day.dto.DayMealResponse;
 import org.tcpmanager.tcpmanager.calories.day.dto.DayResponse;
@@ -102,5 +103,37 @@ public class DayService {
     }
     day.getDayMeals().removeIf(dayMeal -> dayMeal.getId() == (dayMealId));
     dayRepository.save(day);
+  }
+
+  public DayResponse updateMealFromDay(Date date, Long dayMealId, String username,
+      DayMealPatch dayMealPatch) {
+    if (!userRepository.existsByUsername(username)) {
+      throw new EntityNotFoundException("User with username " + username + " not found");
+    }
+    Day day = dayRepository.findByDateAndDayMealsId(date, dayMealId).orElseThrow(
+        () -> new EntityNotFoundException(
+            "DayMeal with id " + dayMealId + " and date " + date + " not found"));
+    if (!day.getUser().getUsername().equals(username)) {
+      throw new IllegalArgumentException(
+          "DayMeal with id " + dayMealId + " does not belong to user " + username);
+    }
+    day.getDayMeals().forEach(dayMeal -> {
+      if (dayMeal.getId() == (dayMealId)) {
+        if (dayMealPatch.mealName() != null) {
+          Meal foundMeal = mealRepository.findByName(dayMealPatch.mealName()).orElseThrow(
+              () -> new EntityNotFoundException(
+                  "Meal with name " + dayMealPatch.mealName() + " not found"));
+          dayMeal.setMeal(foundMeal);
+        }
+        if (dayMealPatch.weight() != null) {
+          dayMeal.setWeight(dayMealPatch.weight());
+        }
+        if (dayMealPatch.mealType() != null) {
+          dayMeal.setMealType(dayMealPatch.mealType());
+        }
+      }
+    });
+    dayRepository.save(day);
+    return mapToDayResponse(day);
   }
 }
