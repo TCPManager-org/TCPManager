@@ -63,7 +63,6 @@ class DayTests {
     MealIngredient mealIngredient1 = new MealIngredient();
     Meal meal = new Meal();
     meal.setName("Test Meal");
-    meal.setFavorite(false);
 
     mealIngredient1.setMeal(meal);
     Ingredient ingredient1 = new Ingredient();
@@ -96,7 +95,6 @@ class DayTests {
     MealIngredient mealIngredient1 = new MealIngredient();
     Meal meal2 = new Meal();
     meal2.setName("Test Meal2");
-    meal2.setFavorite(false);
 
     mealIngredient1.setMeal(meal2);
     Ingredient ingredient1 = new Ingredient();
@@ -132,16 +130,16 @@ class DayTests {
   void addMealToDay_ShouldCreateDay() throws Exception {
     createUser("john");
     Meal meal = createMeal();
-    mealRepository.save(meal);
-    String json = """
+    meal = mealRepository.save(meal);
+    String json = String.format("""
         {
           "date": "2024-01-01",
           "username": "john",
-          "mealName": "Test Meal",
+          "mealId": %d,
           "weight": 150,
           "mealType": "BREAKFAST"
         }
-        """;
+        """, meal.getId());
 
     mockMvc.perform(
             MockMvcRequestBuilders.post("/api/calories/days").contentType("application/json")
@@ -161,28 +159,28 @@ class DayTests {
     Meal meal2 = createMeal2();
     mealRepository.save(meal2);
 
-    String first = """
+    String first = String.format("""
         {
           "date": "2024-02-01",
           "username": "john",
-          "mealName": "Test Meal",
+          "mealId": %d,
           "weight": 100,
           "mealType": "LUNCH"
         }
-        """;
+        """, meal.getId());
     mockMvc.perform(
         MockMvcRequestBuilders.post("/api/calories/days").contentType("application/json")
             .content(first)).andExpect(status().isCreated());
 
-    String second = """
+    String second = String.format("""
         {
           "date": "2024-02-01",
           "username": "john",
-          "mealName": "Test Meal2",
+          "mealId": %d,
           "weight": 200,
           "mealType": "DINNER"
         }
-        """;
+        """, meal2.getId());
     mockMvc.perform(
             MockMvcRequestBuilders.post("/api/calories/days").contentType("application/json")
                 .content(second)).andExpect(status().isCreated())
@@ -193,15 +191,15 @@ class DayTests {
   void addMealToDay_ShouldReturnNotFound_ForMissingUser() throws Exception {
     Meal meal = createMeal();
     mealRepository.save(meal);
-    String json = """
+    String json = String.format("""
         {
           "date": "2024-03-01",
           "username": "missing",
-          "mealName": "Test Meal",
+          "mealId": %d,
           "weight": 100,
           "mealType": "LUNCH"
         }
-        """;
+        """, meal.getId());
     mockMvc.perform(
             MockMvcRequestBuilders.post("/api/calories/days").contentType("application/json")
                 .content(json)).andExpect(status().isNotFound())
@@ -211,19 +209,20 @@ class DayTests {
   @Test
   void addMealToDay_ShouldReturnNotFound_ForMissingMeal() throws Exception {
     createUser("john");
-    String json = """
+    long missingId = 999999;
+    String json = String.format("""
         {
           "date": "2024-03-02",
           "username": "john",
-          "mealName": "NoMeal",
+          "mealId": %d,
           "weight": 100,
           "mealType": "SNACK"
         }
-        """;
+        """, missingId);
     mockMvc.perform(
             MockMvcRequestBuilders.post("/api/calories/days").contentType("application/json")
                 .content(json)).andExpect(status().isNotFound())
-        .andExpect(jsonPath("$.message").value("Meal with name NoMeal not found"));
+        .andExpect(jsonPath("$.message").value("Meal with id 999999 not found"));
   }
 
   @Test
@@ -285,15 +284,15 @@ class DayTests {
     createUser("john");
     Meal meal = createMeal();
     mealRepository.save(meal);
-    String add = """
+    String add = String.format("""
         {
           "date": "2024-07-01",
           "username": "john",
-          "mealName": "Test Meal",
+          "mealId": %d,
           "weight": 100,
           "mealType": "DINNER"
         }
-        """;
+        """, meal.getId());
     String result = mockMvc.perform(
             MockMvcRequestBuilders.post("/api/calories/days").contentType("application/json")
                 .content(add)).andExpect(status().isCreated()).andReturn().getResponse()
@@ -312,15 +311,15 @@ class DayTests {
     createUser("john");
     Meal meal = createMeal();
     mealRepository.save(meal);
-    String json = """
+    String json = String.format("""
         {
           "date": "2024-11-01",
           "username": "john",
-          "mealName": "Test Meal",
+          "mealId": %d,
           "weight": 0,
           "mealType": "OTHER"
         }
-        """;
+        """, meal.getId());
     mockMvc.perform(
             MockMvcRequestBuilders.post("/api/calories/days").contentType("application/json")
                 .content(json)).andExpect(status().isBadRequest())
@@ -331,15 +330,15 @@ class DayTests {
   void addMealToDay_ShouldReturnBadRequest_ForBlankUsername() throws Exception {
     Meal meal = createMeal();
     mealRepository.save(meal);
-    String json = """
+    String json = String.format("""
         {
           "date": "2024-12-01",
           "username": "   ",
-          "mealName": "Test Meal",
+          "mealId": %d,
           "weight": 100,
           "mealType": "SNACK"
         }
-        """;
+        """, meal.getId());
     mockMvc.perform(
             MockMvcRequestBuilders.post("/api/calories/days").contentType("application/json")
                 .content(json)).andExpect(status().isBadRequest())

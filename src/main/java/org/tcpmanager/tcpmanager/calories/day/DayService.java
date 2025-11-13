@@ -39,9 +39,9 @@ public class DayService {
   private DayMeal mapToDayMeals(Day day, DayMealRequest dayMealRequest) {
     DayMeal dayMeal = new DayMeal();
     dayMeal.setDay(day);
-    Meal foundMeal = mealRepository.findByName((dayMealRequest.mealName())).orElseThrow(
+    Meal foundMeal = mealRepository.findById((dayMealRequest.mealId())).orElseThrow(
         () -> new EntityNotFoundException(
-            "Meal with name " + dayMealRequest.mealName() + " not found"));
+            "Meal with id " + dayMealRequest.mealId() + " not found"));
     dayMeal.setMeal(foundMeal);
     dayMeal.setMealType(dayMealRequest.mealType());
     dayMeal.setWeight(dayMealRequest.weight());
