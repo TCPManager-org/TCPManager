@@ -19,9 +19,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Table(name = "meals", schema = "calories")
 public class Meal {
-
-  @Column(nullable = false)
-  Boolean favorite;
+  
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
