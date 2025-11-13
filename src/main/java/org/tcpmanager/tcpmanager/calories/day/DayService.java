@@ -138,7 +138,7 @@ public class DayService {
     Day day = dayRepository.findByDate(date).stream()
         .filter(d -> d.getUser().getUsername().equals(username)).findFirst()
         .orElseThrow(() -> new IllegalArgumentException(generateNotFoundMessage(date, username)));
-    if (day.getDayMeals().stream().anyMatch(dayMeal -> dayMeal.getId() == dayMealId)) {
+    if (day.getDayMeals().stream().noneMatch(dayMeal -> dayMeal.getId() == dayMealId)) {
       throw new EntityNotFoundException(generateNotFoundMessage(dayMealId, date));
     }
     return day;
