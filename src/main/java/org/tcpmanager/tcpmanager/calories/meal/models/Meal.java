@@ -19,7 +19,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Table(name = "meals", schema = "calories")
 public class Meal {
-  
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;

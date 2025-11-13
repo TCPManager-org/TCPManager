@@ -276,7 +276,7 @@ class DayTests {
   void deleteDayByDate_ShouldReturnNotFound() throws Exception {
     mockMvc.perform(MockMvcRequestBuilders.delete("/api/calories/days/2024-06-01?username=john"))
         .andExpect(status().isNotFound()).andExpect(
-            jsonPath("$.message").value("Day with date 2024-06-01 and username john not found"));
+            jsonPath("$.message").value("Day with date 2024-06-01 not found"));
   }
 
   @Test

@@ -137,7 +137,8 @@ public class MealService {
       }
       MealIngredient mealIngredient = new MealIngredient();
       Ingredient foundIngredient = ingredientRepository.findById(entry.getKey()).orElseThrow(
-          () -> new EntityNotFoundException(IngredientService.generateNotFoundMessage(entry.getKey())));
+          () -> new EntityNotFoundException(
+              IngredientService.generateNotFoundMessage(entry.getKey())));
       mealIngredient.setIngredient(foundIngredient);
       mealIngredient.setWeight(entry.getValue());
       mealIngredient.setMeal(meal);

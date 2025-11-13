@@ -19,6 +19,7 @@ import org.tcpmanager.tcpmanager.calories.meal.MealService;
 import org.tcpmanager.tcpmanager.calories.meal.models.Meal;
 import org.tcpmanager.tcpmanager.user.User;
 import org.tcpmanager.tcpmanager.user.UserRepository;
+import org.tcpmanager.tcpmanager.user.UserService;
 
 @Service
 @RequiredArgsConstructor
@@ -36,12 +37,25 @@ public class DayService {
     return new DayResponse(day.getId(), day.getDate(), dayMealResponses);
   }
 
+
+  public static String generateNotFoundMessage(Date date) {
+    return "Day with date " + date + " not found";
+  }
+
+  public static String generateNotFoundMessage(Date date, String username) {
+    return "Day with date " + date + " does not belong to user " + username;
+  }
+
+  public static String generateNotFoundMessage(Long dayMealId, Date date) {
+    return "DayMeal with id " + dayMealId + " and " + date + " not found";
+  }
+
   private DayMeal mapToDayMeals(Day day, DayMealRequest dayMealRequest) {
     DayMeal dayMeal = new DayMeal();
     dayMeal.setDay(day);
     Meal foundMeal = mealRepository.findById((dayMealRequest.mealId())).orElseThrow(
         () -> new EntityNotFoundException(
-            "Meal with id " + dayMealRequest.mealId() + " not found"));
+            MealService.generateNotFoundMessage(dayMealRequest.mealId())));
     dayMeal.setMeal(foundMeal);
     dayMeal.setMealType(dayMealRequest.mealType());
     dayMeal.setWeight(dayMealRequest.weight());
@@ -54,16 +68,20 @@ public class DayService {
 
   @Transactional
   public void deleteByDate(String username, Date date) {
-    Day day = dayRepository.findByDateAndUserUsername(date, username).orElseThrow(() ->
-        new EntityNotFoundException(
-        "Day with date " + date + " and username " + username + " not found"));
+    if (dayRepository.findByDate(date).isEmpty()) {
+      throw new EntityNotFoundException(generateNotFoundMessage(date));
+    }
+    Day day = dayRepository.findByDate(date).stream()
+        .filter(d -> d.getUser().getUsername().equals(username)).findFirst()
+        .orElseThrow(() -> new IllegalArgumentException(generateNotFoundMessage(date, username)));
     dayRepository.delete(day);
   }
 
   @Transactional
   public DayResponse addMealToDay(DayMealRequest dayMealRequest) {
-    User user = userRepository.findByUsername(dayMealRequest.username()).orElseThrow(() -> new EntityNotFoundException(
-        "User with username " + dayMealRequest.username() + " not found"));
+    User user = userRepository.findByUsername(dayMealRequest.username()).orElseThrow(
+        () -> new EntityNotFoundException(
+            UserService.generateNotFoundMessage(dayMealRequest.username())));
     Optional<Day> dayOptional = dayRepository.findByDateAndUserUsername(dayMealRequest.date(),
         dayMealRequest.username());
     if (dayOptional.isEmpty()) {
@@ -84,35 +102,21 @@ public class DayService {
 
   @Transactional
   public void deleteMealFromDay(Date date, Long dayMealId, String username) {
-    checkUsername(username);
-    Day day = dayRepository.findByDateAndDayMealsId(date, dayMealId).orElseThrow(
-        () -> new EntityNotFoundException(
-            "DayMeal with id " + dayMealId + " and date " + date + " not found"));
-    if (!day.getUser().getUsername().equals(username)) {
-      throw new IllegalArgumentException(
-          "DayMeal with id " + dayMealId + " does not belong to user " + username);
-    }
-    day.getDayMeals().removeIf(dayMeal -> dayMeal.getId() == (dayMealId));
+    Day day = getDay(date, dayMealId, username);
+    day.getDayMeals().removeIf(dayMeal -> dayMeal.getId() == dayMealId);
     dayRepository.save(day);
   }
 
   @Transactional
   public DayResponse updateMealFromDay(Date date, Long dayMealId, String username,
       DayMealPatch dayMealPatch) {
-    checkUsername(username);
-    Day day = dayRepository.findByDateAndDayMealsId(date, dayMealId).orElseThrow(
-        () -> new EntityNotFoundException(
-            "DayMeal with id " + dayMealId + " and date " + date + " not found"));
-    if (!day.getUser().getUsername().equals(username)) {
-      throw new IllegalArgumentException(
-          "DayMeal with id " + dayMealId + " does not belong to user " + username);
-    }
+    Day day = getDay(date, dayMealId, username);
     day.getDayMeals().forEach(dayMeal -> {
       if (dayMeal.getId() == (dayMealId)) {
         if (dayMealPatch.mealId() != null) {
           Meal foundMeal = mealRepository.findById(dayMealPatch.mealId()).orElseThrow(
               () -> new EntityNotFoundException(
-                  "Meal with id " + dayMealPatch.mealId() + " not found"));
+                  MealService.generateNotFoundMessage(dayMealPatch.mealId())));
           dayMeal.setMeal(foundMeal);
         }
         if (dayMealPatch.weight() != null) {
@@ -127,9 +131,16 @@ public class DayService {
     return mapToDayResponse(day);
   }
 
-  private void checkUsername(String username) {
-    if (!userRepository.existsByUsername(username)) {
-      throw new EntityNotFoundException("User with username " + username + " not found");
+  private Day getDay(Date date, Long dayMealId, String username) {
+    if (dayRepository.findByDate(date).isEmpty()) {
+      throw new EntityNotFoundException(generateNotFoundMessage(date));
     }
+    Day day = dayRepository.findByDate(date).stream()
+        .filter(d -> d.getUser().getUsername().equals(username)).findFirst()
+        .orElseThrow(() -> new IllegalArgumentException(generateNotFoundMessage(date, username)));
+    if (day.getDayMeals().stream().anyMatch(dayMeal -> dayMeal.getId() == dayMealId)) {
+      throw new EntityNotFoundException(generateNotFoundMessage(dayMealId, date));
+    }
+    return day;
   }
 }
