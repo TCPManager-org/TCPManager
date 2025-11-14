@@ -283,7 +283,7 @@ class DayTests {
   void deleteMealFromDay_ShouldRemoveMeal() throws Exception {
     createUser("john");
     Meal meal = createMeal();
-    mealRepository.save(meal);
+    meal = mealRepository.save(meal);
     String add = String.format("""
         {
           "date": "2024-07-01",
@@ -327,13 +327,14 @@ class DayTests {
   }
 
   @Test
-  void addMealToDay_ShouldReturnBadRequest_ForBlankUsername() throws Exception {
+  void deleteMealFromDay_ShouldReturnNotFound_ForMissingDayMeal() throws Exception {
+    createUser("john");
     Meal meal = createMeal();
-    mealRepository.save(meal);
-    String json = String.format("""
+    meal = mealRepository.save(meal);
+    String add = String.format("""
         {
-          "date": "2024-12-01",
-          "username": "   ",
+          "date": "2024-08-01",
+          "username": "john",
           "mealId": %d,
           "weight": 100,
           "mealType": "SNACK"
@@ -341,7 +342,139 @@ class DayTests {
         """, meal.getId());
     mockMvc.perform(
             MockMvcRequestBuilders.post("/api/calories/days").contentType("application/json")
-                .content(json)).andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("Username must not be blank"));
+                .content(add)).andExpect(status().isCreated());
+    long missingDayMealId = 999999;
+    mockMvc.perform(MockMvcRequestBuilders.delete(
+            "/api/calories/days/2024-08-01/" + missingDayMealId + "?username=john"))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.message")
+            .value("DayMeal with id 999999 and 2024-08-01 not found"));
+  }
+
+  @Test
+  void updateMealInDay_ShouldUpdateWeightAndMealType() throws Exception {
+    createUser("john");
+    Meal meal = createMeal();
+    meal = mealRepository.save(meal);
+    String add = String.format("""
+        {
+          "date": "2024-09-01",
+          "username": "john",
+          "mealId": %d,
+          "weight": 100,
+          "mealType": "BREAKFAST"
+        }
+        """, meal.getId());
+    String result = mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/calories/days").contentType("application/json")
+                .content(add)).andExpect(status().isCreated()).andReturn().getResponse()
+        .getContentAsString();
+    Integer dayMealId = JsonPath.read(result, "$.dayMeals[0].id");
+
+    String updateJson = """
+        {
+          "weight": 200,
+          "mealType": "DINNER"
+        }
+        """;
+    mockMvc.perform(MockMvcRequestBuilders.patch(
+            "/api/calories/days/2024-09-01/" + dayMealId + "?username=john")
+            .contentType("application/json").content(updateJson))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.dayMeals[0].weight").value(200))
+        .andExpect(jsonPath("$.dayMeals[0].mealType").value("DINNER"));
+  }
+
+  @Test
+  void updateMealInDay_ShouldUpdateMeal() throws Exception {
+    createUser("john");
+    Meal meal = createMeal();
+    meal = mealRepository.save(meal);
+    Meal newMeal = createMeal2();
+    newMeal = mealRepository.save(newMeal);
+    String add = String.format("""
+        {
+          "date": "2024-10-01",
+          "username": "john",
+          "mealId": %d,
+          "weight": 100,
+          "mealType": "LUNCH"
+        }
+        """, meal.getId());
+    String result = mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/calories/days").contentType("application/json")
+                .content(add)).andExpect(status().isCreated()).andReturn().getResponse()
+        .getContentAsString();
+    Integer dayMealId = JsonPath.read(result, "$.dayMeals[0].id");
+
+    String updateJson = String.format("""
+        {
+          "mealId": %d
+        }
+        """, newMeal.getId());
+    mockMvc.perform(MockMvcRequestBuilders.patch(
+            "/api/calories/days/2024-10-01/" + dayMealId + "?username=john")
+            .contentType("application/json").content(updateJson))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.dayMeals[0].meal.name").value("Test Meal2"));
+  }
+
+  @Test
+  void updateMealInDay_ShouldReturnNotFound_ForMissingMeal() throws Exception {
+    createUser("john");
+    Meal meal = createMeal();
+    meal = mealRepository.save(meal);
+    String add = String.format("""
+        {
+          "date": "2024-12-01",
+          "username": "john",
+          "mealId": %d,
+          "weight": 100,
+          "mealType": "OTHER"
+        }
+        """, meal.getId());
+    String result = mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/calories/days").contentType("application/json")
+                .content(add)).andExpect(status().isCreated()).andReturn().getResponse()
+        .getContentAsString();
+    Integer dayMealId = JsonPath.read(result, "$.dayMeals[0].id");
+
+    long missingMealId = 888888;
+    String updateJson = String.format("""
+        {
+          "mealId": %d
+        }
+        """, missingMealId);
+    mockMvc.perform(MockMvcRequestBuilders.patch(
+            "/api/calories/days/2024-12-01/" + dayMealId + "?username=john")
+            .contentType("application/json").content(updateJson))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.message").value("Meal with id 888888 not found"));
+  }
+  @Test
+  void deleteMealFromDay_ShouldReturnBadRequest_ForMissingDayBelongingToUser() throws Exception {
+    createUser("john");
+    createUser("jane");
+    Meal meal = createMeal();
+    meal = mealRepository.save(meal);
+    String add = String.format("""
+        {
+          "date": "2024-08-15",
+          "username": "john",
+          "mealId": %d,
+          "weight": 100,
+          "mealType": "SNACK"
+        }
+        """, meal.getId());
+    String result = mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/calories/days").contentType("application/json")
+                .content(add)).andExpect(status().isCreated()).andReturn().getResponse()
+        .getContentAsString();
+    Integer dayMealId = JsonPath.read(result, "$.dayMeals[0].id");
+    mockMvc.perform(MockMvcRequestBuilders.delete(
+            "/api/calories/days/2024-08-15/" + dayMealId + "?username=jane"))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message")
+            .value("Day with date 2024-08-15 does not belong to user jane"));
   }
 }
