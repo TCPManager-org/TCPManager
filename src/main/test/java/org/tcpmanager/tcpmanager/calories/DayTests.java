@@ -463,4 +463,40 @@ class DayTests {
         .andExpect(status().isBadRequest()).andExpect(
             jsonPath("$.message").value("Day with date 2024-08-15 does not belong to user jane"));
   }
+
+  @Test
+  void deleteDayByDate_ShouldReturnBadRequest_ForDayNotBelongingToUser() throws Exception {
+    createUser("john");
+    createUser("jane");
+    Meal meal = mealRepository.save(createMeal());
+    Day d = new Day();
+    d.setDate(Date.valueOf("2024-05-15"));
+    d.setUser(userRepository.findByUsername("john").orElseThrow());
+    DayMeal dm = new DayMeal();
+    dm.setDay(d);
+    dm.setMeal(meal);
+    dm.setMealType(MealType.LUNCH);
+    dm.setWeight(100);
+    d.setDayMeals(Set.of(dm));
+    dayRepository.save(d);
+
+    mockMvc.perform(MockMvcRequestBuilders.delete("/api/calories/days/2024-05-15?username=jane"))
+        .andExpect(status().isBadRequest()).andExpect(
+            jsonPath("$.message").value("Day with date 2024-05-15 does not belong to user jane"));
+  }
+
+  // java
+  @Test
+  void updateMealInDay_ShouldReturnNotFound_ForMissingDay() throws Exception {
+    createUser("john");
+    String patch = """
+        {
+          "weight": 250
+        }
+        """;
+    mockMvc.perform(
+            MockMvcRequestBuilders.patch("/api/calories/days/2025-01-01/12345?username=john")
+                .contentType("application/json").content(patch)).andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.message").value("Day with date 2025-01-01 not found"));
+  }
 }
