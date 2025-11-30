@@ -1,4 +1,3 @@
-// java
 package org.tcpmanager.tcpmanager.calories;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -485,7 +484,6 @@ class DayTests {
             jsonPath("$.message").value("Day with date 2024-05-15 does not belong to user jane"));
   }
 
-  // java
   @Test
   void updateMealInDay_ShouldReturnNotFound_ForMissingDay() throws Exception {
     createUser("john");
