@@ -13,4 +13,6 @@ public interface IntakeHistoryRepository extends
   List<IntakeHistory> getAllByDate(Date date);
 
   List<IntakeHistory> getAllByUserUsername(String username);
+
+  IntakeHistory getByDateAndUserUsername(Date date, String username);
 }

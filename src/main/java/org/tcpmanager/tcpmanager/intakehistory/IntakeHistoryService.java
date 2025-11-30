@@ -4,14 +4,20 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionalEventListener;
 import org.tcpmanager.tcpmanager.intakehistory.dto.IntakeHistoryPatch;
 import org.tcpmanager.tcpmanager.intakehistory.dto.IntakeHistoryRequest;
 import org.tcpmanager.tcpmanager.intakehistory.dto.IntakeHistoryResponse;
 import org.tcpmanager.tcpmanager.user.User;
 import org.tcpmanager.tcpmanager.user.UserRepository;
 import org.tcpmanager.tcpmanager.user.UserService;
+import org.tcpmanager.tcpmanager.user.events.MealAddedEvent;
+import org.tcpmanager.tcpmanager.user.events.MealDeletedEvent;
 
 @Service
 @RequiredArgsConstructor
@@ -119,5 +125,31 @@ public class IntakeHistoryService {
   public List<IntakeHistoryResponse> getAllIntakeHistoriesByUsername(String username) {
     return intakeHistoryRepository.getAllByUserUsername(username).stream()
         .map(this::mapToIntakeHistoryResponse).toList();
+  }
+
+  @Async
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @TransactionalEventListener
+  void on(MealAddedEvent event) {
+    IntakeHistory intakeHistory = intakeHistoryRepository.getByDateAndUserUsername(event.date(),
+        event.username());
+    intakeHistory.setCalories(intakeHistory.getCalories().add(event.calories()));
+    intakeHistory.setProtein(intakeHistory.getProtein().add(event.protein()));
+    intakeHistory.setFat(intakeHistory.getFat().add(event.fat()));
+    intakeHistory.setCarbs(intakeHistory.getCarbs().add(event.carbs()));
+    intakeHistoryRepository.save(intakeHistory);
+  }
+
+  @Async
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @TransactionalEventListener
+  void on(MealDeletedEvent event) {
+    IntakeHistory intakeHistory = intakeHistoryRepository.getByDateAndUserUsername(event.date(),
+        event.username());
+    intakeHistory.setCalories(intakeHistory.getCalories().subtract(event.calories()));
+    intakeHistory.setProtein(intakeHistory.getProtein().subtract(event.protein()));
+    intakeHistory.setFat(intakeHistory.getFat().subtract(event.fat()));
+    intakeHistory.setCarbs(intakeHistory.getCarbs().subtract(event.carbs()));
+    intakeHistoryRepository.save(intakeHistory);
   }
 }
