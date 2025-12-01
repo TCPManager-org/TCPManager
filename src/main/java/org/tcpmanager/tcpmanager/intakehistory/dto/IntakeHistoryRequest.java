@@ -8,10 +8,10 @@ import java.math.BigDecimal;
 import java.sql.Date;
 
 public record IntakeHistoryRequest(@NotNull Date date,
-                                   @NotNull @DecimalMin(value = "0", inclusive = false) BigDecimal calories,
-                                   @NotNull @DecimalMin(value = "0", inclusive = false) BigDecimal protein,
-                                   @NotNull @DecimalMin(value = "0", inclusive = false) BigDecimal fat,
-                                   @NotNull @DecimalMin(value = "0", inclusive = false) BigDecimal carbs,
+                                   @NotNull @DecimalMin(value = "0") BigDecimal calories,
+                                   @NotNull @DecimalMin(value = "0") BigDecimal protein,
+                                   @NotNull @DecimalMin(value = "0") BigDecimal fat,
+                                   @NotNull @DecimalMin(value = "0") BigDecimal carbs,
                                    @NotNull @Min(value = 1) Integer caloriesGoal,
                                    @NotNull @Min(value = 1) Integer proteinGoal,
                                    @NotNull @Min(value = 1) Integer fatGoal,

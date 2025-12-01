@@ -91,7 +91,7 @@ public class DayService {
             UserService.generateNotFoundMessage(dayMealRequest.username())));
     Optional<Day> dayOptional = dayRepository.findByDateAndUserUsername(dayMealRequest.date(),
         dayMealRequest.username());
-
+    //TODO: fix this duplication
     if (dayOptional.isEmpty()) {
       Day day = new Day();
       day.setDate(dayMealRequest.date());
@@ -99,7 +99,7 @@ public class DayService {
       DayMeal dayMeal = mapToDayMeals(day, dayMealRequest);
       day.setDayMeals(Set.of(dayMeal));
       Day savedDay = dayRepository.save(day);
-      publishEvent(dayMealRequest, dayMeal, day);
+      publishAddedEvent(dayMealRequest, dayMeal, day);
       return mapToDayResponse(savedDay);
     }
     Day day = dayOptional.get();
@@ -107,13 +107,13 @@ public class DayService {
     DayMeal dayMeal = mapToDayMeals(day, dayMealRequest);
     dayMeals.add(dayMeal);
     day.setDayMeals(dayMeals);
-    publishEvent(dayMealRequest, dayMeal, day);
+    publishAddedEvent(dayMealRequest, dayMeal, day);
     dayRepository.save(day);
 
     return mapToDayResponse(day);
   }
 
-  private void publishEvent(DayMealRequest dayMealRequest, DayMeal dayMeal, Day day) {
+  private void publishAddedEvent(DayMealRequest dayMealRequest, DayMeal dayMeal, Day day) {
     MealResponse mealResponse = MealService.mapToMealResponse(dayMeal.getMeal());
     BigDecimal factor = BigDecimal.valueOf(mealResponse.weight())
         .setScale(2, RoundingMode.HALF_EVEN)

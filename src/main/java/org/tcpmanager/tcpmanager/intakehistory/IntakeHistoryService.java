@@ -2,9 +2,10 @@ package org.tcpmanager.tcpmanager.intakehistory;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import java.math.BigDecimal;
+import java.sql.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -126,13 +127,14 @@ public class IntakeHistoryService {
     return intakeHistoryRepository.getAllByUserUsername(username).stream()
         .map(this::mapToIntakeHistoryResponse).toList();
   }
-
   @Async
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   @TransactionalEventListener
   void on(MealAddedEvent event) {
-    IntakeHistory intakeHistory = intakeHistoryRepository.getByDateAndUserUsername(event.date(),
-        event.username());
+    IntakeHistory intakeHistory = intakeHistoryRepository.getByDate(event.date()).stream()
+        .filter(ih ->
+            ih.getUser().getUsername().equals(event.username()))
+        .findFirst().orElseGet(() -> getNewIntakeHistory(event));
     intakeHistory.setCalories(intakeHistory.getCalories().add(event.calories()));
     intakeHistory.setProtein(intakeHistory.getProtein().add(event.protein()));
     intakeHistory.setFat(intakeHistory.getFat().add(event.fat()));
@@ -140,12 +142,32 @@ public class IntakeHistoryService {
     intakeHistoryRepository.save(intakeHistory);
   }
 
+  private IntakeHistory getNewIntakeHistory(MealAddedEvent event) {
+    IntakeHistory intakeHistoryPrior = intakeHistoryRepository
+        .getByDate(Date.valueOf(event.date().toLocalDate().minusDays(1))).stream()
+        .findFirst().orElseThrow(
+            () -> new IllegalStateException("There is no prior intake history for user "
+                + event.username()));
+    User user = userRepository.findByUsername(event.username()).orElseThrow(
+        () -> new EntityNotFoundException(
+            UserService.generateNotFoundMessage(event.username())));
+    return new IntakeHistory(null, event.date(), BigDecimal.ZERO, BigDecimal.ZERO,
+        BigDecimal.ZERO, BigDecimal.ZERO, intakeHistoryPrior.getCaloriesGoal(),
+        intakeHistoryPrior.getProteinGoal(), intakeHistoryPrior.getFatGoal(),
+        intakeHistoryPrior.getCarbsGoal(), user);
+  }
+
   @Async
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   @TransactionalEventListener
   void on(MealDeletedEvent event) {
-    IntakeHistory intakeHistory = intakeHistoryRepository.getByDateAndUserUsername(event.date(),
-        event.username());
+    IntakeHistory intakeHistory = intakeHistoryRepository.getByDate(event.date()).stream()
+        .filter(ih ->
+            ih.getUser().getUsername().equals(event.username()))
+        .findFirst()
+        .orElseThrow(
+            () -> new EntityNotFoundException("Intake history for user " + event.username()
+                + " on date " + event.date() + " not found"));
     intakeHistory.setCalories(intakeHistory.getCalories().subtract(event.calories()));
     intakeHistory.setProtein(intakeHistory.getProtein().subtract(event.protein()));
     intakeHistory.setFat(intakeHistory.getFat().subtract(event.fat()));
