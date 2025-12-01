@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tcpmanager.tcpmanager.calories.ingredient.Ingredient;
 import org.tcpmanager.tcpmanager.calories.ingredient.IngredientRepository;
+import org.tcpmanager.tcpmanager.calories.ingredient.IngredientService;
 import org.tcpmanager.tcpmanager.calories.meal.dto.MealPatch;
 import org.tcpmanager.tcpmanager.calories.meal.dto.MealRequest;
 import org.tcpmanager.tcpmanager.calories.meal.dto.MealResponse;
@@ -28,11 +29,11 @@ public class MealService {
   private final MealRepository mealRepository;
   private final IngredientRepository ingredientRepository;
 
-  private static String generateNotFoundMessage(String entity, Long id) {
-    return entity + " with id " + id + " not found";
+  public static String generateNotFoundMessage(Long id) {
+    return "Meal with id " + id + " not found";
   }
 
-  private static MealResponse mapToMealResponse(Meal meal) {
+  public static MealResponse mapToMealResponse(Meal meal) {
     BigDecimal calories = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN);
     BigDecimal carbs = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN);
     BigDecimal fats = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN);
@@ -60,7 +61,7 @@ public class MealService {
 
   public MealResponse getById(Long id) {
     Meal meal = mealRepository.findById(id)
-        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage("Meal", id)));
+        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
     return mapToMealResponse(meal);
   }
 
@@ -80,7 +81,7 @@ public class MealService {
   @Transactional
   public void deleteById(Long id) {
     if (!mealRepository.existsById(id)) {
-      throw new EntityNotFoundException(generateNotFoundMessage("Meal", id));
+      throw new EntityNotFoundException(generateNotFoundMessage(id));
     }
     mealRepository.deleteById(id);
   }
@@ -88,7 +89,7 @@ public class MealService {
   @Transactional
   public MealResponse updateById(Long id, MealPatch mealPatch) {
     Meal meal = mealRepository.findById(id)
-        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage("Meal", id)));
+        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
     if (mealPatch.name() != null) {
       if (mealPatch.name().isBlank()) {
         throw new IllegalArgumentException("Meal name cannot be blank");
@@ -119,7 +120,7 @@ public class MealService {
       }
       Ingredient ing = ingredientRepository.findById(ingredientId)
           .orElseThrow(() -> new EntityNotFoundException(
-              generateNotFoundMessage("Ingredient", ingredientId)));
+              IngredientService.generateNotFoundMessage(ingredientId)));
       MealIngredient created = new MealIngredient();
       created.setMeal(meal);
       created.setIngredient(ing);
@@ -136,7 +137,8 @@ public class MealService {
       }
       MealIngredient mealIngredient = new MealIngredient();
       Ingredient foundIngredient = ingredientRepository.findById(entry.getKey()).orElseThrow(
-          () -> new EntityNotFoundException(generateNotFoundMessage("Ingredient", entry.getKey())));
+          () -> new EntityNotFoundException(
+              IngredientService.generateNotFoundMessage(entry.getKey())));
       mealIngredient.setIngredient(foundIngredient);
       mealIngredient.setWeight(entry.getValue());
       mealIngredient.setMeal(meal);

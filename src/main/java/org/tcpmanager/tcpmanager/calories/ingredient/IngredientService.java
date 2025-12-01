@@ -21,7 +21,7 @@ public class IngredientService {
 
   private final IngredientRepository ingredientRepository;
 
-  private static String generateNotFoundMessage(Long id) {
+  public static String generateNotFoundMessage(Long id) {
     return "Ingredient with id " + id + " not found";
   }
 

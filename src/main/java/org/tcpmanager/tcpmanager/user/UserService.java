@@ -16,8 +16,12 @@ public class UserService {
 
   private final UserRepository userRepository;
 
-  private static String generateNotFoundMessage(Long id) {
+  public static String generateNotFoundMessage(Long id) {
     return "User with id " + id + " not found";
+  }
+
+  public static String generateNotFoundMessage(String username) {
+    return "User with username " + username + " not found";
   }
 
   public List<UserResponse> getAllUsers() {
@@ -62,8 +66,8 @@ public class UserService {
 
   public UserResponse getUserByUsername(String username) {
     return userRepository.findByUsername(username)
-        .map(user -> new UserResponse(user.getId(), user.getUsername())).orElseThrow(
-            () -> new EntityNotFoundException("User with username " + username + " not found"));
+        .map(user -> new UserResponse(user.getId(), user.getUsername()))
+        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(username)));
   }
 
   private void validateUsername(String username) {

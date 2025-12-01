@@ -11,6 +11,7 @@ import org.tcpmanager.tcpmanager.intakehistory.dto.IntakeHistoryRequest;
 import org.tcpmanager.tcpmanager.intakehistory.dto.IntakeHistoryResponse;
 import org.tcpmanager.tcpmanager.user.User;
 import org.tcpmanager.tcpmanager.user.UserRepository;
+import org.tcpmanager.tcpmanager.user.UserService;
 
 @Service
 @RequiredArgsConstructor
@@ -65,7 +66,7 @@ public class IntakeHistoryService {
   public IntakeHistoryResponse addIntakeHistory(IntakeHistoryRequest intakeHistoryRequest) {
     User user = userRepository.findByUsername(intakeHistoryRequest.username()).orElseThrow(
         () -> new EntityNotFoundException(
-            "User with username " + intakeHistoryRequest.username() + " not found"));
+            UserService.generateNotFoundMessage(intakeHistoryRequest.username())));
     boolean isDateUnique = intakeHistoryRepository.getAllByDate(intakeHistoryRequest.date())
         .stream().map(IntakeHistory::getUser).map(User::getUsername)
         .noneMatch(s -> s.equals(intakeHistoryRequest.username()));
