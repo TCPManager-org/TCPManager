@@ -91,26 +91,26 @@ public class DayService {
             UserService.generateNotFoundMessage(dayMealRequest.username())));
     Optional<Day> dayOptional = dayRepository.findByDateAndUserUsername(dayMealRequest.date(),
         dayMealRequest.username());
-    //TODO: fix this duplication
+    Day day;
+    DayMeal dayMeal;
     if (dayOptional.isEmpty()) {
-      Day day = new Day();
+      day = new Day();
       day.setDate(dayMealRequest.date());
       day.setUser(user);
-      DayMeal dayMeal = mapToDayMeals(day, dayMealRequest);
+      dayMeal = mapToDayMeals(day, dayMealRequest);
       day.setDayMeals(Set.of(dayMeal));
-      Day savedDay = dayRepository.save(day);
-      publishAddedEvent(dayMealRequest, dayMeal, day);
-      return mapToDayResponse(savedDay);
     }
-    Day day = dayOptional.get();
-    Set<DayMeal> dayMeals = day.getDayMeals();
-    DayMeal dayMeal = mapToDayMeals(day, dayMealRequest);
-    dayMeals.add(dayMeal);
-    day.setDayMeals(dayMeals);
+    else {
+      day = dayOptional.get();
+      Set<DayMeal> dayMeals = day.getDayMeals();
+      dayMeal = mapToDayMeals(day, dayMealRequest);
+      dayMeals.add(dayMeal);
+      day.setDayMeals(dayMeals);
+    }
     publishAddedEvent(dayMealRequest, dayMeal, day);
-    dayRepository.save(day);
+    Day savedDay = dayRepository.save(day);
 
-    return mapToDayResponse(day);
+    return mapToDayResponse(savedDay);
   }
 
   private void publishAddedEvent(DayMealRequest dayMealRequest, DayMeal dayMeal, Day day) {

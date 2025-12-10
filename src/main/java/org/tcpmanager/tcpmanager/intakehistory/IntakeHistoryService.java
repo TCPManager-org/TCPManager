@@ -127,6 +127,7 @@ public class IntakeHistoryService {
     return intakeHistoryRepository.getAllByUserUsername(username).stream()
         .map(this::mapToIntakeHistoryResponse).toList();
   }
+
   @Async
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   @TransactionalEventListener

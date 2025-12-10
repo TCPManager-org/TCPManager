@@ -14,7 +14,6 @@ import java.sql.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.tcpmanager.tcpmanager.user.User;
 
 @Entity
