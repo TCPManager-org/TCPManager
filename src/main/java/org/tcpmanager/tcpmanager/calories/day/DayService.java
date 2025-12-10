@@ -144,7 +144,7 @@ public class DayService {
     day.getDayMeals().remove(dayMeal);
     dayRepository.save(day);
   }
-  //TODO add events for updating meal in day
+
   @Transactional
   public DayResponse updateMealFromDay(Date date, Long dayMealId, String username,
       DayMealPatch dayMealPatch) {
