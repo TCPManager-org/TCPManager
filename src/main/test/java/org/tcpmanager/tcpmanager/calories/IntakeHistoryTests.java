@@ -71,7 +71,7 @@ class IntakeHistoryTests {
     ih.setFatGoal(16);
     ih.setCaloriesGoal(17);
     ih = intakeHistoryRepository.save(ih);
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/intake-history/" + ih.getId()))
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/statistics/intake-history/" + ih.getId()))
         .andExpect(status().isOk()).andExpect(jsonPath("$.username").value("testUser"))
         .andExpect(jsonPath("$.fat").value(BigDecimal.valueOf(10)))
         .andExpect(jsonPath("$.protein").value(BigDecimal.valueOf(11)))
@@ -84,7 +84,7 @@ class IntakeHistoryTests {
 
   @Test
   void getIntakeHistoryById_ShouldReturnNotFound() throws Exception {
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/intake-history/9999"))
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/statistics/intake-history/9999"))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("Intake history with id 9999 not found"));
   }
@@ -119,7 +119,7 @@ class IntakeHistoryTests {
     ih2.setCaloriesGoal(27);
     ih2 = intakeHistoryRepository.save(ih2);
     mockMvc.perform(
-            MockMvcRequestBuilders.get("/api/intake-history?username=" + user.getUsername()))
+            MockMvcRequestBuilders.get("/api/statistics/intake-history?username=" + user.getUsername()))
         .andExpect(status().isOk()).andExpect(jsonPath("$.size()").value(2))
         .andExpect(jsonPath("$[0].id").value(ih1.getId()))
         .andExpect(jsonPath("$[1].id").value(ih2.getId()));
@@ -142,13 +142,13 @@ class IntakeHistoryTests {
     ih.setFatGoal(16);
     ih.setCaloriesGoal(17);
     ih = intakeHistoryRepository.save(ih);
-    mockMvc.perform(MockMvcRequestBuilders.delete("/api/intake-history/" + ih.getId()))
+    mockMvc.perform(MockMvcRequestBuilders.delete("/api/statistics/intake-history/" + ih.getId()))
         .andExpect(status().isNoContent());
   }
 
   @Test
   void deleteIntakeHistoryById_ShouldReturnNotFound() throws Exception {
-    mockMvc.perform(MockMvcRequestBuilders.delete("/api/intake-history/9999"))
+    mockMvc.perform(MockMvcRequestBuilders.delete("/api/statistics/intake-history/9999"))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("Intake history with id 9999 not found"));
   }
@@ -177,7 +177,7 @@ class IntakeHistoryTests {
           "%s": 20
         }
         """.formatted(value);
-    mockMvc.perform(MockMvcRequestBuilders.patch("/api/intake-history/" + ih.getId())
+    mockMvc.perform(MockMvcRequestBuilders.patch("/api/statistics/intake-history/" + ih.getId())
             .contentType("application/json").content(patchJson)).andExpect(status().isOk())
         .andExpect(jsonPath("$." + value).value(20));
   }
@@ -202,7 +202,7 @@ class IntakeHistoryTests {
         }
         """;
     mockMvc.perform(
-            MockMvcRequestBuilders.post("/api/intake-history").contentType("application/json")
+            MockMvcRequestBuilders.post("/api/statistics/intake-history").contentType("application/json")
                 .content(postJson)).andExpect(status().isCreated())
         .andExpect(jsonPath("$.username").value("testUser")).andExpect(jsonPath("$.fat").value(10))
         .andExpect(jsonPath("$.protein").value(11)).andExpect(jsonPath("$.calories").value(12))
@@ -228,7 +228,7 @@ class IntakeHistoryTests {
         }
         """;
     mockMvc.perform(
-            MockMvcRequestBuilders.post("/api/intake-history").contentType("application/json")
+            MockMvcRequestBuilders.post("/api/statistics/intake-history").contentType("application/json")
                 .content(postJson)).andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("User with username nonExistentUser not found"));
   }
@@ -265,7 +265,7 @@ class IntakeHistoryTests {
         }
         """;
     mockMvc.perform(
-            MockMvcRequestBuilders.post("/api/intake-history").contentType("application/json")
+            MockMvcRequestBuilders.post("/api/statistics/intake-history").contentType("application/json")
                 .content(postJson)).andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("Date must be unique"));
   }
@@ -278,7 +278,7 @@ class IntakeHistoryTests {
         }
         """;
     mockMvc.perform(
-            MockMvcRequestBuilders.patch("/api/intake-history/9999").contentType("application/json")
+            MockMvcRequestBuilders.patch("/api/statistics/intake-history/9999").contentType("application/json")
                 .content(patchJson)).andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("Intake history with id 9999 not found"));
   }
@@ -313,7 +313,7 @@ class IntakeHistoryTests {
     ih2.setCaloriesGoal(27);
     intakeHistoryRepository.save(ih2);
     mockMvc.perform(
-            MockMvcRequestBuilders.delete("/api/intake-history").param("username", "testUser"))
+            MockMvcRequestBuilders.delete("/api/statistics/intake-history").param("username", "testUser"))
         .andExpect(status().isNoContent());
     Assertions.assertTrue(intakeHistoryRepository.getAllByUserUsername("testUser").isEmpty());
   }

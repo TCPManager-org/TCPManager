@@ -70,13 +70,14 @@ public class IntakeHistoryService {
   }
 
   @Transactional
-  public IntakeHistoryResponse addIntakeHistory(IntakeHistoryRequest intakeHistoryRequest) {
-    User user = userRepository.findByUsername(intakeHistoryRequest.username()).orElseThrow(
+  public IntakeHistoryResponse addIntakeHistory(IntakeHistoryRequest intakeHistoryRequest,
+      String username) {
+    User user = userRepository.findByUsername(username).orElseThrow(
         () -> new EntityNotFoundException(
-            UserService.generateNotFoundMessage(intakeHistoryRequest.username())));
+            UserService.generateNotFoundMessage(username)));
     boolean isDateUnique = intakeHistoryRepository.getAllByDate(intakeHistoryRequest.date())
         .stream().map(IntakeHistory::getUser).map(User::getUsername)
-        .noneMatch(s -> s.equals(intakeHistoryRequest.username()));
+        .noneMatch(s -> s.equals(username));
     if (!isDateUnique) {
       throw new IllegalArgumentException("Date must be unique");
     }
