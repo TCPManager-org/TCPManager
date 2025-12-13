@@ -33,7 +33,7 @@ public class SecurityConfig {
             registry.dispatcherTypeMatchers(FORWARD, ERROR).permitAll()
                 .requestMatchers("/api/calories/**", "/api/statistics/**")
                 .hasAnyRole("USER", "ADMIN")
-                .requestMatchers("/api/users").hasRole("ADMIN")
+                .requestMatchers("/api/users/**").hasRole("ADMIN")
                 .anyRequest().denyAll()
         )
         .build();

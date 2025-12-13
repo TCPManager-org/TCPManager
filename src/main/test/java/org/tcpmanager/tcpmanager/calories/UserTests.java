@@ -10,8 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.tcpmanager.tcpmanager.user.Role;
 import org.tcpmanager.tcpmanager.user.User;
 import org.tcpmanager.tcpmanager.user.UserRepository;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -21,6 +24,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @SpringBootTest
 @AutoConfigureMockMvc
 @Testcontainers
+@WithMockUser(username = "testUser", roles = "ADMIN")
 class UserTests {
 
   @SuppressWarnings("resource")
@@ -38,33 +42,53 @@ class UserTests {
 
   @Autowired
   private UserRepository userRepository;
+  @Autowired
+  private PasswordEncoder passwordEncoder;
 
   @AfterEach
   void afterEach() {
     userRepository.deleteAll();
   }
 
+  private User createUser() {
+    User user = new User();
+    user.setUsername("testUser");
+    user.setPassword(passwordEncoder.encode("password"));
+    user.setRole(Role.ADMIN);
+    return userRepository.save(user);
+  }
+
+  private User createUser2() {
+    User user = new User();
+    user.setUsername("testUser2");
+    user.setPassword(passwordEncoder.encode("password"));
+    user.setRole(Role.ADMIN);
+    return userRepository.save(user);
+  }
+
   @Test
   void invalidUsername_NotUnique() throws Exception {
-    User user = new User();
-    user.setUsername("TestUser");
-    userRepository.save(user);
+    createUser();
     String json = """
           {
-            "username": "TestUser"
+            "username": "testUser",
+            "password": "password",
+            "role": "USER"
           }
         """;
     mockMvc.perform(
             MockMvcRequestBuilders.post("/api/users").contentType("application/json").content(json))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("Username TestUser is already taken"));
+        .andExpect(jsonPath("$.message").value("Username testUser is already taken"));
   }
 
   @Test
   void invalidUsername_NotAlphanumeric() throws Exception {
     String json = """
           {
-            "username": "TestUser!"
+            "username": "testUser!",
+            "password": "password",
+            "role": "USER"
           }
         """;
     mockMvc.perform(
@@ -75,72 +99,56 @@ class UserTests {
 
   @Test
   void getUsers_ShouldReturnAllUsers() throws Exception {
-    User user = new User();
-    user.setUsername("TestUser");
-    user = userRepository.save(user);
-    User user2 = new User();
-    user2.setUsername("TestUser2");
-    user2 = userRepository.save(user2);
+    User user = createUser();
+    User user2 = createUser2();
     mockMvc.perform(MockMvcRequestBuilders.get("/api/users")).andExpect(status().isOk())
         .andExpect(jsonPath("$.size()").value(2)).andExpect(jsonPath("$[0].id").value(user.getId()))
-        .andExpect(jsonPath("$[0].username").value("TestUser"))
+        .andExpect(jsonPath("$[0].username").value("testUser"))
         .andExpect(jsonPath("$[1].id").value(user2.getId()))
-        .andExpect(jsonPath("$[1].username").value("TestUser2"));
+        .andExpect(jsonPath("$[1].username").value("testUser2"));
   }
 
   @Test
   void getUserById_ShouldReturnUser() throws Exception {
-    User user = new User();
-    user.setUsername("TestUser");
-    user = userRepository.save(user);
-    User user2 = new User();
-    user2.setUsername("TestUser2");
-    userRepository.save(user2);
+    User user = createUser();
+    createUser2();
     mockMvc.perform(MockMvcRequestBuilders.get("/api/users/" + user.getId()))
         .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(user.getId()))
-        .andExpect(jsonPath("$.username").value("TestUser"));
+        .andExpect(jsonPath("$.username").value("testUser"));
   }
 
   @Test
   void getUserById_ShouldReturnNotFound() throws Exception {
-    User user = new User();
-    user.setUsername("TestUser");
-    userRepository.save(user);
-    User user2 = new User();
-    user2.setUsername("TestUser2");
-    userRepository.save(user2);
+    createUser();
+    createUser2();
     mockMvc.perform(MockMvcRequestBuilders.get("/api/users/123")).andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("User with id 123 not found"));
   }
 
   @Test
   void getUserByUsername_ShouldReturnUser() throws Exception {
-    User user = new User();
-    user.setUsername("TestUser");
-    user = userRepository.save(user);
-    User user2 = new User();
-    user2.setUsername("TestUser2");
-    userRepository.save(user2);
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/users?username=TestUser"))
+    User user = createUser();
+    createUser2();
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/users?username=testUser"))
         .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(user.getId()))
-        .andExpect(jsonPath("$.username").value("TestUser"));
+        .andExpect(jsonPath("$.username").value("testUser"));
   }
 
   @Test
   void getUserByUsername_ShouldReturnNotFound() throws Exception {
-    User user = new User();
-    user.setUsername("TestUser");
-    userRepository.save(user);
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/users?username=TestUser2"))
+    createUser();
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/users?username=testUser2"))
         .andExpect(status().isNotFound())
-        .andExpect(jsonPath("$.message").value("User with username TestUser2 not found"));
+        .andExpect(jsonPath("$.message").value("User with username testUser2 not found"));
   }
 
   @Test
   void addUser_ShouldReturnCreated() throws Exception {
     String json = """
           {
-            "username": "NewUser"
+            "username": "NewUser",
+            "password": "password",
+            "role": "USER"
           }
         """;
     mockMvc.perform(
@@ -151,9 +159,7 @@ class UserTests {
 
   @Test
   void deleteUser_ShouldReturnNoContent() throws Exception {
-    User user = new User();
-    user.setUsername("TestUser");
-    user = userRepository.save(user);
+    User user = createUser();
     mockMvc.perform(MockMvcRequestBuilders.delete("/api/users/" + user.getId()))
         .andExpect(status().isNoContent());
     Assertions.assertEquals(0, userRepository.count());
@@ -161,9 +167,7 @@ class UserTests {
 
   @Test
   void deleteUser_ShouldReturnNotFound() throws Exception {
-    User user = new User();
-    user.setUsername("TestUser");
-    userRepository.save(user);
+    createUser();
     mockMvc.perform(MockMvcRequestBuilders.delete("/api/users/123"))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("User with id 123 not found"));
@@ -172,9 +176,7 @@ class UserTests {
 
   @Test
   void updateUser_ShouldReturnUpdatedUser() throws Exception {
-    User user = new User();
-    user.setUsername("TestUser");
-    user = userRepository.save(user);
+    User user = createUser();
     String json = """
           {
             "username": "UpdatedUser"
@@ -191,9 +193,7 @@ class UserTests {
 
   @Test
   void updateUser_ShouldReturnNotFound() throws Exception {
-    User user = new User();
-    user.setUsername("TestUser");
-    userRepository.save(user);
+    createUser();
     String json = """
           {
             "username": "UpdatedUser"
@@ -208,7 +208,9 @@ class UserTests {
   void addUser_ShouldReturnBadRequest_WhenNameIsBlank() throws Exception {
     String json = """
           {
-            "username": " "
+            "username": " ",
+            "password": "password",
+            "role": "USER"
           }
         """;
     mockMvc.perform(
@@ -221,6 +223,8 @@ class UserTests {
   void addUser_ShouldReturnBadRequest_WhenNameIsNull() throws Exception {
     String json = """
           {
+            "password": "password",
+            "role": "USER"
           }
         """;
     mockMvc.perform(

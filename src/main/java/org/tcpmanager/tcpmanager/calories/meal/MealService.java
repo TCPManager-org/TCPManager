@@ -135,7 +135,7 @@ public class MealService {
     Set<MealIngredient> mealIngredients = new HashSet<>();
     for (var entry : ingredients.entrySet()) {
       if (entry.getValue() <= 0) {
-        throw new IllegalArgumentException("Ingredient weight mus`t be greater than zero");
+        throw new IllegalArgumentException("Ingredient weight must be greater than zero");
       }
       MealIngredient mealIngredient = new MealIngredient();
       Ingredient foundIngredient = ingredientRepository.findById(entry.getKey()).orElseThrow(

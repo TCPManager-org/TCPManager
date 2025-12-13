@@ -1,5 +1,6 @@
 package org.tcpmanager.tcpmanager.calories;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -14,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.tcpmanager.tcpmanager.calories.day.DayRepository;
@@ -25,6 +28,7 @@ import org.tcpmanager.tcpmanager.calories.ingredient.IngredientRepository;
 import org.tcpmanager.tcpmanager.calories.meal.MealRepository;
 import org.tcpmanager.tcpmanager.calories.meal.models.Meal;
 import org.tcpmanager.tcpmanager.calories.meal.models.MealIngredient;
+import org.tcpmanager.tcpmanager.user.Role;
 import org.tcpmanager.tcpmanager.user.User;
 import org.tcpmanager.tcpmanager.user.UserRepository;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -34,6 +38,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @SpringBootTest
 @AutoConfigureMockMvc
 @Testcontainers
+@WithMockUser(username = "testUser", roles = "ADMIN")
 class DayTests {
 
   @SuppressWarnings("resource")
@@ -56,6 +61,8 @@ class DayTests {
   private UserRepository userRepository;
   @Autowired
   private DayRepository dayRepository;
+  @Autowired
+  private PasswordEncoder passwordEncoder;
 
   private static Meal createMeal() {
     MealIngredient mi1 = new MealIngredient();
@@ -109,6 +116,22 @@ class DayTests {
     return meal2;
   }
 
+  private User createUser() {
+    User user = new User();
+    user.setUsername("testUser");
+    user.setPassword(passwordEncoder.encode("test"));
+    user.setRole(Role.USER);
+    return userRepository.save(user);
+  }
+
+  private void createUser2() {
+    User user = new User();
+    user.setUsername("testUser2");
+    user.setPassword(passwordEncoder.encode("test"));
+    user.setRole(Role.USER);
+    userRepository.save(user);
+  }
+
   @AfterEach
   void cleanup() {
     dayRepository.deleteAll();
@@ -117,20 +140,13 @@ class DayTests {
     userRepository.deleteAll();
   }
 
-  private User createUser(String username) {
-    User u = new User();
-    u.setUsername(username);
-    return userRepository.save(u);
-  }
-
   @Test
   void addMealToDay_ShouldCreateDay() throws Exception {
-    createUser("john");
+    createUser();
     Meal meal = mealRepository.save(createMeal());
     String json = """
         {
           "date": "2024-01-01",
-          "username": "john",
           "mealId": %d,
           "weight": 150,
           "mealType": "BREAKFAST"
@@ -152,14 +168,13 @@ class DayTests {
 
   @Test
   void addMealToExistingDay_ShouldAppendMeal() throws Exception {
-    createUser("john");
+    createUser();
     Meal meal1 = mealRepository.save(createMeal());
     Meal meal2 = mealRepository.save(createMeal2());
 
     String first = """
         {
           "date": "2024-02-01",
-          "username": "john",
           "mealId": %d,
           "weight": 100,
           "mealType": "LUNCH"
@@ -172,7 +187,6 @@ class DayTests {
     String second = """
         {
           "date": "2024-02-01",
-          "username": "john",
           "mealId": %d,
           "weight": 200,
           "mealType": "DINNER"
@@ -190,7 +204,6 @@ class DayTests {
     String json = """
         {
           "date": "2024-03-01",
-          "username": "missing",
           "mealId": %d,
           "weight": 100,
           "mealType": "LUNCH"
@@ -199,16 +212,15 @@ class DayTests {
     mockMvc.perform(
             MockMvcRequestBuilders.post("/api/calories/days").contentType("application/json")
                 .content(json)).andExpect(status().isNotFound())
-        .andExpect(jsonPath("$.message").value("User with username missing not found"));
+        .andExpect(jsonPath("$.message").value("User with username testUser not found"));
   }
 
   @Test
   void addMealToDay_ShouldReturnNotFound_ForMissingMeal() throws Exception {
-    createUser("john");
+    createUser();
     String json = """
         {
           "date": "2024-03-02",
-          "username": "john",
           "mealId": 999999,
           "weight": 100,
           "mealType": "SNACK"
@@ -222,7 +234,7 @@ class DayTests {
 
   @Test
   void getAllDays_ShouldReturnDays() throws Exception {
-    User user = createUser("john");
+    User user = createUser();
     Meal meal = mealRepository.save(createMeal());
     Day day = new Day();
     day.setDate(Date.valueOf("2024-04-01"));
@@ -246,11 +258,11 @@ class DayTests {
 
   @Test
   void deleteDayByDate_ShouldDelete() throws Exception {
-    createUser("john");
+    createUser();
     Meal meal = mealRepository.save(createMeal());
     Day d = new Day();
     d.setDate(Date.valueOf("2024-05-01"));
-    d.setUser(userRepository.findByUsername("john").orElseThrow());
+    d.setUser(userRepository.findByUsername("testUser").orElseThrow());
     DayMeal dm = new DayMeal();
     dm.setDay(d);
     dm.setMeal(meal);
@@ -259,7 +271,7 @@ class DayTests {
     d.setDayMeals(Set.of(dm));
     dayRepository.save(d);
 
-    mockMvc.perform(MockMvcRequestBuilders.delete("/api/calories/days/2024-05-01?username=john"))
+    mockMvc.perform(MockMvcRequestBuilders.delete("/api/calories/days/2024-05-01"))
         .andExpect(status().isNoContent());
 
     mockMvc.perform(MockMvcRequestBuilders.get("/api/calories/days")).andExpect(status().isOk())
@@ -268,19 +280,18 @@ class DayTests {
 
   @Test
   void deleteDayByDate_ShouldReturnNotFound() throws Exception {
-    mockMvc.perform(MockMvcRequestBuilders.delete("/api/calories/days/2024-06-01?username=john"))
+    mockMvc.perform(MockMvcRequestBuilders.delete("/api/calories/days/2024-06-01"))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("Day with date 2024-06-01 not found"));
   }
 
   @Test
   void deleteMealFromDay_ShouldRemoveMeal() throws Exception {
-    createUser("john");
+    createUser();
     Meal meal = mealRepository.save(createMeal());
     String add = """
         {
           "date": "2024-07-01",
-          "username": "john",
           "mealId": %d,
           "weight": 100,
           "mealType": "DINNER"
@@ -293,7 +304,7 @@ class DayTests {
     Integer dayMealId = JsonPath.read(result, "$.dayMeals[0].id");
 
     mockMvc.perform(MockMvcRequestBuilders.delete(
-            "/api/calories/days/2024-07-01/" + dayMealId + "?username=john"))
+            "/api/calories/days/2024-07-01/" + dayMealId))
         .andExpect(status().isNoContent());
 
     mockMvc.perform(MockMvcRequestBuilders.get("/api/calories/days")).andExpect(status().isOk())
@@ -302,12 +313,11 @@ class DayTests {
 
   @Test
   void addMealToDay_ShouldReturnBadRequest_ForWeightZero() throws Exception {
-    createUser("john");
+    createUser();
     Meal meal = mealRepository.save(createMeal());
     String json = """
         {
           "date": "2024-11-01",
-          "username": "john",
           "mealId": %d,
           "weight": 0,
           "mealType": "OTHER"
@@ -321,12 +331,11 @@ class DayTests {
 
   @Test
   void deleteMealFromDay_ShouldReturnNotFound_ForMissingDayMeal() throws Exception {
-    createUser("john");
+    createUser();
     Meal meal = mealRepository.save(createMeal());
     String add = """
         {
           "date": "2024-08-01",
-          "username": "john",
           "mealId": %d,
           "weight": 100,
           "mealType": "SNACK"
@@ -337,19 +346,18 @@ class DayTests {
             .content(add)).andExpect(status().isCreated());
 
     mockMvc.perform(
-            MockMvcRequestBuilders.delete("/api/calories/days/2024-08-01/999999?username=john"))
+            MockMvcRequestBuilders.delete("/api/calories/days/2024-08-01/999999"))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("DayMeal with id 999999 and 2024-08-01 not found"));
   }
 
   @Test
   void updateMealInDay_ShouldUpdateWeightAndMealType() throws Exception {
-    createUser("john");
+    createUser();
     Meal meal = mealRepository.save(createMeal());
     String add = """
         {
           "date": "2024-09-01",
-          "username": "john",
           "mealId": %d,
           "weight": 100,
           "mealType": "BREAKFAST"
@@ -368,7 +376,7 @@ class DayTests {
         }
         """;
     mockMvc.perform(MockMvcRequestBuilders.patch(
-                "/api/calories/days/2024-09-01/" + dayMealId + "?username=john")
+                "/api/calories/days/2024-09-01/" + dayMealId)
             .contentType("application/json").content(updateJson)).andExpect(status().isOk())
         .andExpect(jsonPath("$.dayMeals[0].weight").value(200))
         .andExpect(jsonPath("$.dayMeals[0].mealType").value("DINNER"))
@@ -377,13 +385,12 @@ class DayTests {
 
   @Test
   void updateMealInDay_ShouldUpdateMeal() throws Exception {
-    createUser("john");
+    createUser();
     Meal meal = mealRepository.save(createMeal());
     Meal newMeal = mealRepository.save(createMeal2());
     String add = """
         {
           "date": "2024-10-01",
-          "username": "john",
           "mealId": %d,
           "weight": 100,
           "mealType": "LUNCH"
@@ -401,7 +408,7 @@ class DayTests {
         }
         """.formatted(newMeal.getId());
     mockMvc.perform(MockMvcRequestBuilders.patch(
-                "/api/calories/days/2024-10-01/" + dayMealId + "?username=john")
+                "/api/calories/days/2024-10-01/" + dayMealId)
             .contentType("application/json").content(updateJson)).andExpect(status().isOk())
         .andExpect(jsonPath("$.dayMeals[0].meal.name").value("Test Meal2"))
         .andExpect(jsonPath("$.dayMeals[0].meal.calories").value(100.0));
@@ -409,12 +416,11 @@ class DayTests {
 
   @Test
   void updateMealInDay_ShouldReturnNotFound_ForMissingMeal() throws Exception {
-    createUser("john");
+    createUser();
     Meal meal = mealRepository.save(createMeal());
     String add = """
         {
           "date": "2024-12-01",
-          "username": "john",
           "mealId": %d,
           "weight": 100,
           "mealType": "OTHER"
@@ -432,20 +438,19 @@ class DayTests {
         }
         """;
     mockMvc.perform(MockMvcRequestBuilders.patch(
-                "/api/calories/days/2024-12-01/" + dayMealId + "?username=john")
+                "/api/calories/days/2024-12-01/" + dayMealId)
             .contentType("application/json").content(updateJson)).andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("Meal with id 888888 not found"));
   }
 
   @Test
   void deleteMealFromDay_ShouldReturnBadRequest_ForDayNotBelongingToUser() throws Exception {
-    createUser("john");
-    createUser("jane");
+    createUser();
+    createUser2();
     Meal meal = mealRepository.save(createMeal());
     String add = """
         {
           "date": "2024-08-15",
-          "username": "john",
           "mealId": %d,
           "weight": 100,
           "mealType": "SNACK"
@@ -458,19 +463,21 @@ class DayTests {
     Integer dayMealId = JsonPath.read(result, "$.dayMeals[0].id");
 
     mockMvc.perform(MockMvcRequestBuilders.delete(
-            "/api/calories/days/2024-08-15/" + dayMealId + "?username=jane"))
+                "/api/calories/days/2024-08-15/" + dayMealId + "?username=jane")
+            .with(user("admin").password("pass").roles(
+                "ADMIN")))
         .andExpect(status().isBadRequest()).andExpect(
-            jsonPath("$.message").value("Day with date 2024-08-15 does not belong to user jane"));
+            jsonPath("$.message").value("Day with date 2024-08-15 does not belong to user admin"));
   }
 
   @Test
   void deleteDayByDate_ShouldReturnBadRequest_ForDayNotBelongingToUser() throws Exception {
-    createUser("john");
-    createUser("jane");
+    createUser();
+    createUser2();
     Meal meal = mealRepository.save(createMeal());
     Day d = new Day();
     d.setDate(Date.valueOf("2024-05-15"));
-    d.setUser(userRepository.findByUsername("john").orElseThrow());
+    d.setUser(userRepository.findByUsername("testUser").orElseThrow());
     DayMeal dm = new DayMeal();
     dm.setDay(d);
     dm.setMeal(meal);
@@ -479,21 +486,23 @@ class DayTests {
     d.setDayMeals(Set.of(dm));
     dayRepository.save(d);
 
-    mockMvc.perform(MockMvcRequestBuilders.delete("/api/calories/days/2024-05-15?username=jane"))
+    mockMvc.perform(MockMvcRequestBuilders.delete("/api/calories/days/2024-05-15?username=jane")
+            .with(user("admin").password("pass").roles(
+                "ADMIN")))
         .andExpect(status().isBadRequest()).andExpect(
-            jsonPath("$.message").value("Day with date 2024-05-15 does not belong to user jane"));
+            jsonPath("$.message").value("Day with date 2024-05-15 does not belong to user admin"));
   }
 
   @Test
   void updateMealInDay_ShouldReturnNotFound_ForMissingDay() throws Exception {
-    createUser("john");
+    createUser();
     String patch = """
         {
           "weight": 250
         }
         """;
     mockMvc.perform(
-            MockMvcRequestBuilders.patch("/api/calories/days/2025-01-01/12345?username=john")
+            MockMvcRequestBuilders.patch("/api/calories/days/2025-01-01/12345")
                 .contentType("application/json").content(patch)).andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("Day with date 2025-01-01 not found"));
   }
