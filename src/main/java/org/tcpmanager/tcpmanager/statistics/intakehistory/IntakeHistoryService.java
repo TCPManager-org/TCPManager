@@ -1,4 +1,4 @@
-package org.tcpmanager.tcpmanager.intakehistory;
+package org.tcpmanager.tcpmanager.statistics.intakehistory;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
@@ -11,9 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
-import org.tcpmanager.tcpmanager.intakehistory.dto.IntakeHistoryPatch;
-import org.tcpmanager.tcpmanager.intakehistory.dto.IntakeHistoryRequest;
-import org.tcpmanager.tcpmanager.intakehistory.dto.IntakeHistoryResponse;
+import org.tcpmanager.tcpmanager.statistics.intakehistory.dto.IntakeHistoryPatch;
+import org.tcpmanager.tcpmanager.statistics.intakehistory.dto.IntakeHistoryRequest;
+import org.tcpmanager.tcpmanager.statistics.intakehistory.dto.IntakeHistoryResponse;
 import org.tcpmanager.tcpmanager.user.User;
 import org.tcpmanager.tcpmanager.user.UserRepository;
 import org.tcpmanager.tcpmanager.user.UserService;
