@@ -1,4 +1,4 @@
-package org.tcpmanager.tcpmanager.intakehistory;
+package org.tcpmanager.tcpmanager.statistics.intakehistory;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,12 +11,14 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.sql.Date;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.tcpmanager.tcpmanager.user.User;
 
 @Entity
 @Data
+@AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "intake_history", schema = "statistics")
 public class IntakeHistory {

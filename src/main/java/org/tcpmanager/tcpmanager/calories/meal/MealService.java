@@ -38,6 +38,7 @@ public class MealService {
     BigDecimal carbs = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN);
     BigDecimal fats = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN);
     BigDecimal proteins = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN);
+    int weight = 0;
     Map<Long, String> ingredients = new HashMap<>();
     for (var mealIngredient : meal.getMealIngredients()) {
       Ingredient ingredient = mealIngredient.getIngredient();
@@ -53,8 +54,9 @@ public class MealService {
           BigDecimal.valueOf(mealIngredient.getWeight())
               .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_EVEN)));
       ingredients.put(ingredient.getId(), ingredient.getName());
+      weight += mealIngredient.getWeight();
     }
-    return new MealResponse(meal.getId(), meal.getName(), calories, carbs, fats,
+    return new MealResponse(meal.getId(), meal.getName(), weight, calories, carbs, fats,
         proteins,
         ingredients);
   }
