@@ -27,10 +27,14 @@ public class IntakeHistoryController {
 
   @GetMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
-  public IntakeHistoryResponse getIntakeHistoryById(@PathVariable Long id) {
-    return intakeHistoryService.getIntakeHistoryById(id);
+  public IntakeHistoryResponse getIntakeHistoryById(@PathVariable Long id, Principal principal) {
+    return intakeHistoryService.getIntakeHistoryById(id, principal.getName());
   }
-
+  @GetMapping()
+  @ResponseStatus(HttpStatus.OK)
+  public List<IntakeHistoryResponse> getAllIntakeHistories(Principal principal) {
+    return intakeHistoryService.getAllIntakeHistories(principal.getName());
+  }
   @GetMapping(produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
   public List<IntakeHistoryResponse> getIntakeHistoriesByUsername(
