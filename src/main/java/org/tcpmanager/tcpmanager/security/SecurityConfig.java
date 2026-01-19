@@ -56,7 +56,8 @@ public class SecurityConfig {
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(
             registry -> registry.dispatcherTypeMatchers(FORWARD, ERROR).permitAll()
-                .requestMatchers("/api/login").permitAll()
+                .requestMatchers("/api/swagger-ui/**").permitAll()
+                .requestMatchers("/api/docs/**").permitAll()
                 .requestMatchers("/api/users/**").hasRole("ADMIN")
                 .anyRequest().authenticated()).build();
   }
