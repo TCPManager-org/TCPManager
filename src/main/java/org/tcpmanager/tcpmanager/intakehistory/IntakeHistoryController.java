@@ -32,7 +32,7 @@ public class IntakeHistoryController {
   }
   @GetMapping()
   @ResponseStatus(HttpStatus.OK)
-  public List<IntakeHistoryResponse> getAllIntakeHistories(Principal principal) {
+  public List<IntakeHistoryResponse> getAllIntakeHistories(Principal principal) { //TODO: make it return sorted by date
     return intakeHistoryService.getAllIntakeHistories(principal.getName());
   }
   @GetMapping(produces = "application/json")
