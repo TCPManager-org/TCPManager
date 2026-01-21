@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
@@ -131,7 +132,7 @@ public class IntakeHistoryService {
 
   public List<IntakeHistoryResponse> getAllIntakeHistoriesByUsername(String username) {
     return intakeHistoryRepository.getAllByUserUsername(username).stream()
-        .map(this::mapToIntakeHistoryResponse).toList();
+        .map(this::mapToIntakeHistoryResponse).sorted(Comparator.comparing(IntakeHistoryResponse::date)).toList();
   }
 
   @Async
