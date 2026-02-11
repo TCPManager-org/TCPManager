@@ -1,17 +1,12 @@
 package org.tcpmanager.tcpmanager.calories.meal.models;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.util.Set;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.tcpmanager.tcpmanager.user.User;
 
 @Entity
 @Getter
@@ -28,4 +23,8 @@ public class Meal {
 
   @OneToMany(mappedBy = "meal", cascade = CascadeType.ALL)
   private Set<MealIngredient> mealIngredients;
+
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "user_id", nullable = false)
+  private User user;
 }
