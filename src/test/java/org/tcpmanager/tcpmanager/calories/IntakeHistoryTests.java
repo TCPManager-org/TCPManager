@@ -98,6 +98,7 @@ class IntakeHistoryTests {
 
   @Test
   void getIntakeHistoryById_ShouldReturnNotFound() throws Exception {
+    createUser();
     mockMvc.perform(MockMvcRequestBuilders.get("/api/statistics/intake-history/9999"))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("Intake history with id 9999 not found"));
