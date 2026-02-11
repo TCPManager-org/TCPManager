@@ -237,9 +237,25 @@ class UserTests {
     @WithMockUser(username = "testUser", roles = "USER")
     void deleteUser_NonAdminUserCanDeleteOwnAccount() throws Exception {
         User user = createUser();
-        userRepository.count();
         mockMvc.perform(
                         MockMvcRequestBuilders.delete("/api/users/" + user.getId()))
                 .andExpect(status().isNoContent());
+        boolean exists = userRepository.existsById(user.getId());
+        Assertions.assertFalse(exists);
+    }
+
+    @Test
+    @WithMockUser(username = "testUser", roles = "USER")
+    void deleteUser_NonAdminUserCanNotDeleteAccountOfOtherUser() throws Exception {
+        User user2 = new User();
+        user2.setRole(Role.USER);
+        user2.setUsername("testUser2");
+        user2.setPassword(passwordEncoder.encode("password"));
+        user2 = userRepository.save(user2);
+        mockMvc.perform(
+                        MockMvcRequestBuilders.delete("/api/users/" + user2.getId()))
+                .andExpect(status().isForbidden());
+        boolean exists = userRepository.existsById(user2.getId());
+        Assertions.assertTrue(exists);
     }
 }
