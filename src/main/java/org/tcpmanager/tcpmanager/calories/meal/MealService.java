@@ -143,7 +143,7 @@ public class MealService {
               IngredientService.generateNotFoundMessage(entry.getKey())));
       mealIngredient.setIngredient(foundIngredient);
       mealIngredient.setWeight(entry.getValue());
-      mealIngredient.setMeal(meal);
+        mealIngredient.setMeal(meal);
       mealIngredients.add(mealIngredient);
     }
     return mealIngredients;

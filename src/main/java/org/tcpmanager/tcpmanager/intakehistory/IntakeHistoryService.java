@@ -184,4 +184,48 @@ public class IntakeHistoryService {
         .filter(ih -> ih.getUser().getUsername().equals(user.getUsername()))
         .map(this::mapToIntakeHistoryResponse).toList();
   }
+
+  @Transactional
+  public IntakeHistoryResponse updateIntakeHistoryByDate(String date,
+      IntakeHistoryPatch intakeHistoryPatch, String name) {
+    User user = userRepository.findByUsername(name).orElseThrow(
+        () -> new EntityNotFoundException(UserService.generateNotFoundMessage(name)));
+    Date sqlDate;
+    try {
+      sqlDate = Date.valueOf(date);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException("Invalid date format, expected yyyy-MM-dd");
+    }
+    IntakeHistory intakeHistory = intakeHistoryRepository.getByDate(sqlDate).stream()
+        .filter(ih -> ih.getUser().getUsername().equals(user.getUsername()))
+        .findFirst().orElseThrow(() -> new EntityNotFoundException(
+            "Intake history for user " + name + " on date " + date + " not found"));
+
+    if (intakeHistoryPatch.calories() != null) {
+      intakeHistory.setCalories(intakeHistoryPatch.calories());
+    }
+    if (intakeHistoryPatch.protein() != null) {
+      intakeHistory.setProtein(intakeHistoryPatch.protein());
+    }
+    if (intakeHistoryPatch.fat() != null) {
+      intakeHistory.setFat(intakeHistoryPatch.fat());
+    }
+    if (intakeHistoryPatch.carbs() != null) {
+      intakeHistory.setCarbs(intakeHistoryPatch.carbs());
+    }
+    if (intakeHistoryPatch.caloriesGoal() != null) {
+      intakeHistory.setCaloriesGoal(intakeHistoryPatch.caloriesGoal());
+    }
+    if (intakeHistoryPatch.proteinGoal() != null) {
+      intakeHistory.setProteinGoal(intakeHistoryPatch.proteinGoal());
+    }
+    if (intakeHistoryPatch.fatGoal() != null) {
+      intakeHistory.setFatGoal(intakeHistoryPatch.fatGoal());
+    }
+    if (intakeHistoryPatch.carbsGoal() != null) {
+      intakeHistory.setCarbsGoal(intakeHistoryPatch.carbsGoal());
+    }
+    intakeHistory = intakeHistoryRepository.save(intakeHistory);
+    return mapToIntakeHistoryResponse(intakeHistory);
+  }
 }
