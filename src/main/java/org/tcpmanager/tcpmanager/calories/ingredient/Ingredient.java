@@ -42,7 +42,7 @@ public class Ingredient {
   @OneToMany(mappedBy = "ingredient", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<MealIngredient> mealIngredients;
 
-  @ManyToOne(fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name = "user_id", nullable = false)
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id")
   private User user;
 }
