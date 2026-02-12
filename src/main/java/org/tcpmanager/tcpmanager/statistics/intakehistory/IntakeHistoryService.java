@@ -176,15 +176,6 @@ public class IntakeHistoryService {
     intakeHistory.setCarbs(intakeHistory.getCarbs().subtract(event.carbs()));
     intakeHistoryRepository.save(intakeHistory);
   }
-
-  public List<IntakeHistoryResponse> getAllIntakeHistories(String username) {
-    User user = userRepository.findByUsername(username).orElseThrow(
-        () -> new EntityNotFoundException(UserService.generateNotFoundMessage(username)));
-    return intakeHistoryRepository.findAll().stream()
-        .filter(ih -> ih.getUser().getUsername().equals(user.getUsername()))
-        .map(this::mapToIntakeHistoryResponse).toList();
-  }
-
   @Transactional
   public IntakeHistoryResponse updateIntakeHistoryByDate(String date,
       IntakeHistoryPatch intakeHistoryPatch, String name) {

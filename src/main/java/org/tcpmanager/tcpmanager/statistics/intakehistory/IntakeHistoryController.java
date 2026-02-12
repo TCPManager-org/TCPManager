@@ -1,8 +1,8 @@
 package org.tcpmanager.tcpmanager.statistics.intakehistory;
 
-import java.sql.Date;
 import jakarta.validation.Valid;
 import java.security.Principal;
+import java.sql.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -32,15 +32,10 @@ public class IntakeHistoryController {
   public IntakeHistoryResponse getIntakeHistoryById(@PathVariable Long id, Principal principal) {
     return intakeHistoryService.getIntakeHistoryById(id, principal.getName());
   }
-  @GetMapping()
-  @ResponseStatus(HttpStatus.OK)
-  public List<IntakeHistoryResponse> getAllIntakeHistories(Principal principal) { //TODO: make it return sorted by date
-    return intakeHistoryService.getAllIntakeHistories(principal.getName());
-  }
+
   @GetMapping(produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
-  public List<IntakeHistoryResponse> getIntakeHistoriesByUsername(
-      Principal principal) {
+  public List<IntakeHistoryResponse> getIntakeHistoriesByUsername(Principal principal) {
     return intakeHistoryService.getAllIntakeHistoriesByUsername(principal.getName());
   }
 
@@ -63,11 +58,15 @@ public class IntakeHistoryController {
       @RequestBody @Valid IntakeHistoryPatch intakeHistoryPatch, @PathVariable Long id) {
     return intakeHistoryService.updateIntakeHistoryById(id, intakeHistoryPatch);
   }
+
   @PatchMapping
   @ResponseStatus(HttpStatus.OK)
-  public IntakeHistoryResponse updateIntakeHistoryByDate(Principal principal, @RequestBody @Valid IntakeHistoryPatch intakeHistoryPatch, @RequestParam Date date) {
-    return intakeHistoryService.updateIntakeHistoryByDate(String.valueOf(date), intakeHistoryPatch, principal.getName());
+  public IntakeHistoryResponse updateIntakeHistoryByDate(Principal principal,
+      @RequestBody @Valid IntakeHistoryPatch intakeHistoryPatch, @RequestParam Date date) {
+    return intakeHistoryService.updateIntakeHistoryByDate(String.valueOf(date), intakeHistoryPatch,
+        principal.getName());
   }
+
   @DeleteMapping
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deleteHistoryByUsername(Principal principal) {
