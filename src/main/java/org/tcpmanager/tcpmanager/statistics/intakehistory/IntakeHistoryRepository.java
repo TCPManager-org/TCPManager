@@ -1,4 +1,4 @@
-package org.tcpmanager.tcpmanager.intakehistory;
+package org.tcpmanager.tcpmanager.statistics.intakehistory;
 
 import java.sql.Date;
 import java.util.Set;

@@ -1,4 +1,4 @@
-package org.tcpmanager.tcpmanager.intakehistory.dto;
+package org.tcpmanager.tcpmanager.statistics.intakehistory.dto;
 
 import java.math.BigDecimal;
 import java.sql.Date;

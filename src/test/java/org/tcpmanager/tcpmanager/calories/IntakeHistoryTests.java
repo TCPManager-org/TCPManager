@@ -20,8 +20,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.tcpmanager.tcpmanager.intakehistory.IntakeHistory;
-import org.tcpmanager.tcpmanager.intakehistory.IntakeHistoryRepository;
+import org.tcpmanager.tcpmanager.statistics.intakehistory.IntakeHistory;
+import org.tcpmanager.tcpmanager.statistics.intakehistory.IntakeHistoryRepository;
 import org.tcpmanager.tcpmanager.user.Role;
 import org.tcpmanager.tcpmanager.user.User;
 import org.tcpmanager.tcpmanager.user.UserRepository;
@@ -98,6 +98,7 @@ class IntakeHistoryTests {
 
   @Test
   void getIntakeHistoryById_ShouldReturnNotFound() throws Exception {
+    createUser();
     mockMvc.perform(MockMvcRequestBuilders.get("/api/statistics/intake-history/9999"))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("Intake history with id 9999 not found"));

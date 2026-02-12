@@ -1,4 +1,4 @@
-package org.tcpmanager.tcpmanager.intakehistory;
+package org.tcpmanager.tcpmanager.statistics.intakehistory;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
