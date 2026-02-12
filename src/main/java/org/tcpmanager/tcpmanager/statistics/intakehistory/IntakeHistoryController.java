@@ -35,7 +35,7 @@ public class IntakeHistoryController {
 
   @GetMapping(produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
-  public List<IntakeHistoryResponse> getIntakeHistoriesByUsername(Principal principal) {
+  public List<IntakeHistoryResponse> getAllIntakeHistories(Principal principal) {
     return intakeHistoryService.getAllIntakeHistoriesByUsername(principal.getName());
   }
 
