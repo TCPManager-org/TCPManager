@@ -2,7 +2,6 @@ package org.tcpmanager.tcpmanager.statistics.intakehistory.dto;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -15,7 +14,6 @@ public record IntakeHistoryRequest(@NotNull Date date,
                                    @NotNull @Min(value = 1) Integer caloriesGoal,
                                    @NotNull @Min(value = 1) Integer proteinGoal,
                                    @NotNull @Min(value = 1) Integer fatGoal,
-                                   @NotNull @Min(value = 1) Integer carbsGoal,
-                                   @NotBlank String username) {
+                                   @NotNull @Min(value = 1) Integer carbsGoal) {
 
 }

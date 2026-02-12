@@ -1,7 +1,8 @@
 package org.tcpmanager.tcpmanager.statistics.intakehistory;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
+import java.security.Principal;
+import java.sql.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,7 @@ import org.tcpmanager.tcpmanager.statistics.intakehistory.dto.IntakeHistoryReque
 import org.tcpmanager.tcpmanager.statistics.intakehistory.dto.IntakeHistoryResponse;
 
 @RestController
-@RequestMapping("/api/intake-history")
+@RequestMapping("/api/statistics/intake-history")
 @RequiredArgsConstructor
 public class IntakeHistoryController {
 
@@ -28,15 +29,14 @@ public class IntakeHistoryController {
 
   @GetMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
-  public IntakeHistoryResponse getIntakeHistoryById(@PathVariable Long id) {
-    return intakeHistoryService.getIntakeHistoryById(id);
+  public IntakeHistoryResponse getIntakeHistoryById(@PathVariable Long id, Principal principal) {
+    return intakeHistoryService.getIntakeHistoryById(id, principal.getName());
   }
 
-  @GetMapping(params = "username", produces = "application/json")
+  @GetMapping(produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
-  public List<IntakeHistoryResponse> getIntakeHistoriesByUsername(
-      @NotBlank @RequestParam String username) {
-    return intakeHistoryService.getAllIntakeHistoriesByUsername(username);
+  public List<IntakeHistoryResponse> getAllIntakeHistories(Principal principal) {
+    return intakeHistoryService.getAllIntakeHistoriesByUsername(principal.getName());
   }
 
   @DeleteMapping("/{id}")
@@ -48,8 +48,8 @@ public class IntakeHistoryController {
   @PostMapping(produces = "application/json")
   @ResponseStatus(HttpStatus.CREATED)
   public IntakeHistoryResponse addIntakeHistory(
-      @RequestBody @Valid IntakeHistoryRequest intakeHistoryRequest) {
-    return intakeHistoryService.addIntakeHistory(intakeHistoryRequest);
+      @RequestBody @Valid IntakeHistoryRequest intakeHistoryRequest, Principal principal) {
+    return intakeHistoryService.addIntakeHistory(intakeHistoryRequest, principal.getName());
   }
 
   @PatchMapping("/{id}")
@@ -59,9 +59,17 @@ public class IntakeHistoryController {
     return intakeHistoryService.updateIntakeHistoryById(id, intakeHistoryPatch);
   }
 
-  @DeleteMapping(params = "username")
+  @PatchMapping
+  @ResponseStatus(HttpStatus.OK)
+  public IntakeHistoryResponse updateIntakeHistoryByDate(Principal principal,
+      @RequestBody @Valid IntakeHistoryPatch intakeHistoryPatch, @RequestParam Date date) {
+    return intakeHistoryService.updateIntakeHistoryByDate(String.valueOf(date), intakeHistoryPatch,
+        principal.getName());
+  }
+
+  @DeleteMapping
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deleteHistoryByUsername(@RequestParam String username) {
-    intakeHistoryService.deleteHistoryByUsername(username);
+  public void deleteHistoryByUsername(Principal principal) {
+    intakeHistoryService.deleteHistoryByUsername(principal.getName());
   }
 }

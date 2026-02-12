@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
@@ -56,9 +57,15 @@ public class IntakeHistoryService {
         intakeHistory.getUser().getUsername());
   }
 
-  public IntakeHistoryResponse getIntakeHistoryById(Long id) {
-    return mapToIntakeHistoryResponse(intakeHistoryRepository.findById(id)
-        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id))));
+  public IntakeHistoryResponse getIntakeHistoryById(Long id, String username) {
+    User user = userRepository.findByUsername(username).orElseThrow(
+        () -> new EntityNotFoundException(UserService.generateNotFoundMessage(username)));
+    IntakeHistory ih = intakeHistoryRepository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
+    if (!ih.getUser().getUsername().equals(user.getUsername())) {
+      throw new EntityNotFoundException(generateNotFoundMessage(id));
+    }
+    return mapToIntakeHistoryResponse(ih);
   }
 
   @Transactional
@@ -70,13 +77,13 @@ public class IntakeHistoryService {
   }
 
   @Transactional
-  public IntakeHistoryResponse addIntakeHistory(IntakeHistoryRequest intakeHistoryRequest) {
-    User user = userRepository.findByUsername(intakeHistoryRequest.username()).orElseThrow(
-        () -> new EntityNotFoundException(
-            UserService.generateNotFoundMessage(intakeHistoryRequest.username())));
+  public IntakeHistoryResponse addIntakeHistory(IntakeHistoryRequest intakeHistoryRequest,
+      String username) {
+    User user = userRepository.findByUsername(username).orElseThrow(
+        () -> new EntityNotFoundException(UserService.generateNotFoundMessage(username)));
     boolean isDateUnique = intakeHistoryRepository.getAllByDate(intakeHistoryRequest.date())
         .stream().map(IntakeHistory::getUser).map(User::getUsername)
-        .noneMatch(s -> s.equals(intakeHistoryRequest.username()));
+        .noneMatch(s -> s.equals(username));
     if (!isDateUnique) {
       throw new IllegalArgumentException("Date must be unique");
     }
@@ -125,7 +132,7 @@ public class IntakeHistoryService {
 
   public List<IntakeHistoryResponse> getAllIntakeHistoriesByUsername(String username) {
     return intakeHistoryRepository.getAllByUserUsername(username).stream()
-        .map(this::mapToIntakeHistoryResponse).toList();
+        .map(this::mapToIntakeHistoryResponse).sorted(Comparator.comparing(IntakeHistoryResponse::date)).toList();
   }
 
   @Async
@@ -133,9 +140,8 @@ public class IntakeHistoryService {
   @TransactionalEventListener
   void on(MealAddedEvent event) {
     IntakeHistory intakeHistory = intakeHistoryRepository.getByDate(event.date()).stream()
-        .filter(ih ->
-            ih.getUser().getUsername().equals(event.username()))
-        .findFirst().orElseGet(() -> getNewIntakeHistory(event));
+        .filter(ih -> ih.getUser().getUsername().equals(event.username())).findFirst()
+        .orElseGet(() -> getNewIntakeHistory(event));
     intakeHistory.setCalories(intakeHistory.getCalories().add(event.calories()));
     intakeHistory.setProtein(intakeHistory.getProtein().add(event.protein()));
     intakeHistory.setFat(intakeHistory.getFat().add(event.fat()));
@@ -144,18 +150,15 @@ public class IntakeHistoryService {
   }
 
   private IntakeHistory getNewIntakeHistory(MealAddedEvent event) {
-    IntakeHistory intakeHistoryPrior = intakeHistoryRepository
-        .getByDate(Date.valueOf(event.date().toLocalDate().minusDays(1))).stream()
-        .findFirst().orElseThrow(
-            () -> new IllegalStateException("There is no prior intake history for user "
-                + event.username()));
+    IntakeHistory intakeHistoryPrior = intakeHistoryRepository.getByDate(
+        Date.valueOf(event.date().toLocalDate().minusDays(1))).stream().findFirst().orElseThrow(
+        () -> new IllegalStateException(
+            "There is no prior intake history for user " + event.username()));
     User user = userRepository.findByUsername(event.username()).orElseThrow(
-        () -> new EntityNotFoundException(
-            UserService.generateNotFoundMessage(event.username())));
-    return new IntakeHistory(null, event.date(), BigDecimal.ZERO, BigDecimal.ZERO,
-        BigDecimal.ZERO, BigDecimal.ZERO, intakeHistoryPrior.getCaloriesGoal(),
-        intakeHistoryPrior.getProteinGoal(), intakeHistoryPrior.getFatGoal(),
-        intakeHistoryPrior.getCarbsGoal(), user);
+        () -> new EntityNotFoundException(UserService.generateNotFoundMessage(event.username())));
+    return new IntakeHistory(null, event.date(), BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO,
+        BigDecimal.ZERO, intakeHistoryPrior.getCaloriesGoal(), intakeHistoryPrior.getProteinGoal(),
+        intakeHistoryPrior.getFatGoal(), intakeHistoryPrior.getCarbsGoal(), user);
   }
 
   @Async
@@ -163,16 +166,57 @@ public class IntakeHistoryService {
   @TransactionalEventListener
   void on(MealDeletedEvent event) {
     IntakeHistory intakeHistory = intakeHistoryRepository.getByDate(event.date()).stream()
-        .filter(ih ->
-            ih.getUser().getUsername().equals(event.username()))
-        .findFirst()
-        .orElseThrow(
-            () -> new EntityNotFoundException("Intake history for user " + event.username()
-                + " on date " + event.date() + " not found"));
+        .filter(ih -> ih.getUser().getUsername().equals(event.username())).findFirst().orElseThrow(
+            () -> new EntityNotFoundException(
+                "Intake history for user " + event.username() + " on date " + event.date()
+                    + " not found"));
     intakeHistory.setCalories(intakeHistory.getCalories().subtract(event.calories()));
     intakeHistory.setProtein(intakeHistory.getProtein().subtract(event.protein()));
     intakeHistory.setFat(intakeHistory.getFat().subtract(event.fat()));
     intakeHistory.setCarbs(intakeHistory.getCarbs().subtract(event.carbs()));
     intakeHistoryRepository.save(intakeHistory);
+  }
+  @Transactional
+  public IntakeHistoryResponse updateIntakeHistoryByDate(String date,
+      IntakeHistoryPatch intakeHistoryPatch, String name) {
+    User user = userRepository.findByUsername(name).orElseThrow(
+        () -> new EntityNotFoundException(UserService.generateNotFoundMessage(name)));
+    Date sqlDate;
+    try {
+      sqlDate = Date.valueOf(date);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException("Invalid date format, expected yyyy-MM-dd");
+    }
+    IntakeHistory intakeHistory = intakeHistoryRepository.getByDate(sqlDate).stream()
+        .filter(ih -> ih.getUser().getUsername().equals(user.getUsername()))
+        .findFirst().orElseThrow(() -> new EntityNotFoundException(
+            "Intake history for user " + name + " on date " + date + " not found"));
+
+    if (intakeHistoryPatch.calories() != null) {
+      intakeHistory.setCalories(intakeHistoryPatch.calories());
+    }
+    if (intakeHistoryPatch.protein() != null) {
+      intakeHistory.setProtein(intakeHistoryPatch.protein());
+    }
+    if (intakeHistoryPatch.fat() != null) {
+      intakeHistory.setFat(intakeHistoryPatch.fat());
+    }
+    if (intakeHistoryPatch.carbs() != null) {
+      intakeHistory.setCarbs(intakeHistoryPatch.carbs());
+    }
+    if (intakeHistoryPatch.caloriesGoal() != null) {
+      intakeHistory.setCaloriesGoal(intakeHistoryPatch.caloriesGoal());
+    }
+    if (intakeHistoryPatch.proteinGoal() != null) {
+      intakeHistory.setProteinGoal(intakeHistoryPatch.proteinGoal());
+    }
+    if (intakeHistoryPatch.fatGoal() != null) {
+      intakeHistory.setFatGoal(intakeHistoryPatch.fatGoal());
+    }
+    if (intakeHistoryPatch.carbsGoal() != null) {
+      intakeHistory.setCarbsGoal(intakeHistoryPatch.carbsGoal());
+    }
+    intakeHistory = intakeHistoryRepository.save(intakeHistory);
+    return mapToIntakeHistoryResponse(intakeHistory);
   }
 }

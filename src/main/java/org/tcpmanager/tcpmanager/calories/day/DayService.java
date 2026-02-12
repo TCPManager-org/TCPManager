@@ -69,8 +69,9 @@ public class DayService {
     return dayMeal;
   }
 
-  public List<DayResponse> getAllDays() {
-    return dayRepository.findAll().stream().map(DayService::mapToDayResponse).toList();
+  public List<DayResponse> getAllDays(String username) {
+    return dayRepository.findAll().stream().filter(day -> day.getUser().getUsername()
+        .equals(username)).map(DayService::mapToDayResponse).toList();
   }
 
   @Transactional
@@ -85,12 +86,12 @@ public class DayService {
   }
 
   @Transactional
-  public DayResponse addMealToDay(DayMealRequest dayMealRequest) {
-    User user = userRepository.findByUsername(dayMealRequest.username()).orElseThrow(
+  public DayResponse addMealToDay(DayMealRequest dayMealRequest, String username) {
+    User user = userRepository.findByUsername(username).orElseThrow(
         () -> new EntityNotFoundException(
-            UserService.generateNotFoundMessage(dayMealRequest.username())));
+            UserService.generateNotFoundMessage(username)));
     Optional<Day> dayOptional = dayRepository.findByDateAndUserUsername(dayMealRequest.date(),
-        dayMealRequest.username());
+        username);
     Day day;
     DayMeal dayMeal;
     if (dayOptional.isEmpty()) {
@@ -99,27 +100,27 @@ public class DayService {
       day.setUser(user);
       dayMeal = mapToDayMeals(day, dayMealRequest);
       day.setDayMeals(Set.of(dayMeal));
-    }
-    else {
+    } else {
       day = dayOptional.get();
       Set<DayMeal> dayMeals = day.getDayMeals();
       dayMeal = mapToDayMeals(day, dayMealRequest);
       dayMeals.add(dayMeal);
       day.setDayMeals(dayMeals);
     }
-    publishAddedEvent(dayMealRequest, dayMeal, day);
+    publishAddedEvent(dayMealRequest, dayMeal, day, username);
     Day savedDay = dayRepository.save(day);
 
     return mapToDayResponse(savedDay);
   }
 
-  private void publishAddedEvent(DayMealRequest dayMealRequest, DayMeal dayMeal, Day day) {
+  private void publishAddedEvent(DayMealRequest dayMealRequest, DayMeal dayMeal, Day day,
+      String username) {
     MealResponse mealResponse = MealService.mapToMealResponse(dayMeal.getMeal());
     BigDecimal factor = BigDecimal.valueOf(mealResponse.weight())
         .setScale(2, RoundingMode.HALF_EVEN)
         .divide(BigDecimal.valueOf(dayMealRequest.weight()), RoundingMode.HALF_EVEN);
     eventPublisher.publishEvent(
-        new MealAddedEvent(day.getDate(), dayMealRequest.username(),
+        new MealAddedEvent(day.getDate(), username,
             mealResponse.calories().divide(factor, RoundingMode.HALF_EVEN),
             mealResponse.proteins().divide(factor, RoundingMode.HALF_EVEN),
             mealResponse.fats().divide(factor, RoundingMode.HALF_EVEN),
