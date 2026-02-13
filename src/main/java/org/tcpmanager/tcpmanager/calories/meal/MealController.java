@@ -27,8 +27,7 @@ public class MealController {
   private final MealService mealService;
 
   @GetMapping(produces = "application/json")
-  public List<MealResponse> getMeals(
-      @RequestParam(required = false) @Min(1) Integer minIngredients,
+  public List<MealResponse> getMeals(@RequestParam(required = false) @Min(1) Integer minIngredients,
       @RequestParam(required = false) @Min(1) Integer maxIngredients) {
     return mealService.getMeals(minIngredients, maxIngredients);
   }
@@ -46,16 +45,16 @@ public class MealController {
     return mealService.addMeal(mealRequest);
   }
 
-  @DeleteMapping("/{id}")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deleteMealById(@PathVariable Long id) {
-    mealService.deleteById(id);
-  }
-
   @PatchMapping(value = "/{id}", produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
   public MealResponse updateMealById(@PathVariable Long id,
       @RequestBody @Valid MealPatch mealPatch) {
     return mealService.updateById(id, mealPatch);
+  }
+
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void deleteMealById(@PathVariable Long id) {
+    mealService.deleteById(id);
   }
 }

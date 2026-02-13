@@ -56,9 +56,21 @@ public class MealService {
       ingredients.put(ingredient.getId(), ingredient.getName());
       weight += mealIngredient.getWeight();
     }
-    return new MealResponse(meal.getId(), meal.getName(), weight, calories, carbs, fats,
-        proteins,
+    return new MealResponse(meal.getId(), meal.getName(), weight, calories, carbs, fats, proteins,
         ingredients);
+  }
+
+  public List<MealResponse> getMeals(Integer minIngredients, Integer maxIngredients) {
+    var mealIngredients = mealRepository.findAll();
+    if (minIngredients != null) {
+      mealIngredients = mealIngredients.stream()
+          .filter(meal -> meal.getMealIngredients().size() >= minIngredients).toList();
+    }
+    if (maxIngredients != null) {
+      mealIngredients = mealIngredients.stream()
+          .filter(meal -> meal.getMealIngredients().size() <= maxIngredients).toList();
+    }
+    return mealIngredients.stream().map(MealService::mapToMealResponse).toList();
   }
 
   public MealResponse getById(Long id) {
@@ -80,13 +92,6 @@ public class MealService {
     return mapToMealResponse(savedMeal);
   }
 
-  @Transactional
-  public void deleteById(Long id) {
-    if (!mealRepository.existsById(id)) {
-      throw new EntityNotFoundException(generateNotFoundMessage(id));
-    }
-    mealRepository.deleteById(id);
-  }
 
   @Transactional
   public MealResponse updateById(Long id, MealPatch mealPatch) {
@@ -105,6 +110,14 @@ public class MealService {
     return mapToMealResponse(updatedMeal);
   }
 
+  @Transactional
+  public void deleteById(Long id) {
+    if (!mealRepository.existsById(id)) {
+      throw new EntityNotFoundException(generateNotFoundMessage(id));
+    }
+    mealRepository.deleteById(id);
+  }
+
   private void mergeMealIngredients(Meal meal, Map<Long, Integer> patch) {
     Map<Long, MealIngredient> existing = new HashMap<>();
     for (MealIngredient mi : meal.getMealIngredients()) {
@@ -120,8 +133,8 @@ public class MealService {
         mi.setWeight(weight);
         continue;
       }
-      Ingredient ing = ingredientRepository.findById(ingredientId)
-          .orElseThrow(() -> new EntityNotFoundException(
+      Ingredient ing = ingredientRepository.findById(ingredientId).orElseThrow(
+          () -> new EntityNotFoundException(
               IngredientService.generateNotFoundMessage(ingredientId)));
       MealIngredient created = new MealIngredient();
       created.setMeal(meal);
@@ -143,23 +156,9 @@ public class MealService {
               IngredientService.generateNotFoundMessage(entry.getKey())));
       mealIngredient.setIngredient(foundIngredient);
       mealIngredient.setWeight(entry.getValue());
-        mealIngredient.setMeal(meal);
+      mealIngredient.setMeal(meal);
       mealIngredients.add(mealIngredient);
     }
     return mealIngredients;
-  }
-
-  public List<MealResponse> getMeals(Integer minIngredients,
-      Integer maxIngredients) {
-    var mealIngredients = mealRepository.findAll();
-    if (minIngredients != null) {
-      mealIngredients = mealIngredients.stream()
-          .filter(meal -> meal.getMealIngredients().size() >= minIngredients).toList();
-    }
-    if (maxIngredients != null) {
-      mealIngredients = mealIngredients.stream()
-          .filter(meal -> meal.getMealIngredients().size() <= maxIngredients).toList();
-    }
-    return mealIngredients.stream().map(MealService::mapToMealResponse).toList();
   }
 }

@@ -27,22 +27,16 @@ public class IntakeHistoryController {
 
   private final IntakeHistoryService intakeHistoryService;
 
-  @GetMapping("/{id}")
-  @ResponseStatus(HttpStatus.OK)
-  public IntakeHistoryResponse getIntakeHistoryById(@PathVariable Long id, Principal principal) {
-    return intakeHistoryService.getIntakeHistoryById(id, principal.getName());
-  }
-
   @GetMapping(produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
   public List<IntakeHistoryResponse> getAllIntakeHistories(Principal principal) {
     return intakeHistoryService.getAllIntakeHistoriesByUsername(principal.getName());
   }
 
-  @DeleteMapping("/{id}")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deleteIntakeHistoryById(@PathVariable Long id) {
-    intakeHistoryService.deleteIntakeHistoryById(id);
+  @GetMapping(value = "/{id}", produces = "application/json")
+  @ResponseStatus(HttpStatus.OK)
+  public IntakeHistoryResponse getIntakeHistoryById(@PathVariable Long id, Principal principal) {
+    return intakeHistoryService.getIntakeHistoryById(id, principal.getName());
   }
 
   @PostMapping(produces = "application/json")
@@ -52,14 +46,7 @@ public class IntakeHistoryController {
     return intakeHistoryService.addIntakeHistory(intakeHistoryRequest, principal.getName());
   }
 
-  @PatchMapping("/{id}")
-  @ResponseStatus(HttpStatus.OK)
-  public IntakeHistoryResponse updateIntakeHistoryById(
-      @RequestBody @Valid IntakeHistoryPatch intakeHistoryPatch, @PathVariable Long id) {
-    return intakeHistoryService.updateIntakeHistoryById(id, intakeHistoryPatch);
-  }
-
-  @PatchMapping
+  @PatchMapping(produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
   public IntakeHistoryResponse updateIntakeHistoryByDate(Principal principal,
       @RequestBody @Valid IntakeHistoryPatch intakeHistoryPatch, @RequestParam Date date) {
@@ -67,9 +54,22 @@ public class IntakeHistoryController {
         principal.getName());
   }
 
+  @PatchMapping(value = "/{id}", produces = "application/json")
+  @ResponseStatus(HttpStatus.OK)
+  public IntakeHistoryResponse updateIntakeHistoryById(
+      @RequestBody @Valid IntakeHistoryPatch intakeHistoryPatch, @PathVariable Long id) {
+    return intakeHistoryService.updateIntakeHistoryById(id, intakeHistoryPatch);
+  }
+
   @DeleteMapping
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deleteHistoryByUsername(Principal principal) {
     intakeHistoryService.deleteHistoryByUsername(principal.getName());
+  }
+
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void deleteIntakeHistoryById(@PathVariable Long id) {
+    intakeHistoryService.deleteIntakeHistoryById(id);
   }
 }

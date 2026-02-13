@@ -25,33 +25,43 @@ public class IngredientService {
     return "Ingredient with id " + id + " not found";
   }
 
-  public List<IngredientResponse> getAll() {
-    return ingredientRepository.findAll().stream().map(this::mapToIngredientResponse).toList();
+  private static IngredientResponse mapToIngredientResponse(Ingredient ingredient) {
+    return new IngredientResponse(ingredient.getId(), ingredient.getName(),
+        ingredient.getCalories(), ingredient.getFats(), ingredient.getCarbs(),
+        ingredient.getProteins(), ingredient.getEan());
   }
 
-  public IngredientResponse getById(Long id) {
+  public List<IngredientResponse> getAllIngredients() {
+    return ingredientRepository.findAll().stream().map(IngredientService::mapToIngredientResponse)
+        .toList();
+  }
+
+  public IngredientResponse getIngredientById(Long id) {
     Ingredient ingredient = ingredientRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
     return mapToIngredientResponse(ingredient);
   }
 
   @Transactional
-  public void deleteById(Long id) {
-
-    Optional<Ingredient> ingredient = ingredientRepository.findById(id);
-    if (ingredient.isEmpty()) {
-      throw new EntityNotFoundException(generateNotFoundMessage(id));
+  public IngredientResponse addIngredient(IngredientRequest ingredientRequest) {
+    if (ingredientRequest.ean() != null) {
+      validateEan(ingredientRequest.ean().strip());
     }
-    Set<Meal> meals = ingredient.get().getMealIngredients().stream().map(MealIngredient::getMeal)
-        .collect(Collectors.toSet());
-    if (!meals.isEmpty()) {
-      throw new IllegalArgumentException("Ingredient is used in meals and cannot be deleted");
+    Ingredient ingredient = new Ingredient();
+    ingredient.setName(ingredientRequest.name().strip());
+    ingredient.setCalories(ingredientRequest.calories());
+    ingredient.setFats(ingredientRequest.fats());
+    ingredient.setCarbs(ingredientRequest.carbs());
+    ingredient.setProteins(ingredientRequest.proteins());
+    if (ingredientRequest.ean() != null) {
+      ingredient.setEan(ingredientRequest.ean().strip());
     }
-    ingredientRepository.deleteById(id);
+    ingredient = ingredientRepository.save(ingredient);
+    return mapToIngredientResponse(ingredient);
   }
 
   @Transactional
-  public IngredientResponse updateById(Long id, IngredientPatch ingredientPatch) {
+  public IngredientResponse updateIngredientById(Long id, IngredientPatch ingredientPatch) {
     Ingredient ingredient = ingredientRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
     if (ingredientPatch.name() != null) {
@@ -81,29 +91,18 @@ public class IngredientService {
   }
 
   @Transactional
-  public IngredientResponse add(IngredientRequest ingredientRequest) {
-    if (ingredientRequest.ean() != null) {
-      validateEan(ingredientRequest.ean().strip());
+  public void deleteById(Long id) {
+    Optional<Ingredient> ingredient = ingredientRepository.findById(id);
+    if (ingredient.isEmpty()) {
+      throw new EntityNotFoundException(generateNotFoundMessage(id));
     }
-    Ingredient ingredient = new Ingredient();
-    ingredient.setName(ingredientRequest.name().strip());
-    ingredient.setCalories(ingredientRequest.calories());
-    ingredient.setFats(ingredientRequest.fats());
-    ingredient.setCarbs(ingredientRequest.carbs());
-    ingredient.setProteins(ingredientRequest.proteins());
-    if (ingredientRequest.ean() != null) {
-      ingredient.setEan(ingredientRequest.ean().strip());
+    Set<Meal> meals = ingredient.get().getMealIngredients().stream().map(MealIngredient::getMeal)
+        .collect(Collectors.toSet());
+    if (!meals.isEmpty()) {
+      throw new IllegalArgumentException("Ingredient is used in meals and cannot be deleted");
     }
-    ingredient = ingredientRepository.save(ingredient);
-    return mapToIngredientResponse(ingredient);
+    ingredientRepository.deleteById(id);
   }
-
-  private IngredientResponse mapToIngredientResponse(Ingredient ingredient) {
-    return new IngredientResponse(ingredient.getId(), ingredient.getName(),
-        ingredient.getCalories(), ingredient.getFats(), ingredient.getCarbs(),
-        ingredient.getProteins(), ingredient.getEan());
-  }
-
 
   private void validateEan(String ean) {
     if (ean.isBlank()) {
