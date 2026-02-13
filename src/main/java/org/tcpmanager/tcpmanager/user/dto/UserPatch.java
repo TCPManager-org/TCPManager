@@ -1,5 +1,7 @@
 package org.tcpmanager.tcpmanager.user.dto;
 
-public record UserPatch(String username, String role) {
+import jakarta.validation.constraints.Size;
+
+public record UserPatch(@Size(min = 3) String username, String role) {
 
 }
