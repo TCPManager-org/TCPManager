@@ -28,7 +28,7 @@ public class UserController {
 
   @GetMapping(produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
-  public List<UserResponse> getUsers() {
+  public List<UserResponse> getAllUsers() {
     return userService.getAllUsers();
   }
 
@@ -40,14 +40,15 @@ public class UserController {
 
   @GetMapping(params = {"username"}, produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
-  public UserResponse getUserById(@NotBlank @RequestParam(value = "username") String username) {
+  public UserResponse getUserByUsername(
+      @NotBlank @RequestParam(value = "username") String username) {
     return userService.getUserByUsername(username);
   }
 
-  @DeleteMapping("/{id}")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deleteUserById(@PathVariable Long id) {
-    userService.deleteUserById(id);
+  @PostMapping(produces = "application/json")
+  @ResponseStatus(HttpStatus.CREATED)
+  public UserResponse addUser(@RequestBody @Valid UserRequest userRequest) {
+    return userService.addUser(userRequest);
   }
 
   @PatchMapping(value = "/{id}", produces = "application/json")
@@ -57,9 +58,9 @@ public class UserController {
     return userService.updateUserById(id, userPatch);
   }
 
-  @PostMapping(produces = "application/json")
-  @ResponseStatus(HttpStatus.CREATED)
-  public UserResponse addUser(@RequestBody @Valid UserRequest userRequest) {
-    return userService.addUser(userRequest);
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void deleteUserById(@PathVariable Long id) {
+    userService.deleteUserById(id);
   }
 }

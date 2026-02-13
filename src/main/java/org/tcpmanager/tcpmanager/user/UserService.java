@@ -36,8 +36,7 @@ public class UserService implements UserDetailsService {
   }
 
   public List<UserResponse> getAllUsers() {
-    return userRepository.findAll().stream()
-        .map(UserService::mapToUserResponse).toList();
+    return userRepository.findAll().stream().map(UserService::mapToUserResponse).toList();
   }
 
   public UserResponse getUserById(Long id) {
@@ -46,12 +45,21 @@ public class UserService implements UserDetailsService {
     return mapToUserResponse(user);
   }
 
+  public UserResponse getUserByUsername(String username) {
+    return userRepository.findByUsername(username).map(UserService::mapToUserResponse)
+        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(username)));
+  }
+
   @Transactional
-  public void deleteUserById(Long id) {
-    if (!userRepository.existsById(id)) {
-      throw new EntityNotFoundException(generateNotFoundMessage(id));
-    }
-    userRepository.deleteById(id);
+  public UserResponse addUser(UserRequest userRequest) {
+    User user = new User();
+    var username = userRequest.username().strip();
+    validateUsername(username);
+    user.setUsername(username);
+    user.setPassword(passwordEncoder.encode(userRequest.password()));
+    user.setRole(Role.valueOf(userRequest.role()));
+    user = userRepository.save(user);
+    return mapToUserResponse(user);
   }
 
   @Transactional
@@ -71,21 +79,11 @@ public class UserService implements UserDetailsService {
   }
 
   @Transactional
-  public UserResponse addUser(UserRequest userRequest) {
-    User user = new User();
-    var username = userRequest.username().strip();
-    validateUsername(username);
-    user.setUsername(username);
-    user.setPassword(passwordEncoder.encode(userRequest.password()));
-    user.setRole(Role.valueOf(userRequest.role()));
-    user = userRepository.save(user);
-    return mapToUserResponse(user);
-  }
-
-  public UserResponse getUserByUsername(String username) {
-    return userRepository.findByUsername(username)
-        .map(UserService::mapToUserResponse)
-        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(username)));
+  public void deleteUserById(Long id) {
+    if (!userRepository.existsById(id)) {
+      throw new EntityNotFoundException(generateNotFoundMessage(id));
+    }
+    userRepository.deleteById(id);
   }
 
   private void validateUsername(String username) {
@@ -101,12 +99,8 @@ public class UserService implements UserDetailsService {
   @NullMarked
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     User user = userRepository.findByUsername(username)
-        .orElseThrow(() -> new UsernameNotFoundException(
-            generateNotFoundMessage(username)));
-    return org.springframework.security.core.userdetails.User.builder()
-        .username(user.getUsername())
-        .password(user.getPassword())
-        .roles(String.valueOf(user.getRole()))
-        .build();
+        .orElseThrow(() -> new UsernameNotFoundException(generateNotFoundMessage(username)));
+    return org.springframework.security.core.userdetails.User.builder().username(user.getUsername())
+        .password(user.getPassword()).roles(String.valueOf(user.getRole())).build();
   }
 }

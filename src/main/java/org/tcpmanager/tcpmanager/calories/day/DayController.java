@@ -39,14 +39,7 @@ public class DayController {
     return dayService.addMealToDay(dayMealRequest, principal.getName());
   }
 
-  @DeleteMapping("/{date}/{dayMealId}")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deleteMealFromDay(@PathVariable Date date, @PathVariable Long dayMealId,
-      Principal principal) {
-    dayService.deleteMealFromDay(date, dayMealId, principal.getName());
-  }
-
-  @PatchMapping("/{date}/{dayMealId}")
+  @PatchMapping(value = "/{date}/{dayMealId}", produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
   public DayResponse updateMealFromDay(@PathVariable Date date, @PathVariable Long dayMealId,
       Principal principal, @RequestBody @Valid DayMealPatch dayMealPatch) {
@@ -59,4 +52,10 @@ public class DayController {
     dayService.deleteByDate(principal.getName(), date);
   }
 
+  @DeleteMapping("/{date}/{dayMealId}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void deleteMealFromDay(@PathVariable Date date, @PathVariable Long dayMealId,
+      Principal principal) {
+    dayService.deleteMealFromDay(date, dayMealId, principal.getName());
+  }
 }
