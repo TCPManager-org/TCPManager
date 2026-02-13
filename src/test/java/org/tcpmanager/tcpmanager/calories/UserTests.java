@@ -192,7 +192,7 @@ class UserTests {
   void addUser_ShouldReturnBadRequest_WhenNameIsBlank() throws Exception {
     String json = """
           {
-            "username": " ",
+            "username": "    ",
             "password": "password",
             "role": "USER"
           }
