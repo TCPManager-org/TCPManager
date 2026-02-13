@@ -39,7 +39,7 @@ public class DayController {
     return dayService.addMealToDay(dayMealRequest, principal.getName());
   }
 
-  @PatchMapping("/{date}/{dayMealId}")
+  @PatchMapping(value = "/{date}/{dayMealId}", produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
   public DayResponse updateMealFromDay(@PathVariable Date date, @PathVariable Long dayMealId,
       Principal principal, @RequestBody @Valid DayMealPatch dayMealPatch) {
