@@ -1,6 +1,8 @@
 package org.tcpmanager.tcpmanager.calories.ingredient;
 
 import jakarta.validation.Valid;
+
+import java.security.Principal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,8 +28,8 @@ public class IngredientController {
 
   @GetMapping(produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
-  public List<IngredientResponse> getIngredient() {
-    return ingredientService.getAllIngredients();
+  public List<IngredientResponse> getIngredient(Principal principal) {
+    return ingredientService.getAllIngredientsByUser(principal.getName());
   }
 
   @GetMapping(value = "/{id}", produces = "application/json")
