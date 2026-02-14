@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 
 public record IngredientRequest(@NotBlank String name,
+                                Long userId,
                                 @NotNull @DecimalMin(value = "0", inclusive = false) BigDecimal calories,
                                 @NotNull @DecimalMin(value = "0", inclusive = false) BigDecimal fats,
                                 @NotNull @DecimalMin(value = "0", inclusive = false) BigDecimal carbs,

@@ -53,7 +53,8 @@ public class IngredientService {
     }
 
     @Transactional
-    public IngredientResponse addIngredient(IngredientRequest ingredientRequest) {
+    public IngredientResponse addIngredient(IngredientRequest ingredientRequest, String username) {
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException(UserService.generateNotFoundMessage(username)));
         if (ingredientRequest.ean() != null) {
             validateEan(ingredientRequest.ean().strip());
         }
@@ -63,6 +64,7 @@ public class IngredientService {
         ingredient.setFats(ingredientRequest.fats());
         ingredient.setCarbs(ingredientRequest.carbs());
         ingredient.setProteins(ingredientRequest.proteins());
+        ingredient.setUser(user);
         if (ingredientRequest.ean() != null) {
             ingredient.setEan(ingredientRequest.ean().strip());
         }

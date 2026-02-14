@@ -40,8 +40,8 @@ public class IngredientController {
 
   @PostMapping(produces = "application/json")
   @ResponseStatus(HttpStatus.CREATED)
-  public IngredientResponse addIngredient(@RequestBody @Valid IngredientRequest ingredientRequest) {
-    return ingredientService.addIngredient(ingredientRequest);
+  public IngredientResponse addIngredient(@RequestBody @Valid IngredientRequest ingredientRequest, Principal principal) {
+    return ingredientService.addIngredient(ingredientRequest, principal.getName());
   }
 
   @PatchMapping(value = "/{id}", produces = "application/json")
