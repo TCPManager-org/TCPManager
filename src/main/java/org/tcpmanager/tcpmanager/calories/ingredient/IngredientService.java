@@ -12,6 +12,7 @@ import org.tcpmanager.tcpmanager.calories.meal.models.MealIngredient;
 import org.tcpmanager.tcpmanager.user.User;
 import org.tcpmanager.tcpmanager.user.UserRepository;
 import org.tcpmanager.tcpmanager.user.UserService;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -41,20 +42,26 @@ public class IngredientService {
                 ingredient.getProteins(), ingredient.getEan());
     }
 
-    public List<IngredientResponse> getAllIngredients() {
-        return ingredientRepository.findAll().stream().map(IngredientService::mapToIngredientResponse)
+    public List<IngredientResponse> getAllIngredientsByUser(String username) {
+        return ingredientRepository.findAll().stream()
+                .filter(i -> isIngredientAvailableToUser(username, i))
+                .map(IngredientService::mapToIngredientResponse)
                 .toList();
     }
 
-    public IngredientResponse getIngredientById(Long id) {
+    public IngredientResponse getIngredientById(Long id, String username) {
         Ingredient ingredient = ingredientRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
+        if (!isIngredientAvailableToUser(username, ingredient)) {
+            throw new SecurityException("User is not allowed to modify this ingredient"); //TODO: code duplication
+        }
         return mapToIngredientResponse(ingredient);
     }
 
     @Transactional
     public IngredientResponse addIngredient(IngredientRequest ingredientRequest, String username) {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException(UserService.generateNotFoundMessage(username)));
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException(UserService.generateNotFoundMessage(username)));
         if (ingredientRequest.ean() != null) {
             validateEan(ingredientRequest.ean().strip());
         }
@@ -73,9 +80,12 @@ public class IngredientService {
     }
 
     @Transactional
-    public IngredientResponse updateIngredientById(Long id, IngredientPatch ingredientPatch) {
+    public IngredientResponse updateIngredientById(Long id, IngredientPatch ingredientPatch, String username) {
         Ingredient ingredient = ingredientRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
+        if (!isIngredientAvailableToUser(username, ingredient)) {
+            throw new SecurityException("User is not allowed to modify this ingredient");
+        }
         if (ingredientPatch.name() != null) {
             if (ingredientPatch.name().isBlank()) {
                 throw new IllegalArgumentException("Name must not be blank");
@@ -103,12 +113,12 @@ public class IngredientService {
     }
 
     @Transactional
-    public void deleteById(Long id) {
-        Optional<Ingredient> ingredient = ingredientRepository.findById(id);
-        if (ingredient.isEmpty()) {
-            throw new EntityNotFoundException(generateNotFoundMessage(id));
+    public void deleteById(Long id, String username) {
+        Ingredient ingredient = ingredientRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
+        if (!isIngredientAvailableToUser(username, ingredient)) {
+            throw new SecurityException("User is not allowed to modify this ingredient");
         }
-        Set<Meal> meals = ingredient.get().getMealIngredients().stream().map(MealIngredient::getMeal)
+        Set<Meal> meals = ingredient.getMealIngredients().stream().map(MealIngredient::getMeal)
                 .collect(Collectors.toSet());
         if (!meals.isEmpty()) {
             throw new IllegalArgumentException("Ingredient is used in meals and cannot be deleted");
@@ -139,12 +149,5 @@ public class IngredientService {
         if (existing.isPresent()) {
             throw new IllegalArgumentException("EAN must be unique");
         }
-    }
-
-    public List<IngredientResponse> getAllIngredientsByUser(String username) {
-        return ingredientRepository.findAll().stream()
-                .filter(i -> isIngredientAvailableToUser(username, i))
-                .map(IngredientService::mapToIngredientResponse)
-                .toList();
     }
 }

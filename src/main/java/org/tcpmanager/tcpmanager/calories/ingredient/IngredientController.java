@@ -34,8 +34,8 @@ public class IngredientController {
 
   @GetMapping(value = "/{id}", produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
-  public IngredientResponse getIngredientById(@PathVariable Long id) {
-    return ingredientService.getIngredientById(id);
+  public IngredientResponse getIngredientById(@PathVariable Long id, Principal principal) {
+    return ingredientService.getIngredientById(id, principal.getName());
   }
 
   @PostMapping(produces = "application/json")
@@ -47,13 +47,13 @@ public class IngredientController {
   @PatchMapping(value = "/{id}", produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
   public IngredientResponse updateIngredientById(@PathVariable Long id,
-      @RequestBody @Valid IngredientPatch ingredientPatch) {
-    return ingredientService.updateIngredientById(id, ingredientPatch);
+      @RequestBody @Valid IngredientPatch ingredientPatch, Principal principal) {
+    return ingredientService.updateIngredientById(id, ingredientPatch, principal.getName());
   }
 
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deleteMealById(@PathVariable Long id) {
-    ingredientService.deleteById(id);
+  public void deleteMealById(@PathVariable Long id, Principal principal) {
+    ingredientService.deleteById(id, principal.getName());
   }
 }
