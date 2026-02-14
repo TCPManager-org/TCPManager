@@ -67,4 +67,5 @@ CREATE TABLE calories.day_meal
     FOREIGN KEY (day_id) REFERENCES calories.day (id) ON DELETE CASCADE,
     FOREIGN KEY (meal_id) REFERENCES calories.meals (id) ON DELETE CASCADE
 );
-INSERT INTO public.users (username, password, role) VALUES ('admin', '$2a$12$A7kAJOy9XBu9r4xIon9u6eAUL.zgjiLyxV8SkAzxToBTWYC4HX3TS', 'ADMIN');
+INSERT INTO public.users (username, password, role)
+VALUES ('admin', '$2a$12$A7kAJOy9XBu9r4xIon9u6eAUL.zgjiLyxV8SkAzxToBTWYC4HX3TS', 'ADMIN');

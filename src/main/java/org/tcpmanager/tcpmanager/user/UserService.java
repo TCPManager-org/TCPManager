@@ -23,10 +23,6 @@ public class UserService implements UserDetailsService {
 
   private final PasswordEncoder passwordEncoder;
 
-  public static String generateNotFoundMessage(Long id) {
-    return "User with id " + id + " not found";
-  }
-
   public static String generateNotFoundMessage(String username) {
     return "User with username " + username + " not found";
   }
@@ -36,38 +32,12 @@ public class UserService implements UserDetailsService {
   }
 
   public List<UserResponse> getAllUsers() {
-    return userRepository.findAll().stream()
-        .map(UserService::mapToUserResponse).toList();
+    return userRepository.findAll().stream().map(UserService::mapToUserResponse).toList();
   }
 
-  public UserResponse getUserById(Long id) {
-    User user = userRepository.findById(id)
-        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
-    return mapToUserResponse(user);
-  }
-
-  @Transactional
-  public void deleteUserById(Long id) {
-    if (!userRepository.existsById(id)) {
-      throw new EntityNotFoundException(generateNotFoundMessage(id));
-    }
-    userRepository.deleteById(id);
-  }
-
-  @Transactional
-  public UserResponse updateUserById(Long id, UserPatch userPatch) {
-    User user = userRepository.findById(id)
-        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
-    if (userPatch.username() != null) {
-      var username = userPatch.username().strip();
-      validateUsername(username);
-      user.setUsername(username);
-    }
-    if (userPatch.role() != null) {
-      user.setRole(Role.valueOf(userPatch.role()));
-    }
-    userRepository.save(user);
-    return mapToUserResponse(user);
+  public UserResponse getUserByUsername(String username) {
+    return userRepository.findByUsername(username).map(UserService::mapToUserResponse)
+        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(username)));
   }
 
   @Transactional
@@ -82,10 +52,28 @@ public class UserService implements UserDetailsService {
     return mapToUserResponse(user);
   }
 
-  public UserResponse getUserByUsername(String username) {
-    return userRepository.findByUsername(username)
-        .map(UserService::mapToUserResponse)
+  @Transactional
+  public UserResponse updateUserByUsername(String username, UserPatch userPatch) {
+    User user = userRepository.findByUsername(username)
         .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(username)));
+    if (userPatch.username() != null) {
+      String newUsername = userPatch.username().strip();
+      validateUsername(newUsername);
+      user.setUsername(newUsername);
+    }
+    if (userPatch.role() != null) {
+      user.setRole(Role.valueOf(userPatch.role()));
+    }
+    userRepository.save(user);
+    return mapToUserResponse(user);
+  }
+
+  @Transactional
+  public void deleteUserByUsername(String username) {
+    if (!userRepository.existsByUsername(username)) {
+      throw new EntityNotFoundException(generateNotFoundMessage(username));
+    }
+    userRepository.deleteByUsername(username);
   }
 
   private void validateUsername(String username) {
@@ -101,12 +89,8 @@ public class UserService implements UserDetailsService {
   @NullMarked
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     User user = userRepository.findByUsername(username)
-        .orElseThrow(() -> new UsernameNotFoundException(
-            generateNotFoundMessage(username)));
-    return org.springframework.security.core.userdetails.User.builder()
-        .username(user.getUsername())
-        .password(user.getPassword())
-        .roles(String.valueOf(user.getRole()))
-        .build();
+        .orElseThrow(() -> new UsernameNotFoundException(generateNotFoundMessage(username)));
+    return org.springframework.security.core.userdetails.User.builder().username(user.getUsername())
+        .password(user.getPassword()).roles(String.valueOf(user.getRole())).build();
   }
 }

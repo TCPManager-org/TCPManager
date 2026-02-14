@@ -13,7 +13,7 @@ public class TokenController {
 
   private final TokenService tokenService;
 
-  @PostMapping
+  @PostMapping(produces = "application/json")
   public String token(Authentication authentication) {
     return tokenService.generateToken(authentication);
   }

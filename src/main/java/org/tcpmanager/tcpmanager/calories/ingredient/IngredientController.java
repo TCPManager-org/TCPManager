@@ -26,32 +26,32 @@ public class IngredientController {
 
   @GetMapping(produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
-  public List<IngredientResponse> getMeals() {
-    return ingredientService.getAll();
+  public List<IngredientResponse> getIngredient() {
+    return ingredientService.getAllIngredients();
   }
 
   @GetMapping(value = "/{id}", produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
-  public IngredientResponse getMealById(@PathVariable Long id) {
-    return ingredientService.getById(id);
+  public IngredientResponse getIngredientById(@PathVariable Long id) {
+    return ingredientService.getIngredientById(id);
+  }
+
+  @PostMapping(produces = "application/json")
+  @ResponseStatus(HttpStatus.CREATED)
+  public IngredientResponse addIngredient(@RequestBody @Valid IngredientRequest ingredientRequest) {
+    return ingredientService.addIngredient(ingredientRequest);
+  }
+
+  @PatchMapping(value = "/{id}", produces = "application/json")
+  @ResponseStatus(HttpStatus.OK)
+  public IngredientResponse updateIngredientById(@PathVariable Long id,
+      @RequestBody @Valid IngredientPatch ingredientPatch) {
+    return ingredientService.updateIngredientById(id, ingredientPatch);
   }
 
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deleteMealById(@PathVariable Long id) {
     ingredientService.deleteById(id);
-  }
-
-  @PatchMapping(value = "/{id}", produces = "application/json")
-  @ResponseStatus(HttpStatus.OK)
-  public IngredientResponse updateMealById(@PathVariable Long id,
-      @RequestBody @Valid IngredientPatch ingredientPatch) {
-    return ingredientService.updateById(id, ingredientPatch);
-  }
-
-  @PostMapping(produces = "application/json")
-  @ResponseStatus(HttpStatus.CREATED)
-  public IngredientResponse addMeal(@RequestBody @Valid IngredientRequest ingredientRequest) {
-    return ingredientService.add(ingredientRequest);
   }
 }

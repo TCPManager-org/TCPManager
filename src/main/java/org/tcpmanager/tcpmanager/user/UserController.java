@@ -2,6 +2,7 @@ package org.tcpmanager.tcpmanager.user;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import java.security.Principal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.tcpmanager.tcpmanager.user.dto.UserPatch;
@@ -28,38 +28,50 @@ public class UserController {
 
   @GetMapping(produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
-  public List<UserResponse> getUsers() {
+  public List<UserResponse> getAllUsers() {
     return userService.getAllUsers();
   }
 
-  @GetMapping(value = "/{id}", produces = "application/json")
+  @GetMapping(value = "/{username}", produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
-  public UserResponse getUserById(@PathVariable Long id) {
-    return userService.getUserById(id);
-  }
-
-  @GetMapping(params = {"username"}, produces = "application/json")
-  @ResponseStatus(HttpStatus.OK)
-  public UserResponse getUserById(@NotBlank @RequestParam(value = "username") String username) {
+  public UserResponse getUserByUsername(@NotBlank @PathVariable String username) {
     return userService.getUserByUsername(username);
   }
 
-  @DeleteMapping("/{id}")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deleteUserById(@PathVariable Long id) {
-    userService.deleteUserById(id);
-  }
-
-  @PatchMapping(value = "/{id}", produces = "application/json")
+  @GetMapping(value = "/me", produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
-  public UserResponse updateUserById(@PathVariable Long id,
-      @RequestBody @Valid UserPatch userPatch) {
-    return userService.updateUserById(id, userPatch);
+  public UserResponse getMyUser(Principal principal) {
+    return userService.getUserByUsername(principal.getName());
   }
 
   @PostMapping(produces = "application/json")
   @ResponseStatus(HttpStatus.CREATED)
   public UserResponse addUser(@RequestBody @Valid UserRequest userRequest) {
     return userService.addUser(userRequest);
+  }
+
+  @PatchMapping(value = "/{username}", produces = "application/json")
+  @ResponseStatus(HttpStatus.OK)
+  public UserResponse updateUserByUsername(@PathVariable String username,
+      @RequestBody @Valid UserPatch userPatch) {
+    return userService.updateUserByUsername(username, userPatch);
+  }
+
+  @PatchMapping(value = "/me", produces = "application/json")
+  @ResponseStatus(HttpStatus.OK)
+  public UserResponse updateMyUser(@RequestBody @Valid UserPatch userPatch, Principal principal) {
+    return userService.updateUserByUsername(principal.getName(), userPatch);
+  }
+
+  @DeleteMapping("/{username}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void deleteUserByUsername(@PathVariable String username) {
+    userService.deleteUserByUsername(username);
+  }
+
+  @DeleteMapping("/me")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void deleteMyUser(Principal principal) {
+    userService.deleteUserByUsername(principal.getName());
   }
 }

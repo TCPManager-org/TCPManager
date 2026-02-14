@@ -57,32 +57,9 @@ public class DayService {
     return "DayMeal with id " + dayMealId + " and " + date + " not found";
   }
 
-  private DayMeal mapToDayMeals(Day day, DayMealRequest dayMealRequest) {
-    DayMeal dayMeal = new DayMeal();
-    dayMeal.setDay(day);
-    Meal foundMeal = mealRepository.findById((dayMealRequest.mealId())).orElseThrow(
-        () -> new EntityNotFoundException(
-            MealService.generateNotFoundMessage(dayMealRequest.mealId())));
-    dayMeal.setMeal(foundMeal);
-    dayMeal.setMealType(dayMealRequest.mealType());
-    dayMeal.setWeight(dayMealRequest.weight());
-    return dayMeal;
-  }
-
   public List<DayResponse> getAllDays(String username) {
     return dayRepository.findAll().stream().filter(day -> day.getUser().getUsername()
         .equals(username)).map(DayService::mapToDayResponse).toList();
-  }
-
-  @Transactional
-  public void deleteByDate(String username, Date date) {
-    if (dayRepository.findByDate(date).isEmpty()) {
-      throw new EntityNotFoundException(generateNotFoundMessage(date));
-    }
-    Day day = dayRepository.findByDate(date).stream()
-        .filter(d -> d.getUser().getUsername().equals(username)).findFirst()
-        .orElseThrow(() -> new IllegalArgumentException(generateNotFoundMessage(date, username)));
-    dayRepository.delete(day);
   }
 
   @Transactional
@@ -113,39 +90,6 @@ public class DayService {
     return mapToDayResponse(savedDay);
   }
 
-  private void publishAddedEvent(DayMealRequest dayMealRequest, DayMeal dayMeal, Day day,
-      String username) {
-    MealResponse mealResponse = MealService.mapToMealResponse(dayMeal.getMeal());
-    BigDecimal factor = BigDecimal.valueOf(mealResponse.weight())
-        .setScale(2, RoundingMode.HALF_EVEN)
-        .divide(BigDecimal.valueOf(dayMealRequest.weight()), RoundingMode.HALF_EVEN);
-    eventPublisher.publishEvent(
-        new MealAddedEvent(day.getDate(), username,
-            mealResponse.calories().divide(factor, RoundingMode.HALF_EVEN),
-            mealResponse.proteins().divide(factor, RoundingMode.HALF_EVEN),
-            mealResponse.fats().divide(factor, RoundingMode.HALF_EVEN),
-            mealResponse.carbs().divide(factor, RoundingMode.HALF_EVEN)));
-  }
-
-  @Transactional
-  public void deleteMealFromDay(Date date, Long dayMealId, String username) {
-    Day day = getDay(date, dayMealId, username);
-    DayMeal dayMeal = day.getDayMeals().stream().filter(dm -> dm.getId() == dayMealId).findFirst()
-        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(dayMealId, date)));
-    MealResponse mealResponse = MealService.mapToMealResponse(dayMeal.getMeal());
-    BigDecimal factor = BigDecimal.valueOf(mealResponse.weight())
-        .setScale(2, RoundingMode.HALF_EVEN)
-        .divide(BigDecimal.valueOf(dayMeal.getWeight()), RoundingMode.HALF_EVEN);
-    eventPublisher.publishEvent(
-        new MealDeletedEvent(day.getDate(), username,
-            mealResponse.calories().divide(factor, RoundingMode.HALF_EVEN),
-            mealResponse.proteins().divide(factor, RoundingMode.HALF_EVEN),
-            mealResponse.fats().divide(factor, RoundingMode.HALF_EVEN),
-            mealResponse.carbs().divide(factor, RoundingMode.HALF_EVEN)));
-    day.getDayMeals().remove(dayMeal);
-    dayRepository.save(day);
-  }
-
   @Transactional
   public DayResponse updateMealFromDay(Date date, Long dayMealId, String username,
       DayMealPatch dayMealPatch) {
@@ -170,6 +114,36 @@ public class DayService {
     return mapToDayResponse(day);
   }
 
+  @Transactional
+  public void deleteByDate(String username, Date date) {
+    if (dayRepository.findByDate(date).isEmpty()) {
+      throw new EntityNotFoundException(generateNotFoundMessage(date));
+    }
+    Day day = dayRepository.findByDate(date).stream()
+        .filter(d -> d.getUser().getUsername().equals(username)).findFirst()
+        .orElseThrow(() -> new IllegalArgumentException(generateNotFoundMessage(date, username)));
+    dayRepository.delete(day);
+  }
+
+  @Transactional
+  public void deleteMealFromDay(Date date, Long dayMealId, String username) {
+    Day day = getDay(date, dayMealId, username);
+    DayMeal dayMeal = day.getDayMeals().stream().filter(dm -> dm.getId() == dayMealId).findFirst()
+        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(dayMealId, date)));
+    MealResponse mealResponse = MealService.mapToMealResponse(dayMeal.getMeal());
+    BigDecimal factor = BigDecimal.valueOf(mealResponse.weight())
+        .setScale(2, RoundingMode.HALF_EVEN)
+        .divide(BigDecimal.valueOf(dayMeal.getWeight()), RoundingMode.HALF_EVEN);
+    eventPublisher.publishEvent(
+        new MealDeletedEvent(day.getDate(), username,
+            mealResponse.calories().divide(factor, RoundingMode.HALF_EVEN),
+            mealResponse.proteins().divide(factor, RoundingMode.HALF_EVEN),
+            mealResponse.fats().divide(factor, RoundingMode.HALF_EVEN),
+            mealResponse.carbs().divide(factor, RoundingMode.HALF_EVEN)));
+    day.getDayMeals().remove(dayMeal);
+    dayRepository.save(day);
+  }
+
   private Day getDay(Date date, Long dayMealId, String username) {
     if (dayRepository.findByDate(date).isEmpty()) {
       throw new EntityNotFoundException(generateNotFoundMessage(date));
@@ -181,5 +155,31 @@ public class DayService {
       throw new EntityNotFoundException(generateNotFoundMessage(dayMealId, date));
     }
     return day;
+  }
+
+  private DayMeal mapToDayMeals(Day day, DayMealRequest dayMealRequest) {
+    DayMeal dayMeal = new DayMeal();
+    dayMeal.setDay(day);
+    Meal foundMeal = mealRepository.findById((dayMealRequest.mealId())).orElseThrow(
+        () -> new EntityNotFoundException(
+            MealService.generateNotFoundMessage(dayMealRequest.mealId())));
+    dayMeal.setMeal(foundMeal);
+    dayMeal.setMealType(dayMealRequest.mealType());
+    dayMeal.setWeight(dayMealRequest.weight());
+    return dayMeal;
+  }
+
+  private void publishAddedEvent(DayMealRequest dayMealRequest, DayMeal dayMeal, Day day,
+      String username) {
+    MealResponse mealResponse = MealService.mapToMealResponse(dayMeal.getMeal());
+    BigDecimal factor = BigDecimal.valueOf(mealResponse.weight())
+        .setScale(2, RoundingMode.HALF_EVEN)
+        .divide(BigDecimal.valueOf(dayMealRequest.weight()), RoundingMode.HALF_EVEN);
+    eventPublisher.publishEvent(
+        new MealAddedEvent(day.getDate(), username,
+            mealResponse.calories().divide(factor, RoundingMode.HALF_EVEN),
+            mealResponse.proteins().divide(factor, RoundingMode.HALF_EVEN),
+            mealResponse.fats().divide(factor, RoundingMode.HALF_EVEN),
+            mealResponse.carbs().divide(factor, RoundingMode.HALF_EVEN)));
   }
 }
