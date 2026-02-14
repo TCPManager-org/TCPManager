@@ -23,10 +23,6 @@ public class UserService implements UserDetailsService {
 
   private final PasswordEncoder passwordEncoder;
 
-  public static String generateNotFoundMessage(Long id) {
-    return "User with id " + id + " not found";
-  }
-
   public static String generateNotFoundMessage(String username) {
     return "User with username " + username + " not found";
   }
@@ -37,12 +33,6 @@ public class UserService implements UserDetailsService {
 
   public List<UserResponse> getAllUsers() {
     return userRepository.findAll().stream().map(UserService::mapToUserResponse).toList();
-  }
-
-  public UserResponse getUserById(Long id) {
-    User user = userRepository.findById(id)
-        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
-    return mapToUserResponse(user);
   }
 
   public UserResponse getUserByUsername(String username) {
@@ -63,13 +53,13 @@ public class UserService implements UserDetailsService {
   }
 
   @Transactional
-  public UserResponse updateUserById(Long id, UserPatch userPatch) {
-    User user = userRepository.findById(id)
-        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
+  public UserResponse updateUserByUsername(String username, UserPatch userPatch) {
+    User user = userRepository.findByUsername(username)
+        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(username)));
     if (userPatch.username() != null) {
-      var username = userPatch.username().strip();
-      validateUsername(username);
-      user.setUsername(username);
+      String newUsername = userPatch.username().strip();
+      validateUsername(newUsername);
+      user.setUsername(newUsername);
     }
     if (userPatch.role() != null) {
       user.setRole(Role.valueOf(userPatch.role()));
@@ -79,11 +69,11 @@ public class UserService implements UserDetailsService {
   }
 
   @Transactional
-  public void deleteUserById(Long id) {
-    if (!userRepository.existsById(id)) {
-      throw new EntityNotFoundException(generateNotFoundMessage(id));
+  public void deleteUserByUsername(String username) {
+    if (!userRepository.existsByUsername(username)) {
+      throw new EntityNotFoundException(generateNotFoundMessage(username));
     }
-    userRepository.deleteById(id);
+    userRepository.deleteByUsername(username);
   }
 
   private void validateUsername(String username) {

@@ -13,7 +13,6 @@ import com.nimbusds.jose.proc.SecurityContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -29,7 +28,6 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.tcpmanager.tcpmanager.user.UserSecurity;
 import org.tcpmanager.tcpmanager.user.UserService;
 
 @Configuration
@@ -51,8 +49,7 @@ public class SecurityConfig {
   }
 
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity,
-      UserSecurity userSecurity) throws Exception {
+  public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
     return httpSecurity.csrf(AbstractHttpConfigurer::disable).httpBasic(withDefaults())
         .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()))
         .sessionManagement(
@@ -61,20 +58,7 @@ public class SecurityConfig {
             registry -> registry.dispatcherTypeMatchers(FORWARD, ERROR).permitAll()
                 .requestMatchers("/api/swagger-ui/**").permitAll()
                 .requestMatchers("/api/docs/**").permitAll()
-                .requestMatchers(HttpMethod.DELETE, "/api/users/{id}")
-                .access((authentication, context) -> {
-                  try {
-                    String pathId = context.getVariables().get("id");
-                    boolean granted = userSecurity.canDeleteUser(authentication.get(),
-                        Long.parseLong(pathId));
-                    return new org.springframework.security.authorization.AuthorizationDecision(
-                        granted);
-                  } catch (NumberFormatException e) {
-                    return new org.springframework.security.authorization.AuthorizationDecision(
-                        false);
-                  }
-
-                })
+                .requestMatchers("/api/users/me").authenticated()
                 .requestMatchers("/api/users/**").hasRole("ADMIN")
                 .anyRequest().authenticated()).build();
   }
