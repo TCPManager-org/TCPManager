@@ -28,7 +28,7 @@ public class IngredientController {
 
   @GetMapping(produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
-  public List<IngredientResponse> getIngredient(Principal principal) {
+  public List<IngredientResponse> getIngredients(Principal principal) {
     return ingredientService.getAllIngredientsByUser(principal.getName());
   }
 
