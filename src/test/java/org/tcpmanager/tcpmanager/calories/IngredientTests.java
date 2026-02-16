@@ -26,6 +26,10 @@ import org.tcpmanager.tcpmanager.calories.meal.models.MealIngredient;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.tcpmanager.tcpmanager.user.Role;
+import org.tcpmanager.tcpmanager.user.User;
+import org.tcpmanager.tcpmanager.user.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -50,6 +54,21 @@ class IngredientTests {
   private IngredientRepository ingredientRepository;
   @Autowired
   private MealRepository mealRepository;
+
+  @Autowired
+  private UserRepository userRepository;
+  @Autowired
+  private PasswordEncoder passwordEncoder;
+
+  private User createUser() {
+    return userRepository.findByUsername("testUser").orElseGet(() -> {
+      User user = new User();
+      user.setUsername("testUser");
+      user.setPassword(passwordEncoder.encode("password"));
+      user.setRole(Role.ADMIN);
+      return userRepository.save(user);
+    });
+  }
 
   private static Meal createMeal() {
     MealIngredient mealIngredient1 = new MealIngredient();
@@ -85,6 +104,7 @@ class IngredientTests {
 
   @BeforeEach
   void beforeEach() {
+    createUser();
     ingredientRepository.deleteAll();
     mealRepository.deleteAll();
   }
@@ -164,6 +184,8 @@ class IngredientTests {
   @AfterEach
   void afterEach() {
     ingredientRepository.deleteAll();
+    mealRepository.deleteAll();
+    userRepository.deleteAll();
   }
 
   @Test
@@ -326,6 +348,7 @@ class IngredientTests {
 
   @Test
   void validation_EanIsNotUnique() throws Exception {
+    User user = createUser();
     Ingredient ingredient = new Ingredient();
     ingredient.setName("Test Ingredient");
     ingredient.setEan("0123456789012");
@@ -333,6 +356,7 @@ class IngredientTests {
     ingredient.setFats(BigDecimal.valueOf(2));
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
+    ingredient.setUser(user);
     ingredientRepository.save(ingredient);
     String json = """
         {
@@ -352,6 +376,7 @@ class IngredientTests {
 
   @Test
   void getIngredients_ShouldReturnAllIngredients() throws Exception {
+    User user = createUser();
     Ingredient ingredient = new Ingredient();
     ingredient.setName("Test Ingredient");
     ingredient.setEan("1234567890123");
@@ -359,6 +384,7 @@ class IngredientTests {
     ingredient.setFats(BigDecimal.valueOf(2));
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
+    ingredient.setUser(user);
     ingredient = ingredientRepository.save(ingredient);
 
     Ingredient ingredient2 = new Ingredient();
@@ -368,6 +394,7 @@ class IngredientTests {
     ingredient2.setFats(BigDecimal.valueOf(20));
     ingredient2.setCarbs(BigDecimal.valueOf(30));
     ingredient2.setProteins(BigDecimal.valueOf(40));
+    ingredient2.setUser(user);
     ingredient2 = ingredientRepository.save(ingredient2);
     mockMvc.perform(MockMvcRequestBuilders.get("/api/calories/ingredients"))
         .andExpect(status().isOk()).andExpect(jsonPath("$.size()").value(2))
@@ -385,6 +412,7 @@ class IngredientTests {
 
   @Test
   void getIngredient_ShouldReturnNotFound() throws Exception {
+    User user = createUser();
     Ingredient ingredient = new Ingredient();
     ingredient.setName("Test Ingredient");
     ingredient.setEan("1234567890123");
@@ -392,6 +420,7 @@ class IngredientTests {
     ingredient.setFats(BigDecimal.valueOf(2));
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
+    ingredient.setUser(user);
     ingredientRepository.save(ingredient);
 
     Ingredient ingredient2 = new Ingredient();
@@ -401,6 +430,7 @@ class IngredientTests {
     ingredient2.setFats(BigDecimal.valueOf(20));
     ingredient2.setCarbs(BigDecimal.valueOf(30));
     ingredient2.setProteins(BigDecimal.valueOf(40));
+    ingredient2.setUser(user);
     ingredientRepository.save(ingredient2);
     mockMvc.perform(MockMvcRequestBuilders.get("/api/calories/ingredients/123"))
         .andExpect(status().isNotFound())
@@ -409,6 +439,7 @@ class IngredientTests {
 
   @Test
   void getIngredient_ShouldReturnIngredient() throws Exception {
+    User user = createUser();
     Ingredient ingredient = new Ingredient();
     ingredient.setName("Test Ingredient");
     ingredient.setEan("1234567890123");
@@ -416,6 +447,7 @@ class IngredientTests {
     ingredient.setFats(BigDecimal.valueOf(2));
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
+    ingredient.setUser(user);
     ingredientRepository.save(ingredient);
 
     Ingredient ingredient2 = new Ingredient();
@@ -425,6 +457,7 @@ class IngredientTests {
     ingredient2.setFats(BigDecimal.valueOf(20));
     ingredient2.setCarbs(BigDecimal.valueOf(30));
     ingredient2.setProteins(BigDecimal.valueOf(40));
+    ingredient2.setUser(user);
     ingredientRepository.save(ingredient2);
     mockMvc.perform(MockMvcRequestBuilders.get("/api/calories/ingredients/" + ingredient.getId()))
         .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(ingredient.getId()))
@@ -477,6 +510,7 @@ class IngredientTests {
 
   @Test
   void deleteIngredient_ShouldReturnNoContent() throws Exception {
+    User user = createUser();
     Ingredient ingredient = new Ingredient();
     ingredient.setName("Test Ingredient");
     ingredient.setEan("1234567890123");
@@ -484,6 +518,7 @@ class IngredientTests {
     ingredient.setFats(BigDecimal.valueOf(2));
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
+    ingredient.setUser(user);
     ingredient = ingredientRepository.save(ingredient);
     mockMvc.perform(
             MockMvcRequestBuilders.delete("/api/calories/ingredients/" + ingredient.getId()))
@@ -493,6 +528,7 @@ class IngredientTests {
 
   @Test
   void deleteIngredient_ShouldReturnNotFound() throws Exception {
+    User user = createUser();
     Ingredient ingredient = new Ingredient();
     ingredient.setName("Test Ingredient");
     ingredient.setEan("1234567890123");
@@ -500,6 +536,7 @@ class IngredientTests {
     ingredient.setFats(BigDecimal.valueOf(2));
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
+    ingredient.setUser(user);
     ingredientRepository.save(ingredient);
     mockMvc.perform(MockMvcRequestBuilders.delete("/api/calories/ingredients/123"))
         .andExpect(status().isNotFound())
@@ -519,6 +556,7 @@ class IngredientTests {
 
   @Test
   void updateIngredient_Name() throws Exception {
+    User user = createUser();
     Ingredient ingredient = new Ingredient();
     ingredient.setName("Test Ingredient");
     ingredient.setEan("1234567890123");
@@ -526,6 +564,7 @@ class IngredientTests {
     ingredient.setFats(BigDecimal.valueOf(2));
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
+    ingredient.setUser(user);
     ingredient = ingredientRepository.save(ingredient);
     String json = """
           {
@@ -540,6 +579,7 @@ class IngredientTests {
 
   @Test
   void updateIngredient_ShouldThrowNameIsBlank() throws Exception {
+    User user = createUser();
     Ingredient ingredient = new Ingredient();
     ingredient.setName("Test Ingredient");
     ingredient.setEan("1234567890123");
@@ -547,6 +587,7 @@ class IngredientTests {
     ingredient.setFats(BigDecimal.valueOf(2));
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
+    ingredient.setUser(user);
     ingredient = ingredientRepository.save(ingredient);
     String json = """
           {
@@ -562,6 +603,7 @@ class IngredientTests {
   @ParameterizedTest
   @ValueSource(strings = {"fats", "calories", "carbs", "proteins"})
   void updateIngredient_Fats(String value) throws Exception {
+    User user = createUser();
     Ingredient ingredient = new Ingredient();
     ingredient.setName("Test Ingredient");
     ingredient.setEan("1234567890123");
@@ -569,6 +611,7 @@ class IngredientTests {
     ingredient.setFats(BigDecimal.valueOf(2));
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
+    ingredient.setUser(user);
     ingredient = ingredientRepository.save(ingredient);
     String json = """
           {
@@ -583,6 +626,7 @@ class IngredientTests {
 
   @Test
   void updateIngredient_Ean() throws Exception {
+    User user = createUser();
     Ingredient ingredient = new Ingredient();
     ingredient.setName("Test Ingredient");
     ingredient.setEan("1234567890123");
@@ -590,6 +634,7 @@ class IngredientTests {
     ingredient.setFats(BigDecimal.valueOf(2));
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
+    ingredient.setUser(user);
     ingredient = ingredientRepository.save(ingredient);
     String json = """
           {
@@ -604,6 +649,7 @@ class IngredientTests {
 
   @Test
   void updateIngredient_ShouldReturnNotFound() throws Exception {
+    User user = createUser();
     Ingredient ingredient = new Ingredient();
     ingredient.setName("Test Ingredient");
     ingredient.setEan("1234567890123");
@@ -611,6 +657,7 @@ class IngredientTests {
     ingredient.setFats(BigDecimal.valueOf(2));
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
+    ingredient.setUser(user);
     ingredientRepository.save(ingredient);
     String json = """
           {

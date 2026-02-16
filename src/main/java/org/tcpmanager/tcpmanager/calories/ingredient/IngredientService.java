@@ -14,7 +14,6 @@ import org.tcpmanager.tcpmanager.user.UserRepository;
 import org.tcpmanager.tcpmanager.user.UserService;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,6 +27,9 @@ public class IngredientService {
 
     public static String generateNotFoundMessage(Long id) {
         return "Ingredient with id " + id + " not found";
+    }
+    private static void generateSecurityMessage() {
+        throw new SecurityException("User is not allowed to modify this ingredient");
     }
 
     private boolean isIngredientAvailableToUser(String username, Ingredient ingredient) {
@@ -53,7 +55,7 @@ public class IngredientService {
         Ingredient ingredient = ingredientRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
         if (!isIngredientAvailableToUser(username, ingredient)) {
-            throw new SecurityException("User is not allowed to modify this ingredient"); //TODO: code duplication
+            generateSecurityMessage();
         }
         return mapToIngredientResponse(ingredient);
     }
@@ -84,7 +86,7 @@ public class IngredientService {
         Ingredient ingredient = ingredientRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
         if (!isIngredientAvailableToUser(username, ingredient)) {
-            throw new SecurityException("User is not allowed to modify this ingredient");
+            generateSecurityMessage();
         }
         if (ingredientPatch.name() != null) {
             if (ingredientPatch.name().isBlank()) {
@@ -116,7 +118,7 @@ public class IngredientService {
     public void deleteById(Long id, String username) {
         Ingredient ingredient = ingredientRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
         if (!isIngredientAvailableToUser(username, ingredient)) {
-            throw new SecurityException("User is not allowed to modify this ingredient");
+            generateSecurityMessage();
         }
         Set<Meal> meals = ingredient.getMealIngredients().stream().map(MealIngredient::getMeal)
                 .collect(Collectors.toSet());

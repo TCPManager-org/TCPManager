@@ -23,6 +23,10 @@ import org.tcpmanager.tcpmanager.calories.meal.models.MealIngredient;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.tcpmanager.tcpmanager.user.Role;
+import org.tcpmanager.tcpmanager.user.User;
+import org.tcpmanager.tcpmanager.user.UserRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -48,7 +52,22 @@ class MealTests {
   @Autowired
   private IngredientRepository ingredientRepository;
 
-  private static Meal createMeal() {
+  @Autowired
+  private UserRepository userRepository;
+  @Autowired
+  private PasswordEncoder passwordEncoder;
+
+  private User createUser() {
+    return userRepository.findByUsername("testUser").orElseGet(() -> {
+      User user = new User();
+      user.setUsername("testUser");
+      user.setPassword(passwordEncoder.encode("password"));
+      user.setRole(Role.ADMIN);
+      return userRepository.save(user);
+    });
+  }
+
+  private static Meal createMealWithNoUser() {
     MealIngredient mealIngredient1 = new MealIngredient();
     Meal meal = new Meal();
     meal.setName("Test Meal");
@@ -105,11 +124,14 @@ class MealTests {
   void afterEach() {
     mealRepository.deleteAll();
     ingredientRepository.deleteAll();
+    userRepository.deleteAll();
   }
 
   @Test
   void getAllMeals_ShouldReturnMeals() throws Exception {
-    Meal meal = createMeal();
+    User user = createUser();
+    Meal meal = createMealWithNoUser();
+    meal.setUser(user);
     meal = mealRepository.save(meal);
     mockMvc.perform(MockMvcRequestBuilders.get("/api/calories/meals")).andExpect(status().isOk())
         .andExpect(jsonPath("$.size()").value(1)).andExpect(jsonPath("$[0].id").value(meal.getId()))
@@ -119,7 +141,9 @@ class MealTests {
 
   @Test
   void getMealById_ShouldReturnMeal() throws Exception {
-    Meal meal = createMeal();
+    User user = createUser();
+    Meal meal = createMealWithNoUser();
+    meal.setUser(user);
     meal = mealRepository.save(meal);
     mockMvc.perform(MockMvcRequestBuilders.get("/api/calories/meals/" + meal.getId()))
         .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(meal.getId()))
@@ -129,6 +153,7 @@ class MealTests {
 
   @Test
   void getMealById_ShouldReturnNotFound() throws Exception {
+    createUser();
     mockMvc.perform(MockMvcRequestBuilders.get("/api/calories/meals/9999"))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("Meal with id 9999 not found"));
@@ -136,6 +161,7 @@ class MealTests {
 
   @Test
   void addMeal_ShouldCreateMeal() throws Exception {
+    createUser();
     Ingredient ingredient1 = new Ingredient();
     ingredient1.setName("Test Ingredient1");
     ingredient1.setCalories(BigDecimal.valueOf(100));
@@ -174,6 +200,7 @@ class MealTests {
 
   @Test
   void addMeal_ShouldReturnBadRequest_ForInvalidIngredient() throws Exception {
+    createUser();
     String mealJson = """
         {
           "name": "New Meal",
@@ -191,6 +218,7 @@ class MealTests {
 
   @Test
   void addMeal_ShouldReturnBadRequest_ForWeightZero() throws Exception {
+    createUser();
     Ingredient ingredient1 = new Ingredient();
     ingredient1.setName("Test Ingredient1");
     ingredient1.setCalories(BigDecimal.valueOf(100));
@@ -217,7 +245,8 @@ class MealTests {
 
   @Test
   void addMeal_ShouldReturnBadRequestForDuplicateMealName() throws Exception {
-    Meal meal = createMeal();
+    createUser();
+    Meal meal = createMealWithNoUser();
     mealRepository.save(meal);
 
     String mealJson = """
@@ -237,7 +266,9 @@ class MealTests {
 
   @Test
   void deleteMeal_ShouldDeleteMeal() throws Exception {
-    Meal meal = createMeal();
+    User user = createUser();
+    Meal meal = createMealWithNoUser();
+    meal.setUser(user);
     meal = mealRepository.save(meal);
     mockMvc.perform(MockMvcRequestBuilders.delete("/api/calories/meals/" + meal.getId()))
         .andExpect(status().isNoContent());
@@ -245,6 +276,7 @@ class MealTests {
 
   @Test
   void deleteMeal_ShouldReturnNotFound() throws Exception {
+    createUser();
     mockMvc.perform(MockMvcRequestBuilders.delete("/api/calories/meals/9999"))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("Meal with id 9999 not found"));
@@ -252,7 +284,9 @@ class MealTests {
 
   @Test
   void updateMeal_ShouldUpdateIngredients() throws Exception {
-    Meal meal = createMeal();
+    User user = createUser();
+    Meal meal = createMealWithNoUser();
+    meal.setUser(user);
     meal = mealRepository.save(meal);
 
     Ingredient ingredient3 = new Ingredient();
@@ -282,7 +316,9 @@ class MealTests {
 
   @Test
   void updateMeal_ShouldUpdateName() throws Exception {
-    Meal meal = createMeal();
+    User user = createUser();
+    Meal meal = createMealWithNoUser();
+    meal.setUser(user);
     meal = mealRepository.save(meal);
 
     String mealPatchJson = """
@@ -299,6 +335,7 @@ class MealTests {
 
   @Test
   void updateMeal_ShouldReturnNotFound() throws Exception {
+    createUser();
     String mealPatchJson = """
         {
           "name": "Updated Meal"
@@ -313,7 +350,9 @@ class MealTests {
 
   @Test
   void updateMeal_ShouldReturnBadRequest_ForBlankName() throws Exception {
-    Meal meal = createMeal();
+    User user = createUser();
+    Meal meal = createMealWithNoUser();
+    meal.setUser(user);
     meal = mealRepository.save(meal);
 
     String mealPatchJson = """
@@ -329,7 +368,9 @@ class MealTests {
 
   @Test
   void updateMeal_ShouldReturnBadRequestWhenIngredientDoesNotExist() throws Exception {
-    Meal meal = createMeal();
+    User user = createUser();
+    Meal meal = createMealWithNoUser();
+    meal.setUser(user);
     meal = mealRepository.save(meal);
 
     String mealPatchJson = """
@@ -347,10 +388,13 @@ class MealTests {
 
   @Test
   void getMealsWithMinIngredients_ShouldReturnMeals() throws Exception {
-    Meal meal1 = createMeal();
+    User user = createUser();
+    Meal meal1 = createMealWithNoUser();
+    meal1.setUser(user);
     meal1 = mealRepository.save(meal1);
 
     Meal meal2 = createMeal2();
+    meal2.setUser(user);
     mealRepository.save(meal2);
 
     mockMvc.perform(
@@ -364,10 +408,13 @@ class MealTests {
 
   @Test
   void getMealsWithMaxIngredients_ShouldReturnMeals() throws Exception {
-    Meal meal1 = createMeal();
+    User user = createUser();
+    Meal meal1 = createMealWithNoUser();
+    meal1.setUser(user);
     mealRepository.save(meal1);
 
     Meal meal2 = createMeal2();
+    meal2.setUser(user);
     mealRepository.save(meal2);
 
     mockMvc.perform(
@@ -379,3 +426,4 @@ class MealTests {
         .andExpect(jsonPath("$[0].ingredients.size()").value(1));
   }
 }
+
