@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -120,11 +121,18 @@ class MealTests {
     return meal2;
   }
 
+  @BeforeEach
+  void beforeEach() {
+    mealRepository.deleteAll();
+    ingredientRepository.deleteAll();
+    userRepository.deleteAll();
+    createUser();
+  }
+
   @AfterEach
   void afterEach() {
     mealRepository.deleteAll();
     ingredientRepository.deleteAll();
-    userRepository.deleteAll();
   }
 
   @Test
