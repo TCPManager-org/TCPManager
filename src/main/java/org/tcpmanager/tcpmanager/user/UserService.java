@@ -65,7 +65,7 @@ public class UserService implements UserDetailsService {
       user.setUsername(newUsername);
     }
     if (userPatch.role() != null) {
-      user.setRole(Role.valueOf(userPatch.role()));
+      user.setRole(userPatch.role());
     }
     userRepository.save(user);
     return mapToUserResponse(user);
