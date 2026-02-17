@@ -28,7 +28,7 @@ public class UserService implements UserDetailsService {
   }
 
   private static UserResponse mapToUserResponse(User user) {
-    return new UserResponse(user.getId(), user.getUsername(), String.valueOf(user.getRole()));
+    return new UserResponse(user.getUsername(), String.valueOf(user.getRole()));
   }
 
   public List<UserResponse> getAllUsers() {
