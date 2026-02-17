@@ -54,6 +54,6 @@ public class IngredientController {
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deleteMealById(@PathVariable Long id, Principal principal) {
-    ingredientService.deleteById(id, principal.getName());
+    ingredientService.deleteIngredientById(id, principal.getName());
   }
 }
