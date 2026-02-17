@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.tcpmanager.tcpmanager.user.dto.UserPatch;
+import org.tcpmanager.tcpmanager.user.dto.UserPatchMe;
 import org.tcpmanager.tcpmanager.user.dto.UserRequest;
 import org.tcpmanager.tcpmanager.user.dto.UserResponse;
 
@@ -53,14 +54,14 @@ public class UserController {
   @PatchMapping(value = "/{username}", produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
   public UserResponse updateUserByUsername(@PathVariable String username,
-      @RequestBody @Valid UserPatch userPatch) {
-    return userService.updateUserByUsername(username, userPatch);
+      @RequestBody @Valid UserPatchMe userPatch) {
+    return userService.updateUserByUsername(username, new UserPatch(userPatch.username(), userPatch.role()), false);
   }
 
   @PatchMapping(value = "/me", produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
   public UserResponse updateMyUser(@RequestBody @Valid UserPatch userPatch, Principal principal) {
-    return userService.updateUserByUsername(principal.getName(), userPatch);
+    return userService.updateUserByUsername(principal.getName(), userPatch, true);
   }
 
   @DeleteMapping("/{username}")
