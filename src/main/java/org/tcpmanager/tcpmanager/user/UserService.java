@@ -53,7 +53,10 @@ public class UserService implements UserDetailsService {
   }
 
   @Transactional
-  public UserResponse updateUserByUsername(String username, UserPatch userPatch) {
+  public UserResponse updateUserByUsername(String username, UserPatch userPatch, boolean isMe) {
+    if(isMe && userPatch.role() != null) {
+      throw new IllegalArgumentException("You cannot change your own role");
+    }
     User user = userRepository.findByUsername(username)
         .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(username)));
     if (userPatch.username() != null) {

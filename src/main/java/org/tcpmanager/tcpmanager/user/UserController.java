@@ -54,13 +54,13 @@ public class UserController {
   @ResponseStatus(HttpStatus.OK)
   public UserResponse updateUserByUsername(@PathVariable String username,
       @RequestBody @Valid UserPatch userPatch) {
-    return userService.updateUserByUsername(username, userPatch);
+    return userService.updateUserByUsername(username, userPatch, false);
   }
 
   @PatchMapping(value = "/me", produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
   public UserResponse updateMyUser(@RequestBody @Valid UserPatch userPatch, Principal principal) {
-    return userService.updateUserByUsername(principal.getName(), userPatch);
+    return userService.updateUserByUsername(principal.getName(), userPatch, true);
   }
 
   @DeleteMapping("/{username}")
