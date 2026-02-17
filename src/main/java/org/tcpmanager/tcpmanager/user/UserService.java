@@ -54,7 +54,7 @@ public class UserService implements UserDetailsService {
 
   @Transactional
   public UserResponse updateUserByUsername(String username, UserPatch userPatch, boolean isMe) {
-    if(isMe && userPatch.role() != null) {
+    if (isMe && userPatch.role() != null) {
       throw new IllegalArgumentException("You cannot change your own role");
     }
     User user = userRepository.findByUsername(username)
@@ -73,8 +73,14 @@ public class UserService implements UserDetailsService {
 
   @Transactional
   public void deleteUserByUsername(String username) {
-    if (!userRepository.existsByUsername(username)) {
-      throw new EntityNotFoundException(generateNotFoundMessage(username));
+    User user = userRepository.findByUsername(username)
+        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(username)));
+    if (user.getRole() == Role.ADMIN) {
+      List<User> admins = userRepository.findAll().stream().filter(u -> u.getRole() == Role.ADMIN)
+          .toList();
+      if (admins.size() == 1) {
+        throw new IllegalArgumentException("Cannot delete the only admin");
+      }
     }
     userRepository.deleteByUsername(username);
   }
@@ -83,8 +89,9 @@ public class UserService implements UserDetailsService {
     if (userRepository.existsByUsername(username)) {
       throw new IllegalArgumentException("Username " + username + " is already taken");
     }
-    if (!username.chars().allMatch(Character::isLetterOrDigit)) {
-      throw new IllegalArgumentException("Username can only contain letters and digits");
+    if (!(username.chars().allMatch(c -> Character.isLetterOrDigit(c) || c == '_' || c == '-'))) {
+      throw new IllegalArgumentException(
+          "Username can only contain letters, digits, underscores and hyphens");
     }
   }
 
@@ -93,7 +100,8 @@ public class UserService implements UserDetailsService {
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     User user = userRepository.findByUsername(username)
         .orElseThrow(() -> new UsernameNotFoundException(generateNotFoundMessage(username)));
-    return org.springframework.security.core.userdetails.User.builder().username(user.getUsername())
+    return org.springframework.security.core.userdetails.User.builder()
+        .username(user.getUsername())
         .password(user.getPassword()).roles(String.valueOf(user.getRole())).build();
   }
 }
