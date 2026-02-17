@@ -89,7 +89,7 @@ class UserIntTests {
 
   @ParameterizedTest
   @ValueSource(strings = {"/api/users/testUser", "/api/users/testAdmin"})
-  void user_cantUseAdminEndpoints(String uri) throws Exception {
+  void user_cannotUseAdminEndpoints(String uri) throws Exception {
     mockMvc.perform(MockMvcRequestBuilders.get(uri).with(user(USER_USERNAME).roles("USER")))
         .andExpect(status().isForbidden());
     mockMvc.perform(MockMvcRequestBuilders.delete(uri).with(user(USER_USERNAME).roles("USER")))
