@@ -1,6 +1,7 @@
 package org.tcpmanager.tcpmanager.calories.ingredient;
 
 import jakarta.persistence.EntityNotFoundException;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -94,13 +95,13 @@ public class IngredientService {
       ingredient.setCalories(ingredientPatch.calories());
     }
     if (ingredientPatch.fats() != null) {
-      ingredient.setFats(ingredientPatch.fats());
+      ingredient.setFats(ingredientPatch.fats().setScale(2, RoundingMode.HALF_EVEN));
     }
     if (ingredientPatch.carbs() != null) {
-      ingredient.setCarbs(ingredientPatch.carbs());
+      ingredient.setCarbs(ingredientPatch.carbs().setScale(2, RoundingMode.HALF_EVEN));
     }
     if (ingredientPatch.proteins() != null) {
-      ingredient.setProteins(ingredientPatch.proteins());
+      ingredient.setProteins(ingredientPatch.proteins().setScale(2, RoundingMode.HALF_EVEN));
     }
     if (ingredientPatch.ean() != null) {
       validateEan(ingredientPatch.ean().strip());

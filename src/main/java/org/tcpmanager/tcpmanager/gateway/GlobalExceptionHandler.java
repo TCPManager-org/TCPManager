@@ -60,4 +60,16 @@ public class GlobalExceptionHandler {
   public ErrorResponse handleIllegalArgumentException(IllegalArgumentException ex) {
     return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
   }
+
+  @ExceptionHandler({SecurityException.class})
+  @ResponseBody
+  @ResponseStatus(HttpStatus.FORBIDDEN)
+  @ApiResponse(
+      responseCode = "403",
+      description = "Forbidden",
+      content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+  )
+  public ErrorResponse handleSecurityException(IllegalArgumentException ex) {
+    return new ErrorResponse(HttpStatus.FORBIDDEN.value(), ex.getMessage());
+  }
 }
