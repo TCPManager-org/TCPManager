@@ -30,7 +30,7 @@ public class IntakeHistory {
   private Date date;
 
   @Column(nullable = false)
-  private BigDecimal calories;
+  private Integer calories;
 
   @Column(nullable = false)
   private BigDecimal protein;

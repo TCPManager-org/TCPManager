@@ -77,7 +77,7 @@ class IntakeHistoryTests {
     ih.setUser(user);
     ih.setFat(BigDecimal.valueOf(10));
     ih.setProtein(BigDecimal.valueOf(11));
-    ih.setCalories(BigDecimal.valueOf(12));
+    ih.setCalories(12);
     ih.setCarbs(BigDecimal.valueOf(13));
     ih.setDate(new Date(0));
     ih.setCarbsGoal(14);
@@ -111,7 +111,7 @@ class IntakeHistoryTests {
     ih1.setUser(user);
     ih1.setFat(BigDecimal.valueOf(10));
     ih1.setProtein(BigDecimal.valueOf(11));
-    ih1.setCalories(BigDecimal.valueOf(12));
+    ih1.setCalories(12);
     ih1.setCarbs(BigDecimal.valueOf(13));
     ih1.setDate(new Date(0));
     ih1.setCarbsGoal(14);
@@ -123,7 +123,7 @@ class IntakeHistoryTests {
     ih2.setUser(ih1.getUser());
     ih2.setFat(BigDecimal.valueOf(20));
     ih2.setProtein(BigDecimal.valueOf(21));
-    ih2.setCalories(BigDecimal.valueOf(22));
+    ih2.setCalories(22);
     ih2.setCarbs(BigDecimal.valueOf(23));
     ih2.setDate(new Date(86400001));
     ih2.setCarbsGoal(24);
@@ -145,7 +145,7 @@ class IntakeHistoryTests {
     ih.setUser(user);
     ih.setFat(BigDecimal.valueOf(10));
     ih.setProtein(BigDecimal.valueOf(11));
-    ih.setCalories(BigDecimal.valueOf(12));
+    ih.setCalories(12);
     ih.setCarbs(BigDecimal.valueOf(13));
     ih.setDate(new Date(0));
     ih.setCarbsGoal(14);
@@ -173,7 +173,7 @@ class IntakeHistoryTests {
     ih.setUser(user);
     ih.setFat(BigDecimal.valueOf(10));
     ih.setProtein(BigDecimal.valueOf(11));
-    ih.setCalories(BigDecimal.valueOf(12));
+    ih.setCalories(12);
     ih.setCarbs(BigDecimal.valueOf(13));
     ih.setDate(new Date(0));
     ih.setCarbsGoal(14);
@@ -248,7 +248,7 @@ class IntakeHistoryTests {
     ih.setUser(user);
     ih.setFat(BigDecimal.valueOf(10));
     ih.setProtein(BigDecimal.valueOf(11));
-    ih.setCalories(BigDecimal.valueOf(12));
+    ih.setCalories(12);
     ih.setCarbs(BigDecimal.valueOf(13));
     ih.setDate(new Date(0));
     ih.setCarbsGoal(14);
@@ -298,7 +298,7 @@ class IntakeHistoryTests {
     ih1.setUser(user);
     ih1.setFat(BigDecimal.valueOf(10));
     ih1.setProtein(BigDecimal.valueOf(11));
-    ih1.setCalories(BigDecimal.valueOf(12));
+    ih1.setCalories(12);
     ih1.setCarbs(BigDecimal.valueOf(13));
     ih1.setDate(new Date(0));
     ih1.setCarbsGoal(14);
@@ -310,7 +310,7 @@ class IntakeHistoryTests {
     ih2.setUser(user);
     ih2.setFat(BigDecimal.valueOf(20));
     ih2.setProtein(BigDecimal.valueOf(21));
-    ih2.setCalories(BigDecimal.valueOf(22));
+    ih2.setCalories(22);
     ih2.setCarbs(BigDecimal.valueOf(23));
     ih2.setDate(new Date(1));
     ih2.setCarbsGoal(24);

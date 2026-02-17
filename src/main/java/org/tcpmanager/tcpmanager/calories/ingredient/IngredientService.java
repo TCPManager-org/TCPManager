@@ -1,8 +1,8 @@
 package org.tcpmanager.tcpmanager.calories.ingredient;
 
 import jakarta.persistence.EntityNotFoundException;
+import java.math.RoundingMode;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +13,9 @@ import org.tcpmanager.tcpmanager.calories.ingredient.dto.IngredientRequest;
 import org.tcpmanager.tcpmanager.calories.ingredient.dto.IngredientResponse;
 import org.tcpmanager.tcpmanager.calories.meal.models.Meal;
 import org.tcpmanager.tcpmanager.calories.meal.models.MealIngredient;
+import org.tcpmanager.tcpmanager.user.User;
+import org.tcpmanager.tcpmanager.user.UserRepository;
+import org.tcpmanager.tcpmanager.user.UserService;
 
 @Service
 @RequiredArgsConstructor
@@ -20,9 +23,14 @@ import org.tcpmanager.tcpmanager.calories.meal.models.MealIngredient;
 public class IngredientService {
 
   private final IngredientRepository ingredientRepository;
+  private final UserRepository userRepository;
 
   public static String generateNotFoundMessage(Long id) {
     return "Ingredient with id " + id + " not found";
+  }
+
+  private static void throwSecurityException() {
+    throw new SecurityException("User is not allowed to modify this ingredient");
   }
 
   private static IngredientResponse mapToIngredientResponse(Ingredient ingredient) {
@@ -31,19 +39,27 @@ public class IngredientService {
         ingredient.getProteins(), ingredient.getEan());
   }
 
-  public List<IngredientResponse> getAllIngredients() {
-    return ingredientRepository.findAll().stream().map(IngredientService::mapToIngredientResponse)
+  public List<IngredientResponse> getAllIngredientsByUser(String username) {
+    return ingredientRepository.findAll().stream()
+        .filter(i -> isIngredientAvailableToUser(username, i))
+        .map(IngredientService::mapToIngredientResponse)
         .toList();
   }
 
-  public IngredientResponse getIngredientById(Long id) {
+  public IngredientResponse getIngredientById(Long id, String username) {
     Ingredient ingredient = ingredientRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
+    if (!isIngredientAvailableToUser(username, ingredient)) {
+      throwSecurityException();
+    }
     return mapToIngredientResponse(ingredient);
   }
 
   @Transactional
-  public IngredientResponse addIngredient(IngredientRequest ingredientRequest) {
+  public IngredientResponse addIngredient(IngredientRequest ingredientRequest, String username) {
+    User user = userRepository.findByUsername(username)
+        .orElseThrow(
+            () -> new EntityNotFoundException(UserService.generateNotFoundMessage(username)));
     if (ingredientRequest.ean() != null) {
       validateEan(ingredientRequest.ean().strip());
     }
@@ -53,6 +69,7 @@ public class IngredientService {
     ingredient.setFats(ingredientRequest.fats());
     ingredient.setCarbs(ingredientRequest.carbs());
     ingredient.setProteins(ingredientRequest.proteins());
+    ingredient.setUser(user);
     if (ingredientRequest.ean() != null) {
       ingredient.setEan(ingredientRequest.ean().strip());
     }
@@ -61,9 +78,13 @@ public class IngredientService {
   }
 
   @Transactional
-  public IngredientResponse updateIngredientById(Long id, IngredientPatch ingredientPatch) {
+  public IngredientResponse updateIngredientById(Long id, IngredientPatch ingredientPatch,
+      String username) {
     Ingredient ingredient = ingredientRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
+    if (!isIngredientAvailableToUser(username, ingredient)) {
+      throwSecurityException();
+    }
     if (ingredientPatch.name() != null) {
       if (ingredientPatch.name().isBlank()) {
         throw new IllegalArgumentException("Name must not be blank");
@@ -74,13 +95,13 @@ public class IngredientService {
       ingredient.setCalories(ingredientPatch.calories());
     }
     if (ingredientPatch.fats() != null) {
-      ingredient.setFats(ingredientPatch.fats());
+      ingredient.setFats(ingredientPatch.fats().setScale(2, RoundingMode.HALF_EVEN));
     }
     if (ingredientPatch.carbs() != null) {
-      ingredient.setCarbs(ingredientPatch.carbs());
+      ingredient.setCarbs(ingredientPatch.carbs().setScale(2, RoundingMode.HALF_EVEN));
     }
     if (ingredientPatch.proteins() != null) {
-      ingredient.setProteins(ingredientPatch.proteins());
+      ingredient.setProteins(ingredientPatch.proteins().setScale(2, RoundingMode.HALF_EVEN));
     }
     if (ingredientPatch.ean() != null) {
       validateEan(ingredientPatch.ean().strip());
@@ -91,12 +112,13 @@ public class IngredientService {
   }
 
   @Transactional
-  public void deleteById(Long id) {
-    Optional<Ingredient> ingredient = ingredientRepository.findById(id);
-    if (ingredient.isEmpty()) {
-      throw new EntityNotFoundException(generateNotFoundMessage(id));
+  public void deleteIngredientById(Long id, String username) {
+    Ingredient ingredient = ingredientRepository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException(generateNotFoundMessage(id)));
+    if (!isIngredientAvailableToUser(username, ingredient)) {
+      throwSecurityException();
     }
-    Set<Meal> meals = ingredient.get().getMealIngredients().stream().map(MealIngredient::getMeal)
+    Set<Meal> meals = ingredient.getMealIngredients().stream().map(MealIngredient::getMeal)
         .collect(Collectors.toSet());
     if (!meals.isEmpty()) {
       throw new IllegalArgumentException("Ingredient is used in meals and cannot be deleted");
@@ -127,5 +149,11 @@ public class IngredientService {
     if (existing.isPresent()) {
       throw new IllegalArgumentException("EAN must be unique");
     }
+  }
+
+  private boolean isIngredientAvailableToUser(String username, Ingredient ingredient) {
+    User user = userRepository.findByUsername(username).orElseThrow(
+        () -> new EntityNotFoundException(UserService.generateNotFoundMessage(username)));
+    return user.equals(ingredient.getUser());
   }
 }

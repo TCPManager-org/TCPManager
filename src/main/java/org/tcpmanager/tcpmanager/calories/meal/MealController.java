@@ -2,6 +2,8 @@ package org.tcpmanager.tcpmanager.calories.meal;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+
+import java.security.Principal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -28,33 +30,33 @@ public class MealController {
 
   @GetMapping(produces = "application/json")
   public List<MealResponse> getMeals(@RequestParam(required = false) @Min(1) Integer minIngredients,
-      @RequestParam(required = false) @Min(1) Integer maxIngredients) {
-    return mealService.getMeals(minIngredients, maxIngredients);
+                                     @RequestParam(required = false) @Min(1) Integer maxIngredients, Principal principal) {
+    return mealService.getMeals(minIngredients, maxIngredients, principal.getName());
   }
 
   @GetMapping(value = "/{id}", produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
-  public MealResponse getMealById(@PathVariable Long id) {
-    return mealService.getById(id);
+  public MealResponse getMealById(@PathVariable Long id, Principal principal) {
+    return mealService.getMealById(id, principal.getName());
   }
 
 
   @PostMapping(produces = "application/json")
   @ResponseStatus(HttpStatus.CREATED)
-  public MealResponse addMeal(@RequestBody @Valid MealRequest mealRequest) {
-    return mealService.addMeal(mealRequest);
+  public MealResponse addMeal(@RequestBody @Valid MealRequest mealRequest, Principal principal) {
+    return mealService.addMeal(mealRequest, principal.getName());
   }
 
   @PatchMapping(value = "/{id}", produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
   public MealResponse updateMealById(@PathVariable Long id,
-      @RequestBody @Valid MealPatch mealPatch) {
-    return mealService.updateById(id, mealPatch);
+      @RequestBody @Valid MealPatch mealPatch, Principal principal) {
+    return mealService.updateMealById(id, mealPatch, principal.getName());
   }
 
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deleteMealById(@PathVariable Long id) {
-    mealService.deleteById(id);
+  public void deleteMealById(@PathVariable Long id, Principal principal) {
+    mealService.deleteById(id, principal.getName());
   }
 }

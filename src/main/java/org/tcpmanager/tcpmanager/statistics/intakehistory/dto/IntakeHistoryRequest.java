@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.sql.Date;
 
 public record IntakeHistoryRequest(@NotNull Date date,
-                                   @NotNull @DecimalMin(value = "0") BigDecimal calories,
+                                   @NotNull @Min(0) Integer calories,
                                    @NotNull @DecimalMin(value = "0") BigDecimal protein,
                                    @NotNull @DecimalMin(value = "0") BigDecimal fat,
                                    @NotNull @DecimalMin(value = "0") BigDecimal carbs,

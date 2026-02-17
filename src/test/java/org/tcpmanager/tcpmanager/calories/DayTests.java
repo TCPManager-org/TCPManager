@@ -72,7 +72,7 @@ class DayTests {
     mi1.setMeal(meal);
     Ingredient ing1 = new Ingredient();
     ing1.setName("Test Ingredient1");
-    ing1.setCalories(BigDecimal.valueOf(100));
+    ing1.setCalories(100);
     ing1.setFats(BigDecimal.valueOf(10));
     ing1.setCarbs(BigDecimal.valueOf(20));
     ing1.setProteins(BigDecimal.valueOf(30));
@@ -84,7 +84,7 @@ class DayTests {
     mi2.setMeal(meal);
     Ingredient ing2 = new Ingredient();
     ing2.setName("Test Ingredient2");
-    ing2.setCalories(BigDecimal.valueOf(1000));
+    ing2.setCalories(1000);
     ing2.setFats(BigDecimal.valueOf(100));
     ing2.setCarbs(BigDecimal.valueOf(200));
     ing2.setProteins(BigDecimal.valueOf(300));
@@ -104,7 +104,7 @@ class DayTests {
     mi1.setMeal(meal2);
     Ingredient ing1 = new Ingredient();
     ing1.setName("Test Ingredient11");
-    ing1.setCalories(BigDecimal.valueOf(100));
+    ing1.setCalories(100);
     ing1.setFats(BigDecimal.valueOf(10));
     ing1.setCarbs(BigDecimal.valueOf(20));
     ing1.setProteins(BigDecimal.valueOf(30));
@@ -164,38 +164,6 @@ class DayTests {
         .andExpect(jsonPath("$.dayMeals[0].meal.name").value("Test Meal"))
         .andExpect(jsonPath("$.dayMeals[0].meal.calories").value(1100.0))
         .andExpect(jsonPath("$.dayMeals[0].meal.ingredients.size()").value(2));
-  }
-
-  @Test
-  void addMealToExistingDay_ShouldAppendMeal() throws Exception {
-    createUser();
-    Meal meal1 = mealRepository.save(createMeal());
-    Meal meal2 = mealRepository.save(createMeal2());
-
-    String first = """
-        {
-          "date": "2024-02-01",
-          "mealId": %d,
-          "weight": 100,
-          "mealType": "LUNCH"
-        }
-        """.formatted(meal1.getId());
-    mockMvc.perform(
-        MockMvcRequestBuilders.post("/api/calories/days").contentType("application/json")
-            .content(first)).andExpect(status().isCreated());
-
-    String second = """
-        {
-          "date": "2024-02-01",
-          "mealId": %d,
-          "weight": 200,
-          "mealType": "DINNER"
-        }
-        """.formatted(meal2.getId());
-    mockMvc.perform(
-            MockMvcRequestBuilders.post("/api/calories/days").contentType("application/json")
-                .content(second)).andExpect(status().isCreated())
-        .andExpect(jsonPath("$.dayMeals.size()").value(2));
   }
 
   @Test

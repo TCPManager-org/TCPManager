@@ -1,6 +1,8 @@
 package org.tcpmanager.tcpmanager.calories.ingredient;
 
 import jakarta.validation.Valid;
+
+import java.security.Principal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,32 +28,32 @@ public class IngredientController {
 
   @GetMapping(produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
-  public List<IngredientResponse> getIngredient() {
-    return ingredientService.getAllIngredients();
+  public List<IngredientResponse> getIngredients(Principal principal) {
+    return ingredientService.getAllIngredientsByUser(principal.getName());
   }
 
   @GetMapping(value = "/{id}", produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
-  public IngredientResponse getIngredientById(@PathVariable Long id) {
-    return ingredientService.getIngredientById(id);
+  public IngredientResponse getIngredientById(@PathVariable Long id, Principal principal) {
+    return ingredientService.getIngredientById(id, principal.getName());
   }
 
   @PostMapping(produces = "application/json")
   @ResponseStatus(HttpStatus.CREATED)
-  public IngredientResponse addIngredient(@RequestBody @Valid IngredientRequest ingredientRequest) {
-    return ingredientService.addIngredient(ingredientRequest);
+  public IngredientResponse addIngredient(@RequestBody @Valid IngredientRequest ingredientRequest, Principal principal) {
+    return ingredientService.addIngredient(ingredientRequest, principal.getName());
   }
 
   @PatchMapping(value = "/{id}", produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
   public IngredientResponse updateIngredientById(@PathVariable Long id,
-      @RequestBody @Valid IngredientPatch ingredientPatch) {
-    return ingredientService.updateIngredientById(id, ingredientPatch);
+      @RequestBody @Valid IngredientPatch ingredientPatch, Principal principal) {
+    return ingredientService.updateIngredientById(id, ingredientPatch, principal.getName());
   }
 
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deleteMealById(@PathVariable Long id) {
-    ingredientService.deleteById(id);
+  public void deleteIngredientById(@PathVariable Long id, Principal principal) {
+    ingredientService.deleteIngredientById(id, principal.getName());
   }
 }
