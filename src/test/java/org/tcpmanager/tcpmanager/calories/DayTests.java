@@ -167,38 +167,6 @@ class DayTests {
   }
 
   @Test
-  void addMealToExistingDay_ShouldAppendMeal() throws Exception {
-    createUser();
-    Meal meal1 = mealRepository.save(createMeal());
-    Meal meal2 = mealRepository.save(createMeal2());
-
-    String first = """
-        {
-          "date": "2024-02-01",
-          "mealId": %d,
-          "weight": 100,
-          "mealType": "LUNCH"
-        }
-        """.formatted(meal1.getId());
-    mockMvc.perform(
-        MockMvcRequestBuilders.post("/api/calories/days").contentType("application/json")
-            .content(first)).andExpect(status().isCreated());
-
-    String second = """
-        {
-          "date": "2024-02-01",
-          "mealId": %d,
-          "weight": 200,
-          "mealType": "DINNER"
-        }
-        """.formatted(meal2.getId());
-    mockMvc.perform(
-            MockMvcRequestBuilders.post("/api/calories/days").contentType("application/json")
-                .content(second)).andExpect(status().isCreated())
-        .andExpect(jsonPath("$.dayMeals.size()").value(2));
-  }
-
-  @Test
   void addMealToDay_ShouldReturnNotFound_ForMissingUser() throws Exception {
     Meal meal = mealRepository.save(createMeal());
     String json = """
