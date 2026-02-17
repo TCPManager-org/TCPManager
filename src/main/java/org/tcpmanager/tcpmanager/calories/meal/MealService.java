@@ -37,18 +37,6 @@ public class MealService {
     return "Meal with id " + id + " not found";
   }
 
-  private boolean isMealAvailableToUser(String username, Meal meal) {
-    User user = userRepository.findByUsername(username)
-        .orElseThrow(() -> new EntityNotFoundException(UserService.generateNotFoundMessage(username)));
-    return user.equals(meal.getUser()) || meal.getUser() == null;
-  }
-
-  private boolean isIngredientAvailableToUser(String username, Ingredient ingredient) {
-    User user = userRepository.findByUsername(username)
-        .orElseThrow(() -> new EntityNotFoundException(UserService.generateNotFoundMessage(username)));
-    return user.equals(ingredient.getUser()) || ingredient.getUser() == null;
-  }
-
   public static MealResponse mapToMealResponse(Meal meal) {
     BigDecimal calories = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN);
     BigDecimal carbs = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN);
@@ -76,21 +64,66 @@ public class MealService {
         ingredients);
   }
 
-  public List<MealResponse> getMeals(Integer minIngredients, Integer maxIngredients, String username) {
+  private boolean isMealAvailableToUser(String username, Meal meal) {
+    User user = userRepository.findByUsername(username)
+        .orElseThrow(
+            () -> new EntityNotFoundException(UserService.generateNotFoundMessage(username)));
+    return user.equals(meal.getUser()) || meal.getUser() == null;
+  }
+
+  private boolean isIngredientAvailableToUser(String username, Ingredient ingredient) {
+    User user = userRepository.findByUsername(username)
+        .orElseThrow(
+            () -> new EntityNotFoundException(UserService.generateNotFoundMessage(username)));
+    return user.equals(ingredient.getUser()) || ingredient.getUser() == null;
+  }
+
+  public List<MealResponse> getMeals(String username, MealFilters filters) {
     var meals = mealRepository.findAll().stream()
         .filter(meal -> isMealAvailableToUser(username, meal))
         .toList();
 
-    if (minIngredients != null) {
+    if (filters.minIngredients() != null) {
       meals = meals.stream()
-          .filter(meal -> meal.getMealIngredients().size() >= minIngredients)
+          .filter(meal -> meal.getMealIngredients().size() >= filters.minIngredients())
           .toList();
     }
-    if (maxIngredients != null) {
+    if (filters.maxIngredients() != null) {
       meals = meals.stream()
-          .filter(meal -> meal.getMealIngredients().size() <= maxIngredients)
+          .filter(meal -> meal.getMealIngredients().size() <= filters.maxIngredients())
           .toList();
     }
+    if (filters.minFats() != null) {
+      meals = meals.stream()
+          .filter(meal -> mapToMealResponse(meal).fats().compareTo(filters.minFats()) >= 0)
+          .toList();
+    }
+    if (filters.maxFats() != null) {
+      meals = meals.stream()
+          .filter(meal -> mapToMealResponse(meal).fats().compareTo(filters.maxFats()) <= 0)
+          .toList();
+    }
+    if (filters.minCarbs() != null) {
+      meals = meals.stream()
+          .filter(meal -> mapToMealResponse(meal).carbs().compareTo(filters.minCarbs()) >= 0)
+          .toList();
+    }
+    if (filters.maxCarbs() != null) {
+      meals = meals.stream()
+          .filter(meal -> mapToMealResponse(meal).carbs().compareTo(filters.maxCarbs()) <= 0)
+          .toList();
+    }
+    if (filters.minProteins() != null) {
+      meals = meals.stream()
+          .filter(meal -> mapToMealResponse(meal).proteins().compareTo(filters.minProteins()) >= 0)
+          .toList();
+    }
+    if (filters.maxProteins() != null) {
+      meals = meals.stream()
+          .filter(meal -> mapToMealResponse(meal).proteins().compareTo(filters.maxProteins()) <= 0)
+          .toList();
+    }
+    //TODO calories filters
     return meals.stream().map(MealService::mapToMealResponse).toList();
   }
 
@@ -111,7 +144,8 @@ public class MealService {
     }
 
     User user = userRepository.findByUsername(username)
-        .orElseThrow(() -> new EntityNotFoundException(UserService.generateNotFoundMessage(username)));
+        .orElseThrow(
+            () -> new EntityNotFoundException(UserService.generateNotFoundMessage(username)));
 
     Meal meal = new Meal();
     meal.setName(mealRequest.name());

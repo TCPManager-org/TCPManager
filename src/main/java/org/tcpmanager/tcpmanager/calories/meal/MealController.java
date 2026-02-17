@@ -1,20 +1,18 @@
 package org.tcpmanager.tcpmanager.calories.meal;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
-
 import java.security.Principal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.tcpmanager.tcpmanager.calories.meal.dto.MealPatch;
@@ -29,9 +27,9 @@ public class MealController {
   private final MealService mealService;
 
   @GetMapping(produces = "application/json")
-  public List<MealResponse> getMeals(@RequestParam(required = false) @Min(1) Integer minIngredients,
-                                     @RequestParam(required = false) @Min(1) Integer maxIngredients, Principal principal) {
-    return mealService.getMeals(minIngredients, maxIngredients, principal.getName());
+  public List<MealResponse> getMeals(Principal principal,
+      @Valid @ModelAttribute MealFilters mealFilters) {
+    return mealService.getMeals(principal.getName(), mealFilters);
   }
 
   @GetMapping(value = "/{id}", produces = "application/json")
