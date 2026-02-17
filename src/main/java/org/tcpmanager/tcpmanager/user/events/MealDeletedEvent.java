@@ -5,7 +5,7 @@ import java.sql.Date;
 import org.springframework.modulith.NamedInterface;
 
 @NamedInterface
-public record MealDeletedEvent(Date date, String username, BigDecimal calories, BigDecimal protein,
+public record MealDeletedEvent(Date date, String username, Integer calories, BigDecimal protein,
                                BigDecimal fat, BigDecimal carbs) {
 
 }

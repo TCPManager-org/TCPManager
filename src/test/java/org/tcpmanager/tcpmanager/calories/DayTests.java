@@ -72,7 +72,7 @@ class DayTests {
     mi1.setMeal(meal);
     Ingredient ing1 = new Ingredient();
     ing1.setName("Test Ingredient1");
-    ing1.setCalories(BigDecimal.valueOf(100));
+    ing1.setCalories(100);
     ing1.setFats(BigDecimal.valueOf(10));
     ing1.setCarbs(BigDecimal.valueOf(20));
     ing1.setProteins(BigDecimal.valueOf(30));
@@ -84,7 +84,7 @@ class DayTests {
     mi2.setMeal(meal);
     Ingredient ing2 = new Ingredient();
     ing2.setName("Test Ingredient2");
-    ing2.setCalories(BigDecimal.valueOf(1000));
+    ing2.setCalories(1000);
     ing2.setFats(BigDecimal.valueOf(100));
     ing2.setCarbs(BigDecimal.valueOf(200));
     ing2.setProteins(BigDecimal.valueOf(300));
@@ -104,7 +104,7 @@ class DayTests {
     mi1.setMeal(meal2);
     Ingredient ing1 = new Ingredient();
     ing1.setName("Test Ingredient11");
-    ing1.setCalories(BigDecimal.valueOf(100));
+    ing1.setCalories(100);
     ing1.setFats(BigDecimal.valueOf(10));
     ing1.setCarbs(BigDecimal.valueOf(20));
     ing1.setProteins(BigDecimal.valueOf(30));

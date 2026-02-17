@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Min;
 import java.math.BigDecimal;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-public record IntakeHistoryPatch(@DecimalMin(value = "0", inclusive = false) BigDecimal calories,
+  public record IntakeHistoryPatch(@Min(1) Integer calories,
                                  @DecimalMin(value = "0", inclusive = false) BigDecimal protein,
                                  @DecimalMin(value = "0", inclusive = false) BigDecimal fat,
                                  @DecimalMin(value = "0", inclusive = false) BigDecimal carbs,

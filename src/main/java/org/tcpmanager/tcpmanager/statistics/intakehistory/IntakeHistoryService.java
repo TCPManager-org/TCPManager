@@ -180,12 +180,12 @@ public class IntakeHistoryService {
               "There is no prior intake history for user " + event.username()));
       User user = userRepository.findByUsername(event.username()).orElseThrow(
           () -> new EntityNotFoundException(UserService.generateNotFoundMessage(event.username())));
-      intakeHistory = new IntakeHistory(null, event.date(), BigDecimal.ZERO, BigDecimal.ZERO,
+      intakeHistory = new IntakeHistory(null, event.date(), 0, BigDecimal.ZERO,
           BigDecimal.ZERO, BigDecimal.ZERO, intakeHistoryPrior.getCaloriesGoal(),
           intakeHistoryPrior.getProteinGoal(), intakeHistoryPrior.getFatGoal(),
           intakeHistoryPrior.getCarbsGoal(), user);
     }
-    intakeHistory.setCalories(intakeHistory.getCalories().add(event.calories()));
+    intakeHistory.setCalories(intakeHistory.getCalories()+event.calories());
     intakeHistory.setProtein(intakeHistory.getProtein().add(event.protein()));
     intakeHistory.setFat(intakeHistory.getFat().add(event.fat()));
     intakeHistory.setCarbs(intakeHistory.getCarbs().add(event.carbs()));
@@ -200,7 +200,7 @@ public class IntakeHistoryService {
         .filter(ih -> ih.getUser().getUsername().equals(event.username())).findFirst().orElseThrow(
             () -> new EntityNotFoundException(
                 generateNotFoundMessage(event.username(), event.date())));
-    intakeHistory.setCalories(intakeHistory.getCalories().subtract(event.calories()));
+    intakeHistory.setCalories(intakeHistory.getCalories()-event.calories());
     intakeHistory.setProtein(intakeHistory.getProtein().subtract(event.protein()));
     intakeHistory.setFat(intakeHistory.getFat().subtract(event.fat()));
     intakeHistory.setCarbs(intakeHistory.getCarbs().subtract(event.carbs()));

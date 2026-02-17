@@ -58,15 +58,15 @@ public class DayService {
   }
 
   public List<DayResponse> getAllDays(String username) {
-    return dayRepository.findAll().stream().filter(day -> day.getUser().getUsername()
-        .equals(username)).map(DayService::mapToDayResponse).toList();
+    return dayRepository.findAll().stream()
+        .filter(day -> day.getUser().getUsername().equals(username))
+        .map(DayService::mapToDayResponse).toList();
   }
 
   @Transactional
   public DayResponse addMealToDay(DayMealRequest dayMealRequest, String username) {
     User user = userRepository.findByUsername(username).orElseThrow(
-        () -> new EntityNotFoundException(
-            UserService.generateNotFoundMessage(username)));
+        () -> new EntityNotFoundException(UserService.generateNotFoundMessage(username)));
     Optional<Day> dayOptional = dayRepository.findByDateAndUserUsername(dayMealRequest.date(),
         username);
     Day day;
@@ -135,8 +135,7 @@ public class DayService {
         .setScale(2, RoundingMode.HALF_EVEN)
         .divide(BigDecimal.valueOf(dayMeal.getWeight()), RoundingMode.HALF_EVEN);
     eventPublisher.publishEvent(
-        new MealDeletedEvent(day.getDate(), username,
-            mealResponse.calories().divide(factor, RoundingMode.HALF_EVEN),
+        new MealDeletedEvent(day.getDate(), username, mealResponse.calories() / factor.intValue(),
             mealResponse.proteins().divide(factor, RoundingMode.HALF_EVEN),
             mealResponse.fats().divide(factor, RoundingMode.HALF_EVEN),
             mealResponse.carbs().divide(factor, RoundingMode.HALF_EVEN)));
@@ -176,8 +175,7 @@ public class DayService {
         .setScale(2, RoundingMode.HALF_EVEN)
         .divide(BigDecimal.valueOf(dayMealRequest.weight()), RoundingMode.HALF_EVEN);
     eventPublisher.publishEvent(
-        new MealAddedEvent(day.getDate(), username,
-            mealResponse.calories().divide(factor, RoundingMode.HALF_EVEN),
+        new MealAddedEvent(day.getDate(), username, mealResponse.calories() / factor.intValue(),
             mealResponse.proteins().divide(factor, RoundingMode.HALF_EVEN),
             mealResponse.fats().divide(factor, RoundingMode.HALF_EVEN),
             mealResponse.carbs().divide(factor, RoundingMode.HALF_EVEN)));
