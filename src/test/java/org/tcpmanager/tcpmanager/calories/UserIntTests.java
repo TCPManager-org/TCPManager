@@ -337,4 +337,11 @@ class UserIntTests {
     assertTrue(user.isPresent());
     assertEquals(Role.USER, user.get().getRole());
   }
+  @Test
+  void getAllUsers_admin() throws Exception {
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/users")
+            .with(user(ADMIN_USERNAME).roles("ADMIN")))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()").value(2));
+  }
 }
