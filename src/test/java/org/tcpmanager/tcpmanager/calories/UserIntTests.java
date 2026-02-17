@@ -342,6 +342,6 @@ class UserIntTests {
     mockMvc.perform(MockMvcRequestBuilders.get("/api/users")
             .with(user(ADMIN_USERNAME).roles("ADMIN")))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.length()").value(2));
+        .andExpect(jsonPath("$.length()").value(userRepository.findAll().size()));
   }
 }
