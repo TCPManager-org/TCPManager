@@ -11,7 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.sql.Date;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.tcpmanager.tcpmanager.user.User;
