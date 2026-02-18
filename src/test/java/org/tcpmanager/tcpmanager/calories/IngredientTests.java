@@ -80,7 +80,7 @@ class IngredientTests {
     mealIngredient1.setMeal(meal);
     Ingredient ingredient1 = new Ingredient();
     ingredient1.setName("Test Ingredient1");
-    ingredient1.setCalories(BigDecimal.valueOf(100));
+    ingredient1.setCalories(100);
     ingredient1.setFats(BigDecimal.valueOf(10));
     ingredient1.setCarbs(BigDecimal.valueOf(20));
     ingredient1.setProteins(BigDecimal.valueOf(30));
@@ -95,7 +95,7 @@ class IngredientTests {
     mealIngredient2.setMeal(meal);
     Ingredient ingredient2 = new Ingredient();
     ingredient2.setName("Test Ingredient2");
-    ingredient2.setCalories(BigDecimal.valueOf(1000));
+    ingredient2.setCalories(1000);
     ingredient2.setFats(BigDecimal.valueOf(100));
     ingredient2.setCarbs(BigDecimal.valueOf(200));
     ingredient2.setProteins(BigDecimal.valueOf(300));
@@ -244,7 +244,7 @@ class IngredientTests {
     mockMvc.perform(
             MockMvcRequestBuilders.post("/api/calories/ingredients").contentType("application/json")
                 .content(json)).andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("Calories must be greater than 0"));
+        .andExpect(jsonPath("$.message").value("Calories must be greater than or equal to 1"));
   }
 
   @Test
@@ -358,7 +358,7 @@ class IngredientTests {
     Ingredient ingredient = new Ingredient();
     ingredient.setName("Test Ingredient");
     ingredient.setEan("0123456789012");
-    ingredient.setCalories(BigDecimal.valueOf(1));
+    ingredient.setCalories(1);
     ingredient.setFats(BigDecimal.valueOf(2));
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
@@ -386,7 +386,7 @@ class IngredientTests {
     Ingredient ingredient = new Ingredient();
     ingredient.setName("Test Ingredient");
     ingredient.setEan("1234567890123");
-    ingredient.setCalories(BigDecimal.valueOf(1));
+    ingredient.setCalories(1);
     ingredient.setFats(BigDecimal.valueOf(2));
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
@@ -396,7 +396,7 @@ class IngredientTests {
     Ingredient ingredient2 = new Ingredient();
     ingredient2.setName("Test Ingredient2");
     ingredient2.setEan("2345678901234");
-    ingredient2.setCalories(BigDecimal.valueOf(10));
+    ingredient2.setCalories(10);
     ingredient2.setFats(BigDecimal.valueOf(20));
     ingredient2.setCarbs(BigDecimal.valueOf(30));
     ingredient2.setProteins(BigDecimal.valueOf(40));
@@ -422,7 +422,7 @@ class IngredientTests {
     Ingredient ingredient = new Ingredient();
     ingredient.setName("Test Ingredient");
     ingredient.setEan("1234567890123");
-    ingredient.setCalories(BigDecimal.valueOf(1));
+    ingredient.setCalories(1);
     ingredient.setFats(BigDecimal.valueOf(2));
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
@@ -432,7 +432,7 @@ class IngredientTests {
     Ingredient ingredient2 = new Ingredient();
     ingredient2.setName("Test Ingredient2");
     ingredient2.setEan("2345678901234");
-    ingredient2.setCalories(BigDecimal.valueOf(10));
+    ingredient2.setCalories(10);
     ingredient2.setFats(BigDecimal.valueOf(20));
     ingredient2.setCarbs(BigDecimal.valueOf(30));
     ingredient2.setProteins(BigDecimal.valueOf(40));
@@ -449,7 +449,7 @@ class IngredientTests {
     Ingredient ingredient = new Ingredient();
     ingredient.setName("Test Ingredient");
     ingredient.setEan("1234567890123");
-    ingredient.setCalories(BigDecimal.valueOf(1));
+    ingredient.setCalories(1);
     ingredient.setFats(BigDecimal.valueOf(2));
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
@@ -459,7 +459,7 @@ class IngredientTests {
     Ingredient ingredient2 = new Ingredient();
     ingredient2.setName("Test Ingredient2");
     ingredient2.setEan("2345678901234");
-    ingredient2.setCalories(BigDecimal.valueOf(10));
+    ingredient2.setCalories(10);
     ingredient2.setFats(BigDecimal.valueOf(20));
     ingredient2.setCarbs(BigDecimal.valueOf(30));
     ingredient2.setProteins(BigDecimal.valueOf(40));
@@ -520,7 +520,7 @@ class IngredientTests {
     Ingredient ingredient = new Ingredient();
     ingredient.setName("Test Ingredient");
     ingredient.setEan("1234567890123");
-    ingredient.setCalories(BigDecimal.valueOf(1));
+    ingredient.setCalories(1);
     ingredient.setFats(BigDecimal.valueOf(2));
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
@@ -538,7 +538,7 @@ class IngredientTests {
     Ingredient ingredient = new Ingredient();
     ingredient.setName("Test Ingredient");
     ingredient.setEan("1234567890123");
-    ingredient.setCalories(BigDecimal.valueOf(1));
+    ingredient.setCalories(1);
     ingredient.setFats(BigDecimal.valueOf(2));
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
@@ -567,7 +567,7 @@ class IngredientTests {
     Ingredient ingredient = new Ingredient();
     ingredient.setName("Test Ingredient");
     ingredient.setEan("1234567890123");
-    ingredient.setCalories(BigDecimal.valueOf(1));
+    ingredient.setCalories(1);
     ingredient.setFats(BigDecimal.valueOf(2));
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
@@ -590,7 +590,7 @@ class IngredientTests {
     Ingredient ingredient = new Ingredient();
     ingredient.setName("Test Ingredient");
     ingredient.setEan("1234567890123");
-    ingredient.setCalories(BigDecimal.valueOf(1));
+    ingredient.setCalories(1);
     ingredient.setFats(BigDecimal.valueOf(2));
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
@@ -614,7 +614,7 @@ class IngredientTests {
     Ingredient ingredient = new Ingredient();
     ingredient.setName("Test Ingredient");
     ingredient.setEan("1234567890123");
-    ingredient.setCalories(BigDecimal.valueOf(1));
+    ingredient.setCalories(1);
     ingredient.setFats(BigDecimal.valueOf(2));
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
@@ -637,7 +637,7 @@ class IngredientTests {
     Ingredient ingredient = new Ingredient();
     ingredient.setName("Test Ingredient");
     ingredient.setEan("1234567890123");
-    ingredient.setCalories(BigDecimal.valueOf(1));
+    ingredient.setCalories(1);
     ingredient.setFats(BigDecimal.valueOf(2));
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));
@@ -660,7 +660,7 @@ class IngredientTests {
     Ingredient ingredient = new Ingredient();
     ingredient.setName("Test Ingredient");
     ingredient.setEan("1234567890123");
-    ingredient.setCalories(BigDecimal.valueOf(1));
+    ingredient.setCalories(1);
     ingredient.setFats(BigDecimal.valueOf(2));
     ingredient.setCarbs(BigDecimal.valueOf(3));
     ingredient.setProteins(BigDecimal.valueOf(4));

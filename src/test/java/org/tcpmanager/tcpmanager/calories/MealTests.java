@@ -76,7 +76,7 @@ class MealTests {
     mealIngredient1.setMeal(meal);
     Ingredient ingredient1 = new Ingredient();
     ingredient1.setName("Test Ingredient1");
-    ingredient1.setCalories(BigDecimal.valueOf(100));
+    ingredient1.setCalories(100);
     ingredient1.setFats(BigDecimal.valueOf(10));
     ingredient1.setCarbs(BigDecimal.valueOf(20));
     ingredient1.setProteins(BigDecimal.valueOf(30));
@@ -89,7 +89,7 @@ class MealTests {
     mealIngredient2.setMeal(meal);
     Ingredient ingredient2 = new Ingredient();
     ingredient2.setName("Test Ingredient2");
-    ingredient2.setCalories(BigDecimal.valueOf(1000));
+    ingredient2.setCalories(1000);
     ingredient2.setFats(BigDecimal.valueOf(100));
     ingredient2.setCarbs(BigDecimal.valueOf(200));
     ingredient2.setProteins(BigDecimal.valueOf(300));
@@ -108,7 +108,7 @@ class MealTests {
     mealIngredient1.setMeal(meal2);
     Ingredient ingredient1 = new Ingredient();
     ingredient1.setName("Test Ingredient11");
-    ingredient1.setCalories(BigDecimal.valueOf(100));
+    ingredient1.setCalories(100);
     ingredient1.setFats(BigDecimal.valueOf(10));
     ingredient1.setCarbs(BigDecimal.valueOf(20));
     ingredient1.setProteins(BigDecimal.valueOf(30));
@@ -143,7 +143,7 @@ class MealTests {
     meal = mealRepository.save(meal);
     mockMvc.perform(MockMvcRequestBuilders.get("/api/calories/meals")).andExpect(status().isOk())
         .andExpect(jsonPath("$.size()").value(1)).andExpect(jsonPath("$[0].id").value(meal.getId()))
-        .andExpect(jsonPath("$[0].calories").value(BigDecimal.valueOf(1100.0)))
+        .andExpect(jsonPath("$[0].calories").value(550))
         .andExpect(jsonPath("$[0].ingredients.size()").value(2));
   }
 
@@ -169,23 +169,25 @@ class MealTests {
 
   @Test
   void addMeal_ShouldCreateMeal() throws Exception {
-    createUser();
+    User user = createUser();
     Ingredient ingredient1 = new Ingredient();
     ingredient1.setName("Test Ingredient1");
-    ingredient1.setCalories(BigDecimal.valueOf(100));
+    ingredient1.setCalories(100);
     ingredient1.setFats(BigDecimal.valueOf(10));
     ingredient1.setCarbs(BigDecimal.valueOf(20));
     ingredient1.setProteins(BigDecimal.valueOf(30));
     ingredient1.setEan("0123456789012");
+    ingredient1.setUser(user);
     ingredient1 = ingredientRepository.save(ingredient1);
 
     Ingredient ingredient2 = new Ingredient();
     ingredient2.setName("Test Ingredient2");
-    ingredient2.setCalories(BigDecimal.valueOf(1000));
+    ingredient2.setCalories(1000);
     ingredient2.setFats(BigDecimal.valueOf(100));
     ingredient2.setCarbs(BigDecimal.valueOf(200));
     ingredient2.setProteins(BigDecimal.valueOf(300));
     ingredient2.setEan("2345678901234");
+    ingredient2.setUser(user);
     ingredient2 = ingredientRepository.save(ingredient2);
 
     String mealJson = """
@@ -202,7 +204,7 @@ class MealTests {
             MockMvcRequestBuilders.post("/api/calories/meals").contentType("application/json")
                 .content(mealJson)).andExpect(status().isCreated())
         .andExpect(jsonPath("$.name").value("New Meal"))
-        .andExpect(jsonPath("$.calories").value(2150.0))
+        .andExpect(jsonPath("$.calories").value(614))
         .andExpect(jsonPath("$.ingredients.size()").value(2));
   }
 
@@ -229,7 +231,7 @@ class MealTests {
     createUser();
     Ingredient ingredient1 = new Ingredient();
     ingredient1.setName("Test Ingredient1");
-    ingredient1.setCalories(BigDecimal.valueOf(100));
+    ingredient1.setCalories(100);
     ingredient1.setFats(BigDecimal.valueOf(10));
     ingredient1.setCarbs(BigDecimal.valueOf(20));
     ingredient1.setProteins(BigDecimal.valueOf(30));
@@ -299,11 +301,12 @@ class MealTests {
 
     Ingredient ingredient3 = new Ingredient();
     ingredient3.setName("Test Ingredient3");
-    ingredient3.setCalories(BigDecimal.valueOf(500));
+    ingredient3.setCalories(500);
     ingredient3.setFats(BigDecimal.valueOf(50));
     ingredient3.setCarbs(BigDecimal.valueOf(60));
     ingredient3.setProteins(BigDecimal.valueOf(70));
     ingredient3.setEan("3456789012345");
+    ingredient3.setUser(user);
     ingredient3 = ingredientRepository.save(ingredient3);
 
     String mealPatchJson = """
@@ -410,7 +413,7 @@ class MealTests {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.size()").value(1))
         .andExpect(jsonPath("$[0].id").value(meal1.getId()))
-        .andExpect(jsonPath("$[0].calories").value(BigDecimal.valueOf(1100.0)))
+        .andExpect(jsonPath("$[0].calories").value(550))
         .andExpect(jsonPath("$[0].ingredients.size()").value(2));
   }
 
@@ -430,7 +433,7 @@ class MealTests {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.size()").value(1))
         .andExpect(jsonPath("$[0].id").value(meal2.getId()))
-        .andExpect(jsonPath("$[0].calories").value(BigDecimal.valueOf(100.0)))
+        .andExpect(jsonPath("$[0].calories").value(100))
         .andExpect(jsonPath("$[0].ingredients.size()").value(1));
   }
 }

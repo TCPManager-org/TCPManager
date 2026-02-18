@@ -24,8 +24,8 @@ public class Ingredient {
   @Column(nullable = false, unique = true)
   private String name;
 
-  @Column(nullable = false, precision = 10, scale = 2)
-  private BigDecimal calories;
+  @Column(nullable = false)
+  private Integer calories;
 
   @Column(nullable = false, precision = 10, scale = 2)
   private BigDecimal fats;
