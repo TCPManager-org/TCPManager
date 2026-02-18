@@ -162,7 +162,7 @@ class DayTests {
         .andExpect(jsonPath("$.dayMeals[0].mealType").value("BREAKFAST"))
         .andExpect(jsonPath("$.dayMeals[0].meal.id").value(meal.getId()))
         .andExpect(jsonPath("$.dayMeals[0].meal.name").value("Test Meal"))
-        .andExpect(jsonPath("$.dayMeals[0].meal.calories").value(1100.0))
+        .andExpect(jsonPath("$.dayMeals[0].meal.calories").value(550))
         .andExpect(jsonPath("$.dayMeals[0].meal.ingredients.size()").value(2));
   }
 
@@ -221,7 +221,7 @@ class DayTests {
         .andExpect(jsonPath("$[0].dayMeals.size()").value(1))
         .andExpect(jsonPath("$[0].dayMeals[0].mealType").value("BREAKFAST"))
         .andExpect(jsonPath("$[0].dayMeals[0].meal.name").value("Test Meal"))
-        .andExpect(jsonPath("$[0].dayMeals[0].meal.calories").value(1100.0));
+        .andExpect(jsonPath("$[0].dayMeals[0].meal.calories").value(550));
   }
 
   @Test
@@ -348,7 +348,7 @@ class DayTests {
             .contentType("application/json").content(updateJson)).andExpect(status().isOk())
         .andExpect(jsonPath("$.dayMeals[0].weight").value(200))
         .andExpect(jsonPath("$.dayMeals[0].mealType").value("DINNER"))
-        .andExpect(jsonPath("$.dayMeals[0].meal.calories").value(1100.0));
+        .andExpect(jsonPath("$.dayMeals[0].meal.calories").value(550));
   }
 
   @Test
